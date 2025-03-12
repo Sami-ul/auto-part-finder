@@ -1,7 +1,7 @@
 # auto-part-finder
 Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 
-To do feature based branching
+## Branching rules 
 - When you start working on something new, do `git branch -b feature_name`
     - This creates a new branch on your local repository
 - Then once you are done `git add .`, `git commit -m "feature description"`
