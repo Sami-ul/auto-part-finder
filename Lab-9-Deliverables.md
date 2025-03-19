@@ -69,7 +69,7 @@ We will use feature-based branching (see Github)
 **Communication Plan**: We will use Discord as our primary channel of communication.
 
 **Meeting Plan**:
- - Team Meeting: Sunday at 6PM Weekly on Discord
+ - Team Meeting: Sunday at 6PM weekly
  - Weekly Meeting with TA: Wednesday @ 12:55 PM
  
 **Use-Case Diagram**:
