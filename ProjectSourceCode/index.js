@@ -58,6 +58,13 @@ app.use(
 );
 
 /* Routes */
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+});
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
 
 /* Start Server */
 app.listen(3000);
