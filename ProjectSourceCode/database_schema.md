@@ -1,4 +1,5 @@
 # Car Parts Application UML Diagram
+## Download Markdown Preview Mermaid Support Extension and click "Preview File" to view properly
 
 ```mermaid
 classDiagram
