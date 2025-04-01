@@ -58,12 +58,46 @@ app.use(
 );
 
 /* Routes */
+
+
 app.get('/login', (req, res) => {
   res.render('pages/login');
+});
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  try {
+    db.one("SELECT * FROM users WHERE username=$1", [username]).then(async (data) => {
+      const match = await bcrypt.compare(password, data.password);
+      if (match) {
+        req.session.user = username;
+        req.session.save();
+        // TODO: Redirect to the main page or dashboard after successful login
+        // res.redirect("/");
+      } else {
+        // Passwords do not match, send them to login with an error
+        res.render("pages/login", { message: "Invalid username or password" });
+      }
+    });
+  } catch (error) {
+    res.render("pages/login", { message: "Invalid username or password" });
+    console.log(error);
+  }
 });
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
+});
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  db.none('INSERT INTO apf_users(username, password) VALUES($1, $2)', [username, hashedPassword])
+    .then(() => {
+      res.redirect('/login');
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).send('Error registering user');
+    });
 });
 
 /* Start Server */
