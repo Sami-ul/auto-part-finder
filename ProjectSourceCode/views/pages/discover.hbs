@@ -1,0 +1,86 @@
+{{!-- Discover page should be the initial landing page instead of the login/register page
+This should render differently when logged out vs. logged in. --}}
+
+<div class="center-search py-3 pb-md-4 mx-auto text-center">
+    <h1 class="display-4 fw-normal text-body-emphasis">Discover</h1>
+    <p class="fs-5 text-body-secondary">
+        Quickly find popular parts that are available in your area.
+    </p>
+
+    {{!-- API routes should go here --}}
+    <div class="input-group mb-3">
+        <select class="form-select form-select-lg" aria-label="Make select option">
+            <option selected>Make</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+
+        {{!-- Depending on make, this should be filtered if possible--}}
+        <select class="form-select form-select-lg" aria-label="Model select option">
+            <option selected>Model</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+
+        {{!-- Year should also be filtered if possible --}}
+        <select class="form-select form-select-lg" aria-label="Year select option">
+            <option selected>Year</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+
+        {{!-- API calls to rockauto includes engine type which should be filtered if the person knows the engine type. --}}
+        <select class="form-select form-select-lg" aria-label="Engine select option">
+            <option selected>Engine</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+
+        {{!-- button class should call POST here --}}
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+
+    </div>
+</div>
+
+
+<main>
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+
+        {{!-- API routes should go here --}}
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Heading</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">Car name</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Heading</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">Car name</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Heading</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">Car name</h1>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
