@@ -1,6 +1,25 @@
 // ********************** Initialize server **********************************
 
 const server = require('../index'); //TODO: Make sure the path to your index.js is correctly added
+const pgp = require('pg-promise')();
+const dbConfig = {
+    host: 'db',
+    port: 5432,
+    database: process.env.POSTGRES_DB,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD
+};
+
+const db = pgp(dbConfig);
+db.connect()
+    .then(obj => {
+        console.log('Database connection successful');
+        obj.done();
+    })
+    .catch(error => {
+        console.log('ERROR', error_message || error);
+    });
+
 
 // ********************** Import Libraries ***********************************
 
@@ -8,25 +27,54 @@ const chai = require('chai'); // Chai HTTP provides an interface for live integr
 const chaiHttp = require('chai-http');
 chai.should();
 chai.use(chaiHttp);
-const {assert, expect} = chai;
+const { assert, expect } = chai;
 
 // ********************** DEFAULT WELCOME TESTCASE ****************************
 
 describe('Server!', () => {
-  // Sample test case given to test / endpoint.
-  it('Returns the default welcome message', done => {
-    chai
-      .request(server)
-      .get('/welcome')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body.status).to.equals('success');
-        assert.strictEqual(res.body.message, 'Welcome!');
-        done();
-      });
-  });
+    // Sample test case given to test / endpoint.
+    it('Returns the default welcome message', done => {
+        chai
+            .request(server)
+            .get('/welcome')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.body.status).to.equals('success');
+                assert.strictEqual(res.body.message, 'Welcome!');
+                done();
+            });
+    });
 });
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
+describe('Testing Register API', () => {
+    // Clean up before testing
+    before(done => {
+        db.none('DELETE FROM users WHERE email = $1', ['Jdoe@gmail.com'])
+            .then(() => {
+                console.log('User deleted successfully');
+                done();
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+                done(error);
+            });
+    });
+
+    it('positive : /register', done => {
+        chai
+            .request(server)
+            .post('/register')
+            .redirects(0)  // Prevent automatic redirect following
+            .send({ email: "Jdoe@gmail.com", username: 'JohnDoe', password: '123456' })
+            .end((err, res) => {
+                expect(res).to.have.status(302);
+                expect(res).to.redirectTo(/\/login$/);
+                done();
+            });
+    });
+});
+
+
 
 // ********************************************************************************
