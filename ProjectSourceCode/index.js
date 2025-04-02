@@ -94,6 +94,10 @@ app.get('/discover', (req,res) => {
   res.render('pages/discover');
 });
 
+app.get('/logout', (req,res) => {
+  res.render('pages/logout');
+});
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
 });
