@@ -25,3 +25,4 @@ services:
     command: 'npm run testandrun'
 volumes:
   auto-parts-finder:
+  #make run on container not local
