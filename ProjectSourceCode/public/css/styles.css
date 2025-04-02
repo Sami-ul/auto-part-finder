@@ -16,10 +16,11 @@
 .navbar-brand {
     font-size: 22px;
     font-weight: bold;
-    color: black;
+    color: pink;
 }
 
 #test
 {
     color: pink;
+    background-color: aqua;
 }
