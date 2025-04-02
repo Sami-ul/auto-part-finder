@@ -65,11 +65,23 @@ describe('Testing Register API', () => {
         chai
             .request(server)
             .post('/register')
-            .redirects(0)  // Prevent automatic redirect following
+            .redirects(0) 
             .send({ email: "Jdoe@gmail.com", username: 'JohnDoe', password: '123456' })
             .end((err, res) => {
                 expect(res).to.have.status(302);
                 expect(res).to.redirectTo(/\/login$/);
+                done();
+            });
+    });
+    it('negative : /register', done => {
+        chai
+            .request(server)
+            .post('/register')
+            .redirects(0) 
+            .send({ email: "Jdoe@gmail.com", username: "JohnDoe", password: "123456" }) // duplicate
+            .end((err, res) => {
+                expect(res).to.have.status(500);
+                expect(res.text).to.include('Error registering user');
                 done();
             });
     });
