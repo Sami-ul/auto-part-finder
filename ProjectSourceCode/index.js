@@ -63,6 +63,7 @@ app.use(
 app.get('/login', (req, res) => {
   res.render('pages/login');
 });
+
 app.post('/login', async (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
@@ -89,9 +90,14 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.get('/discover', (req,res) => {
+  res.render('pages/discover');
+});
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
 });
+
 app.post('/register', async (req, res) => {
   const {email, username, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
