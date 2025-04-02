@@ -105,6 +105,10 @@ app.post('/register', async (req, res) => {
     });
 });
 
+app.get('/', (req,res) => {
+  res.render('pages/discover');
+});
+
 /* Start Server */
 app.listen(3000);
 console.log('Server is listening on port 3000');
