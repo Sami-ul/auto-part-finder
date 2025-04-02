@@ -1,0 +1,6 @@
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="pwd"
+POSTGRES_DB="users_db"
+
+SESSION_SECRET="asd"
+API_KEY="key"
