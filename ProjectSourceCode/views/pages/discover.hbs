@@ -1,52 +1,58 @@
 {{!-- Discover page should be the initial landing page instead of the login/register page
 This should render differently when logged out vs. logged in. --}}
-
-<div class="center-search py-3 pb-md-4 mx-auto text-center">
-    <h1 id="test" class="display-4 fw-normal text-body-emphasis">Discover</h1>
-    <p class="fs-5 text-body-secondary">
-        Quickly find popular parts that are available in your area.
-    </p>
-
-    {{!-- API routes should go here --}}
-    <div class="input-group mb-3">
-        <select class="form-select form-select-lg" aria-label="Make select option">
-            <option selected>Make</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
-
-        {{!-- Depending on make, this should be filtered if possible--}}
-        <select class="form-select form-select-lg" aria-label="Model select option">
-            <option selected>Model</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
-
-        {{!-- Year should also be filtered if possible --}}
-        <select class="form-select form-select-lg" aria-label="Year select option">
-            <option selected>Year</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
-
-        {{!-- API calls to rockauto includes engine type which should be filtered if the person knows the engine type. --}}
-        <select class="form-select form-select-lg" aria-label="Engine select option">
-            <option selected>Engine</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
-
-        {{!-- button class should call POST here --}}
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-
+<body>
+    <div class="search-container">
+        <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
+        <input type="text" class="search-input" placeholder="Search for parts">
+        <button class="search-button">Search</button>
     </div>
-</div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    {{!-- Needs filtering model based on make, engine based on make and model --}}
+    <div class="popup" id="vehiclePopup">
+        <h2>Choose a Vehicle</h2>
+        <select id="year">
+            <option value="">Year</option>
+            <option>2024</option>
+            <option>2023</option>
+            <option>2022</option>
+        </select>
+        <select id="make">
+            <option>Make</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+        </select>
+        <select id="model">
+            <option>Model</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+        </select>
+        <select id="engine">
+            <option>Engine</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+        </select>
+        <button id="closePopup">Close</button>
+    </div>
 
+    <script>
+        // Open the popup when the "Choose a Vehicle" button is clicked
+        document.getElementById("chooseVehicle").addEventListener("click", function() {
+            document.getElementById("vehiclePopup").classList.add("active");
+            document.getElementById("overlay").classList.add("active");
+        });
 
+        // Close the popup when the "Close" button is clicked
+        document.getElementById("closePopup").addEventListener("click", function() {
+            document.getElementById("vehiclePopup").classList.remove("active");
+            document.getElementById("overlay").classList.remove("active");
+        });
+    </script>
+</body>
 <main>
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
 
@@ -84,3 +90,7 @@ This should render differently when logged out vs. logged in. --}}
 
     </div>
 </main>
+
+
+
+</html>

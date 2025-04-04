@@ -1,26 +1,180 @@
-.navbar {
+/* NAVBAR */
+.navbar { 
+    position: fixed;
+    top: 0;
+    left:0;
+    width: 100%;
     font-size: 18px;
-    padding: 10px 20px;
+    background-color: #f5dda7;
 }
 
+/* For the top right links: cart, login, logout */
 .navbar-nav .nav-link {
     padding: 10px 15px;
-    color: rgb(183, 20, 142);
-    transition: color 0.3s ease-in-out;
+    color: #e6823b;
 }
+
 
 .navbar-nav .nav-link:hover {
-    color: #f0ad4e; /* Bootstrap warning color */
+    color: #d45907; /* Bootstrap warning color */
 }
 
+/* For "Pocket Mechanics" top left corner */
 .navbar-brand {
     font-size: 22px;
     font-weight: bold;
-    color: pink;
+    color: #e6823b;
+    padding: 20px;
 }
 
-#test
-{
-    color: pink;
-    background-color: aqua;
+.navbar-brand:hover{
+    color: #d45907;
+}
+
+/* SEARCH BAR STYLING DISCOVER PAGE */
+main{
+    position: relative;
+    z-index: 1;
+}
+
+/* body contains search bar with choose vehicle and search button */
+body { 
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    height: 100%; 
+    background-color: #f5f5f5;
+    padding-top: 70px; 
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(117, 117, 117, 0.368);
+    padding: 10px;
+    margin-bottom: 50px;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    height: 60px;
+}
+
+.vehicle-button {
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vehicle-button:hover {
+    border-color: #ff6600;
+}
+
+.choose-vehicle {
+    flex: 0 0 120px;
+    border: none;
+    padding: 0 15px;
+    font-size: 16px;
+    background: #e6823b;
+    color: white;
+    cursor: pointer;
+    border-radius: 30px 0 0 30px;
+    white-space: nowrap;
+    border-right: 1px solid #ddd;
+    height: 45px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-top: 1px solid rgb(196, 195, 195);
+    border-bottom: 1px solid rgb(196, 195, 195);
+    height: 45px;
+}
+
+.search-button {
+    background: #e6823b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    font-size: 16px;
+    height: 45px;
+}
+.search-button:hover {
+    background: #e65c00;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    z-index: 1002;
+}
+
+.popup.active {
+    display: block;
+}
+
+.popup select {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+}
+
+.popup button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.popup button:hover{
+    background: #e65c00;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Car modals */
+.card {
+    height:400px;
 }
