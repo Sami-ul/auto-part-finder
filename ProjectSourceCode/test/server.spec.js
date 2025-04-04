@@ -100,6 +100,19 @@ describe('Testing Register API', () => {
 
 });
 
+describe('Discover', () => {
+    // Sample test case given to test / endpoint.
+    it('Renders the discover page', done => {
+        chai
+            .request(server)
+            .get('/discover')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.text).to.include('Quickly find popular parts that are available in your area');
+                done();
+            });
+    });
+});
 
 
 // ********************************************************************************

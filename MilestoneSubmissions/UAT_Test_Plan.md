@@ -146,25 +146,28 @@ Invalid Input:
 
 Test Cases
 
-1. Ship to Nearby Installation Shop
-   1. Login and add a compatible part to cart.
-   2. Proceed to checkout.
-   3. Choose "Ship to installation shop".
-   4. Select "QuickFit Garage" (verified shop).
-   5. Click "Continue".
-   6. Expected Result: System verifies the shop and allows user to proceed to payment.
+Ship to Nearby Installation Shop
 
-2. Ship to Home with Installation Videos Prompt
-   1. Login and add a part to cart.
-   2. Proceed to checkout.
-   3. Choose "Ship to home".
-   4. Enter Home Address: 123 Main St, Denver, CO 80202
-   5. Complete payment.
-   6. Expected Result: Order is placed, confirmation screen appears, and installation videos are suggested.
+1. Login and add a compatible part to cart.
+2. Proceed to checkout.
+3. Choose "Ship to installation shop".
+4. Select "QuickFit Garage" (verified shop).
+5. Click "Continue".
+6. Expected Result: System verifies the shop and allows user to proceed to payment.
 
-3. Invalid Shipping (No Address or Shop)
-   1. Login and add item to cart.
-   2. Proceed to checkout.
-   3. Select "Ship to home" but leave address field blank.
-   4. Try to continue.
-   5. Expected Result: User cannot proceed, and error message prompts for address input.
+Ship to Home with Installation Videos Prompt
+
+1. Login and add a part to cart.
+2. Proceed to checkout.
+3. Choose "Ship to home".
+4. Enter Home Address: 123 Main St, Denver, CO 80202
+5. Complete payment.
+6. Expected Result: Order is placed, confirmation screen appears, and installation videos are suggested.
+
+Invalid Shipping (No Address or Shop)
+
+1. Login and add item to cart.
+2. Proceed to checkout.
+3. Select "Ship to home" but leave address field blank.
+4. Try to continue.
+5. Expected Result: User cannot proceed, and error message prompts for address input.
