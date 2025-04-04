@@ -114,6 +114,47 @@ describe('Discover', () => {
             });
     });
 });
+describe('logged out : /cart', () => {
+    // Sample test case given to test / endpoint.
+    it('Checks if the cart redirects to /login if logged out', done => {
+        chai
+            .request(server)
+            .get('/cart')
+            .end((err, res) => {
+                expect(res).to.redirectTo(/\/login$/);
+                done();
+            });
+    });
+});
 
-
+describe('logged in : /cart', () => {
+    let agent;
+    
+    before(done => {
+        // simulate a login session
+        agent = chai.request.agent(server);
+        
+        agent
+            .post('/login')
+            .send({ username: 'JohnDoe', password: '12345678B' }) // pre made user
+            .end((err, res) => {
+                expect(res).to.redirectTo(/\/$/);
+                done();
+            });
+    });
+    
+    after(() => {
+        agent.close();
+    });
+    
+    it('Checks if the cart shows properly if logged in', done => {
+        agent
+            .get('/cart')
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.text).to.include('Your Cart');
+                done();
+            });
+    });
+});
 // ********************************************************************************

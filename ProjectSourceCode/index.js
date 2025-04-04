@@ -98,6 +98,14 @@ app.get('/logout', (req,res) => {
   res.render('pages/logout');
 });
 
+app.get('/cart', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  return res.render('pages/cart');
+});
+
+
 app.get('/register', (req, res) => {
   res.render('pages/register');
 });
