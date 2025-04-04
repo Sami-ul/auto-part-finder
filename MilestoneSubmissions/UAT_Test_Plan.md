@@ -3,14 +3,20 @@ A document that describes how three features in the application will be tested. 
 
 ## Environment
 Platform: Web application running on Docker containers.
+
 Environment: Local development environment.
+
 Browser: Chrome
+
 Database: PostgreSQL in Docker container
+
 CI/CD: Setup to automatically perform tests with Github Actions.
 
 ## User Acceptance Testers
 Internal Team Members: Rey, Eva, Nanda (representing developer perspective)
+
 External Testers: 2-3 non-technical users with automotive knowledge
+
 Testing Coordinator: Sami-ul (responsible for documenting test results)
 
 ## Feature 1: Adding Cars to Profile
@@ -107,3 +113,58 @@ Add a part to cart from search results
 1. Perform a successful parts search.
 2. For the first oil filter result, click "Add to Cart"
 3. Expected Result: Part is added to the user's cart, cart count in the navigation is updated, user receives a confirmation message
+
+## Feature 3: Shipping Options (Ship to Home / Ship to Nearby Installation Shop)
+- After selecting parts and proceeding to checkout, users should be able to choose a shipping option.
+- Users must be able to either:
+    - Ship parts to their home
+    - Ship parts to a nearby verified installation shop
+
+- If the user chooses "Ship to shop", the system should verify the installation shop and display available locations.
+- If "Ship to home" is selected, installation videos should be recommended.
+- The system should allow users to enter or select an address/shop before proceeding.
+
+Acceptance Criteria
+
+- User must select one shipping method before making payment.
+- If "Ship to shop" is selected:
+    - System must validate and list nearby installation shops.
+    - The installation shop must be verified before order confirmation.
+- If "Ship to home" is selected:
+    - System should prompt or recommend installation videos after checkout.
+    - User must not be able to proceed without providing a valid shipping address or shop selection.
+
+Test Data
+
+Valid Input:
+- Home Address: 123 Main St, Denver, CO 80202
+- Installation Shop: "QuickFit Garage", verified, 2 miles away
+
+Invalid Input:
+- No address provided
+- Unverified installation shop selected
+
+Test Cases
+
+1. Ship to Nearby Installation Shop
+   1. Login and add a compatible part to cart.
+   2. Proceed to checkout.
+   3. Choose "Ship to installation shop".
+   4. Select "QuickFit Garage" (verified shop).
+   5. Click "Continue".
+   6. Expected Result: System verifies the shop and allows user to proceed to payment.
+
+2. Ship to Home with Installation Videos Prompt
+   1. Login and add a part to cart.
+   2. Proceed to checkout.
+   3. Choose "Ship to home".
+   4. Enter Home Address: 123 Main St, Denver, CO 80202
+   5. Complete payment.
+   6. Expected Result: Order is placed, confirmation screen appears, and installation videos are suggested.
+
+3. Invalid Shipping (No Address or Shop)
+   1. Login and add item to cart.
+   2. Proceed to checkout.
+   3. Select "Ship to home" but leave address field blank.
+   4. Try to continue.
+   5. Expected Result: User cannot proceed, and error message prompts for address input.
