@@ -61,30 +61,43 @@ describe('Testing Register API', () => {
             });
     });
 
-    it('positive : /register', done => {
+    it('positive : /register. testing proper registration', done => {
         chai
             .request(server)
             .post('/register')
             .redirects(0) 
-            .send({ email: "Jdoe@gmail.com", username: 'JohnDoe', password: '123456' })
+            .send({ email: "Jdoe@gmail.com", username: 'JohnDoe', password: '12345678B' })
             .end((err, res) => {
                 expect(res).to.have.status(302);
                 expect(res).to.redirectTo(/\/login$/);
                 done();
             });
     });
-    it('negative : /register', done => {
+    it('negative : /register. testing duplicate registration', done => {
         chai
             .request(server)
             .post('/register')
             .redirects(0) 
-            .send({ email: "Jdoe@gmail.com", username: "JohnDoe", password: "123456" }) // duplicate
+            .send({ email: "Jdoe@gmail.com", username: "JohnDoe", password: "12345678B" }) // duplicate
             .end((err, res) => {
-                expect(res).to.have.status(500);
-                expect(res.text).to.include('Error registering user');
+                expect(res).to.have.status(400);
+                expect(res.text).to.include('Email already exists');
                 done();
             });
     });
+    it('negative : /register. testing invalid email', done => {
+        chai
+            .request(server)
+            .post('/register')
+            .redirects(0) 
+            .send({ email: 1, username: "JohnDoe", password: "12345678B" }) // duplicate
+            .end((err, res) => {
+                expect(res).to.have.status(400);
+                expect(res.text).to.include('Invalid email address');
+                done();
+            });
+    });
+
 });
 
 

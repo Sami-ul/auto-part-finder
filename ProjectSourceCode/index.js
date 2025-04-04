@@ -104,6 +104,32 @@ app.get('/register', (req, res) => {
 
 app.post('/register', async (req, res) => {
   const {email, username, password } = req.body;
+  // regex email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).send('Invalid email address');
+  }
+  // regex username validation
+  const usernameRegex = /^[a-zA-Z]+$/;
+  if (!usernameRegex.test(username)) {
+    return res.status(400).send('Invalid username');
+  }
+  // regex password validation
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    return res.status(400).send('Password must be at least 8 characters long and contain at least one letter and one number');
+  }
+  // check if email already exists
+  const existingUser = await db.oneOrNone('SELECT * FROM users WHERE email = $1', [email]);
+  if (existingUser) {
+    return res.status(400).send('Email already exists');
+  }
+  // check if username already exists
+  const existingUsername = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
+  if (existingUsername) {
+    return res.status(400).send('Username already exists');
+  }
+  
   const hashedPassword = await bcrypt.hash(password, 10);
   db.none('INSERT INTO users(email, username, password) VALUES($1, $2, $3)', [email, username, hashedPassword])
     .then(() => {
