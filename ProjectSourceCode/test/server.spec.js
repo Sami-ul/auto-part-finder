@@ -108,7 +108,8 @@ describe('Discover', () => {
             .get('/discover')
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.text).to.include('Quickly find popular parts that are available in your area');
+                expect(res.text).to.include('Choose Vehicle');
+                expect(res.text).to.include('Search');
                 done();
             });
     });
