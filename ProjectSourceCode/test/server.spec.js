@@ -114,7 +114,7 @@ describe('Discover', () => {
             });
     });
 });
-describe('logged out : /cart', () => {
+describe('negative : /cart. logged out', () => {
     // Sample test case given to test / endpoint.
     it('Checks if the cart redirects to /login if logged out', done => {
         chai
@@ -127,7 +127,7 @@ describe('logged out : /cart', () => {
     });
 });
 
-describe('logged in : /cart', () => {
+describe('positive : /cart. logged in', () => {
     let agent;
     
     before(done => {
