@@ -60,3 +60,50 @@ Negative
 6. Enter Year: "2019"
 7. Click "Save"
 8. Expected Result: Form submission is prevented, error message indicates make is required
+
+## Feature 2: Search for Car Parts
+- Users must be able to search for parts compatible with their vehicles
+- The system must display parts matching the search criteria
+- Users must be able to view detailed part information and pricing from at least one vendor
+- Parts should be pulled from ecommerce websites like Ebay and Amazon if development time permits, otherwise just from RockAutoParts.
+
+Acceptance Criteria
+
+- Search form must allow selection of make, model, year, and engine type
+- Search form must allow cars from your profile to be autofilled.
+- Search results must only show compatible parts
+- Search results must include part name, description, and pricing information
+- Users must be able to sort and filter search results
+- Users must be able to add parts to their cart directly from search results
+
+Test Data
+
+- Vehicle Data: Toyota Camry 2018
+- Parts Data: Oil filters, brake pads compatible with test vehicle
+- Vendor Data: Amazon, Advance Auto Parts with different pricing
+
+Test Cases
+
+Search for parts
+
+1. Search for parts using complete vehicle information
+2. Navigate to the discover page
+3. Select Make: "Toyota" from dropdown
+4. Select Model: "Camry" from dropdown
+5. Select Year: "2018" from dropdown
+6. Select Engine: "2.5L 4-cylinder" from dropdown
+7. Click "Search" button
+8. Expected Result: Search results display parts compatible with the selected vehicle, including oil filters and brake pads with pricing from multiple vendors
+
+Failed parts search
+
+1. Search for parts using incomplete vehicle information
+2. Navigate to the discover page
+3. Select Make: Do not select a make from dropdown
+4. Expected Result: The user should not be able to select a model or press the search button.
+
+Add a part to cart from search results
+
+1. Perform a successful parts search.
+2. For the first oil filter result, click "Add to Cart"
+3. Expected Result: Part is added to the user's cart, cart count in the navigation is updated, user receives a confirmation message
