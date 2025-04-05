@@ -13,7 +13,7 @@ Database: PostgreSQL in Docker container
 CI/CD: Setup to automatically perform tests with Github Actions.
 
 ## User Acceptance Testers
-Internal Team Members: Rey, Eva, Nanda (representing developer perspective)
+Internal Team Members: Rey, Eva, Nanda, Sabir (representing developer perspective)
 
 External Testers: 2-3 non-technical users with automotive knowledge
 
@@ -31,6 +31,7 @@ Acceptance Criteria
     - Make
     - Model
     - Year
+    - Engine type
 - Entered vehicle data should be stored in the database and associated with the user by foreign key.
 - User should be able to see their vehicle displayed in their profile after successful submission.
 - Users should be able to add multiple vehicles to their profile.
@@ -38,12 +39,12 @@ Acceptance Criteria
 Test Data
 
 Valid Data Set: 
-- Make: "Toyota", Model: "Camry", Year: "2018"
-- Make: "Honda", Model: "Civic", Year: "2020"
+- Make: "Toyota", Model: "Camry", Year: "2018", Engine: "2.5L 4-cylinder"
+- Make: "Honda", Model: "Civic", Year: "2020", Engine: "2.5L 4-cylinder"
 
 Invalid Data Set:
-- Missing make: "", Model: "Accord", Year: "2019"
-- Invalid year: Make: "Toyota", Model: "Corolla", Year: "202x"
+- Missing make: "", Model: "Accord", Year: "2019", Engine: "2.5L 4-cylinder"
+- Invalid year: Make: "Toyota", Model: "Corolla", Year: "202x", Engine: "2.5L 4-cylinder"
 
 Test Cases
 
@@ -53,7 +54,7 @@ Positive
 3. Click "Add New Vehicle" button
 4. Enter Make: "Toyota"
 5. Enter Model: "Camry"
-6. Enter Year: "2018"
+6. Enter Year: "2018", enter Engine: "2.5L 4-cylinder"
 7. Click "Save"
 8. Expected Result: Vehicle is added to the profile, user is redirected to their vehicles list, which includes the newly added vehicle
 
@@ -63,7 +64,7 @@ Negative
 3. Click "Add New Vehicle" button
 4. Enter Make: ""
 5. Enter Model: "Accord"
-6. Enter Year: "2019"
+6. Enter Year: "2019", enter Engine: "2.5L 4-cylinder"
 7. Click "Save"
 8. Expected Result: Form submission is prevented, error message indicates make is required
 
