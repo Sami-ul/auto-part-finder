@@ -42,7 +42,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static('./'));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -168,6 +168,6 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 /* Start Server */
-module.exports = app.listen(3000);
+app.listen(3000);
 
 console.log('Server is listening on port 3000');
