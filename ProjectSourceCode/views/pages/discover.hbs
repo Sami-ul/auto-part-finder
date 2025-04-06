@@ -11,7 +11,10 @@ This should render differently when logged out vs. logged in. --}}
     
     {{!-- Needs filtering model based on make, engine based on make and model --}}
     <div class="popup" id="vehiclePopup">
-        <h2>Choose a Vehicle</h2>
+        <button id="closePopup" class="close-btn">&times;</button>
+        <div class="popup-header">
+            <h2>Choose a Vehicle</h2>
+        </div>
         <select id="year">
             <option value="">Year</option>
             <option>2024</option>
@@ -36,7 +39,7 @@ This should render differently when logged out vs. logged in. --}}
             <option>2</option>
             <option>3</option>
         </select>
-        <button id="closePopup">Close</button>
+        <button id="addVehicle" class="add-btn">Add</button>
     </div>
 
     <script>
