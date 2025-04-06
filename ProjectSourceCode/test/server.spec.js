@@ -60,7 +60,7 @@ describe('Testing Register API', () => {
                 done(error);
             });
     });
-
+// positive test case
     it('positive : /register. testing proper registration', done => {
         chai
             .request(server)
@@ -73,6 +73,7 @@ describe('Testing Register API', () => {
                 done();
             });
     });
+// negative test case
     it('negative : /register. testing duplicate registration', done => {
         chai
             .request(server)
@@ -85,6 +86,7 @@ describe('Testing Register API', () => {
                 done();
             });
     });
+// negative test case
     it('negative : /register. testing invalid email', done => {
         chai
             .request(server)
