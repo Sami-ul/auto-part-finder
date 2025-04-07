@@ -1,3 +1,4 @@
+-- Insert statements run when volume is recreated
 INSERT INTO users 
     (email, password, username, first_name, last_name) 
 VALUES

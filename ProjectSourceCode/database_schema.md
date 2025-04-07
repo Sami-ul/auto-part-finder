@@ -73,8 +73,8 @@ class Pricing {
     +part_id
     +vendor_id
     +price
-    +shipping
-    +url
+    <!-- +shipping -->
+    <!-- +url -->
 }
 
 class Order {

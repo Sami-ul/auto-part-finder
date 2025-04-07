@@ -1,9 +1,4 @@
--- DROP TABLE IF EXISTS users;
--- CREATE TABLE apf_users (
---     username    VARCHAR(50) PRIMARY KEY,
---     password    VARCHAR(60) NOT NULL
--- );
-
+-- Create statements run when volume is recreated
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
