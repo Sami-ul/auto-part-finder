@@ -1,3 +1,15 @@
+/* Here is the color palette being used currently */
+:root {
+    --brand-orange: #e6823b;   
+    --dark-blue: #030f2d;     
+    --main-bg: #fef2e7;       
+    
+    --nav-text-color: #e7eaf1;          
+    --nav-link-hover: #a5bafc;    
+    --box-shadow: #5c5c5c;
+    --input-text-color:#919090;  
+}
+
 /* NAVBAR */
 .navbar {
     position: fixed;
@@ -5,33 +17,32 @@
     left:0;
     width: 100%;
     font-size: 18px;
-    background-color: #f5dda7;
+    background-color: #030f2d;
 }
 
 /* For the top right links: cart, login, logout */
 .navbar-nav .nav-link {
     padding: 10px 15px;
-    color: #e6823b;
+    color: #e7eaf1;
 }
 
-
 .navbar-nav .nav-link:hover {
-    color: #d45907; /* Bootstrap warning color */
+    color: #a5bafc; 
 }
 
 /* For "Pocket Mechanics" top left corner */
 .navbar-brand {
+    background: linear-gradient(45deg, #f64033, #e6823b, #ffd700);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-size: 22px;
     font-weight: bold;
-    color: #e6823b;
     padding: 20px;
+    transition: 0.3s ease;
 }
 
-.navbar-brand:hover{
-    color: #d45907;
-}
-
-/* SEARCH BAR STYLING DISCOVER PAGE */
+/* Car cards discover page */
 main{
     position: relative;
     z-index: 1;
@@ -50,12 +61,19 @@ body {
     padding-top: 70px;
 }
 
+/* header for car cards discover page */
+.card-header {
+    background-color: #030f2d;
+    color: #e7eaf1;
+}
+
+/* search bar for discover page */
 .search-container {
     display: flex;
     align-items: center;
     background: white;
     border-radius: 30px;
-    box-shadow: 0 2px 10px rgba(117, 117, 117, 0.368);
+    box-shadow: 0 2px 10px #5c5c5c;
     padding: 10px;
     margin-bottom: 50px;
     width: 100%;
@@ -102,8 +120,8 @@ body {
     padding: 10px;
     font-size: 16px;
     border: none;
-    border-top: 1px solid rgb(196, 195, 195);
-    border-bottom: 1px solid rgb(196, 195, 195);
+    border-top: 1px solid #919090;
+    border-bottom: 1px solid #919090;
     height: 45px;
 }
 
@@ -159,6 +177,50 @@ body {
     background: #e65c00;
 }
 
+.popup-header{
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* for close button on vehicle popup */
+.popup .close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    width: 15px;
+    font-size: 32px;
+    cursor: pointer;
+    color: #747474;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.popup .close-btn:hover{
+    color: #a5bafc; 
+    background: none;
+}
+
+/* for add button in vehicle popup */
+.add-btn{
+    width: 50%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #ff6600;
+    color: #e7eaf1;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-btn:hover{
+    background: #e65c00;
+}
+
 .overlay {
     display: none;
     position: fixed;
@@ -177,4 +239,18 @@ body {
 /* Car modals */
 .card {
     height:400px;
+    color: #030f2d;
+}
+
+
+/* Login */
+
+.form-signin
+{
+    color: #030f2d;
+}
+
+.form-signin .form-floating
+{
+    color: #919090;
 }

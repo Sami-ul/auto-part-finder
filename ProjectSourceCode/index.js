@@ -121,11 +121,12 @@ app.get('/cart', (req, res) => {
   return res.render('pages/cart');
 });
 
-
+//register API testcase
 app.get('/register', (req, res) => {
   res.render('pages/register');
 });
 
+//register API testcase
 app.post('/register', async (req, res) => {
   const {email, username, password } = req.body;
   // regex email validation
@@ -204,6 +205,7 @@ app.get('/', (req, res) => {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
 /* Start Server */
 module.exports = app.listen(3000);
 
