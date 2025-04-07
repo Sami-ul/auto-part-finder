@@ -57,6 +57,12 @@ app.use(
   })
 );
 
+// Middleware for the user session to correctly render hbs
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+})
+
 /* Routes */
 
 
@@ -80,11 +86,13 @@ app.post('/login', async (req, res) => {
       res.redirect('/');
     } else {
       res.render('pages/login', {
+        error: true,
         message: 'Password does not match'
       });
     }
   } catch (err) {
     res.render('pages/login', {
+      error: true,
       message: 'User not found'
     });
   }
@@ -95,7 +103,15 @@ app.get('/discover', (req,res) => {
 });
 
 app.get('/logout', (req,res) => {
-  res.render('pages/logout');
+  if (req.session.user) {
+    req.session.destroy();
+    res.render('pages/logout', {
+      message: "Logged out successfully!"
+    });
+  }
+  else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/cart', (req, res) => {
@@ -161,9 +177,30 @@ app.post('/register', async (req, res) => {
     });
 });
 
-app.get('/', (req,res) => {
-  res.render('pages/discover');
+app.get('/account', (req, res) => {
+  if (req.session.user) {
+    res.render('pages/account');
+  } else {
+    res.render('pages/login');
+  }
 });
+
+app.get('/allparts', (req, res) => {
+  res.render('pages/allparts');
+});
+
+app.get('/mycars', (req, res) => {
+  if (req.session.user) {
+    res.render('pages/mycars');
+  } else {
+    res.redirect('/discover');
+  }
+});
+
+app.get('/', (req, res) => {
+  res.redirect('/discover');
+});
+
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
