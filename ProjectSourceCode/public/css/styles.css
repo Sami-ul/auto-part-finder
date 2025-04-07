@@ -67,6 +67,20 @@ body {
     color: #e7eaf1;
 }
 
+.card-body {
+    color: #030f2d;
+}
+
+.btn-primary{
+    background-color: #e6823b;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #e65c00;
+    border: none;
+}
+
 /* search bar for discover page */
 .search-container {
     display: flex;
@@ -113,6 +127,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.choose-vehicle:hover{
+    background-color: #e65c00
 }
 
 .search-input {
@@ -210,7 +228,7 @@ body {
     width: 50%;
     padding: 10px;
     margin-top: 15px;
-    background: #ff6600;
+    background: #e6823b;
     color: #e7eaf1;
     border: none;
     border-radius: 5px;
