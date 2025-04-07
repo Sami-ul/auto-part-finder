@@ -1,0 +1,16 @@
+<main class="py-4 mx-5">
+    <div class="form w-50 m-auto mt-5">
+        {{> message}}
+        <form action="/shipping" method="POST">
+            <h3>Ship to here</h3>
+            <div class="form-floating mb-2 position-relative">
+                <input name="address" type="text" class="form-control" id="address" placeholder="address">
+                <label for="address">Address</label>
+                <div id="search-results" style="position: absolute; width: 100%; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;"></div>
+            </div>
+            <button class="btn btn-primary py-2 my-4" type="submit" name="addAddress">Add</button>
+        </form>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="/js/adress_suggestions.js"></script>
+</main>

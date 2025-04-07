@@ -296,6 +296,10 @@ app.delete('/api/vehicles/:id', (req, res) => {
     });
 });
 
+app.get('/shipping', (req, res) => {
+  res.render('pages/shipping')
+});
+
 app.get('/', (req, res) => {
   res.redirect('/discover');
 });
