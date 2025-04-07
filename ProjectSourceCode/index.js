@@ -121,6 +121,14 @@ app.get('/cart', (req, res) => {
   return res.render('pages/cart');
 });
 
+app.get('/checkout', (req, res) => {
+  if (req.session.user) {
+    res.render('pages/checkout')
+  } else {
+    res.redirect('/login');
+  }
+});
+
 //register API testcase
 app.get('/register', (req, res) => {
   res.render('pages/register');
