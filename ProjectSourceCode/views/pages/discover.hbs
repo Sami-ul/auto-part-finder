@@ -6,9 +6,9 @@ This should render differently when logged out vs. logged in. --}}
         <input type="text" class="search-input" placeholder="Search for parts">
         <button class="search-button">Search</button>
     </div>
-    
+
     <div class="overlay" id="overlay"></div>
-    
+
     {{!-- Needs filtering model based on make, engine based on make and model --}}
     <div class="popup" id="vehiclePopup">
         <h2>Choose a Vehicle</h2>
@@ -41,13 +41,13 @@ This should render differently when logged out vs. logged in. --}}
 
     <script>
         // Open the popup when the "Choose a Vehicle" button is clicked
-        document.getElementById("chooseVehicle").addEventListener("click", function() {
+        document.getElementById("chooseVehicle").addEventListener("click", function () {
             document.getElementById("vehiclePopup").classList.add("active");
             document.getElementById("overlay").classList.add("active");
         });
 
         // Close the popup when the "Close" button is clicked
-        document.getElementById("closePopup").addEventListener("click", function() {
+        document.getElementById("closePopup").addEventListener("click", function () {
             document.getElementById("vehiclePopup").classList.remove("active");
             document.getElementById("overlay").classList.remove("active");
         });
@@ -56,7 +56,7 @@ This should render differently when logged out vs. logged in. --}}
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
 
         {{!-- API routes should go here --}}
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
+        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
             <div class="card-body">
                 <h1 class="card-title py-3">Part name</h1>
                 <table class="table">
@@ -79,10 +79,103 @@ This should render differently when logged out vs. logged in. --}}
                         </tr>
                     </thead>
                 </table>
+            </div>
+            <div class="card-body text-end">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    View more details
+                    Add to cart
                 </button>
             </div>
         </div>
+        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+            <div class="card-body">
+                <h1 class="card-title py-3">Part name</h1>
+                <table class="table">
+                    <thead>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="card-body text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Add to cart
+                </button>
+            </div>
+        </div>
+        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+            <div class="card-body">
+                <h1 class="card-title py-3">Part name</h1>
+                <table class="table">
+                    <thead>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="card-body text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Add to cart
+                </button>
+            </div>
+        </div>
+        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+            <div class="card-body">
+                <h1 class="card-title py-3">Part name</h1>
+                <table class="table">
+                    <thead>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                        <tr class="text-start">
+                            <th scope="col">Info:</th>
+                            <td class="text-end">this.car.desc</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="card-body text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Add to cart
+                </button>
+            </div>
+        </div>
+
     </div>
 </main>

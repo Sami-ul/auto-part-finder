@@ -2,7 +2,7 @@
     <div class="mb-3">
         <h1>My Garage</h1>
     </div>
-    <div class="row row-cols-2 row-cols-md-3 mb-3 text-center">
+    <div class="row row-cols-3 row-cols-md-3 mb-3 text-center">
         {{!-- API routes should go here --}}
         <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
             <div class="card-body">
@@ -10,10 +10,6 @@
                 <table class="table">
                     <thead>
                         <tr class="text-start">
-                            <th scope="col">Name:</th>
-                            <td class="text-end">this.car.name</td>
-                        </tr>
-                        <tr class="text-start">
                             <th scope="col">Make:</th>
                             <td class="text-end">this.car.make</td>
                         </tr>
@@ -31,135 +27,9 @@
                         </tr>
                     </thead>
                 </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Edit
-                </button>
             </div>
-        </div>
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Car name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Name:</th>
-                            <td class="text-end">this.car.name</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Make:</th>
-                            <td class="text-end">this.car.make</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Model:</th>
-                            <td class="text-end">this.car.model</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Year:</th>
-                            <td class="text-end">this.car.year</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Engine:</th>
-                            <td class="text-end">this.car.egnine.type</td>
-                        </tr>
-                    </thead>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Edit
-                </button>
-            </div>
-        </div>
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Car name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Name:</th>
-                            <td class="text-end">this.car.name</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Make:</th>
-                            <td class="text-end">this.car.make</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Model:</th>
-                            <td class="text-end">this.car.model</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Year:</th>
-                            <td class="text-end">this.car.year</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Engine:</th>
-                            <td class="text-end">this.car.egnine.type</td>
-                        </tr>
-                    </thead>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Edit
-                </button>
-            </div>
-        </div>
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Car name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Name:</th>
-                            <td class="text-end">this.car.name</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Make:</th>
-                            <td class="text-end">this.car.make</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Model:</th>
-                            <td class="text-end">this.car.model</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Year:</th>
-                            <td class="text-end">this.car.year</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Engine:</th>
-                            <td class="text-end">this.car.egnine.type</td>
-                        </tr>
-                    </thead>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Edit
-                </button>
-            </div>
-        </div>
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Car name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Name:</th>
-                            <td class="text-end">this.car.name</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Make:</th>
-                            <td class="text-end">this.car.make</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Model:</th>
-                            <td class="text-end">this.car.model</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Year:</th>
-                            <td class="text-end">this.car.year</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Engine:</th>
-                            <td class="text-end">this.car.egnine.type</td>
-                        </tr>
-                    </thead>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <div class="card-body text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#carModal">
                     Edit
                 </button>
             </div>
@@ -168,7 +38,7 @@
 </main>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
