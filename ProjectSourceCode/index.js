@@ -145,14 +145,14 @@ app.post('/register', async (req, res) => {
     });
   }
   // regex username validation
-  const usernameRegex = /^[a-zA-Z]+$/;
+  const usernameRegex = /^[a-zA-Z0-9-_]+$/;
   if (!usernameRegex.test(username)) {
     return res.status(400).render('pages/register', {
       message: 'Invalid username'
     });
   }
   // regex password validation
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
   if (!passwordRegex.test(password)) {
     return res.status(400).render('pages/register', {
       message: 'Password must be at least 8 characters long and contain at least one letter and one number'
