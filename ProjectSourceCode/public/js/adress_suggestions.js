@@ -15,7 +15,7 @@ addressInput.addEventListener('input', function() {
     
     debounce = setTimeout(() => {
         suggestAddresses(searchAddress);
-    }, 500);
+    }, 1000);
 });
 
 async function suggestAddresses(query) {
@@ -31,13 +31,14 @@ async function suggestAddresses(query) {
     
     if (response.data.length > 0) {
         for (let i = 0; i < response.data.length; i++) {
-            const addressElement = response.data[i].display_name;
+            const addressText = (formatAddress(response.data[i]))
+            // const addressElement = response.data[i].display_name;
             const div = document.createElement('div');
             div.className = "addressResultElement";
-            div.textContent = addressElement;
+            div.textContent = addressText;
             
             div.addEventListener('click', function() {
-                addressInput.value = addressElement;
+                addressInput.value = addressText;
                 searchResults.style.display = 'none';
             });
             
@@ -49,3 +50,8 @@ async function suggestAddresses(query) {
         searchResults.style.display = 'none';
     }
 }
+
+function formatAddress(place) {
+    const addr = place.address;
+    return `${addr.house_number || ''} ${addr.road || ''}, ${addr.city || addr.town || ''}, ${addr.state || ''} ${addr.postcode || ''}`;
+  }

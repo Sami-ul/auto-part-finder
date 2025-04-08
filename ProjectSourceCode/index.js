@@ -296,8 +296,51 @@ app.delete('/api/vehicles/:id', (req, res) => {
     });
 });
 
-app.get('/shipping', (req, res) => {
-  res.render('pages/shipping')
+app.get('/address', (req, res) => {
+  res.render('pages/address')
+});
+
+app.post('/address', async (req, res) => {
+  const {address} = req.body;
+
+  is_default = false;
+
+  parts = address.split(',');
+  street_address = parts[0];
+  city = parts[1];
+  state = parts[2];
+  // country = parts[3];
+  country = 'US'
+  postal_code = parts[3];
+
+  // const user=req.session.user;
+  const user=1;
+
+  
+  // check if email already exists
+  const addressExistsForUser = await db.oneOrNone(
+    'SELECT * FROM addresses WHERE user_id = $1 AND street_address = $2 AND city = $3 AND state = $4 AND country = $5 AND postal_code = $6;',
+    [user.id, street_address, city, state, country, postal_code]
+  );
+  if (addressExistsForUser) {
+    return res.status(400).render('pages/address', {
+      message: 'Adress already exists for this user'
+    });
+  }
+  
+  db.none('INSERT INTO addresses (user_id, street_address, city, state, postal_code, country, is_default) VALUES($1, $2, $3, $4, $5, $6, $7);', 
+    [user.id, street_address, city, state, postal_code, country, is_default])
+    .then(() => {
+      res.status(200).render('pages/address', {
+        message: 'Address successfully added'
+      });
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).render('pages/address', {
+        message: 'Error adding address'
+      });
+    });
 });
 
 app.get('/', (req, res) => {
