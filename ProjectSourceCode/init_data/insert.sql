@@ -13,11 +13,11 @@ VALUES
 (1, '3424 Test Street', 'Denver', 'MA', '23421', 'USA', FALSE);
 
 INSERT INTO vehicles 
-    (user_id, make, model, year)
+    (user_id, make, model, year, engine)
 VALUES
-(1, 'Toyota', 'Camry', 2018),
-(1, 'Honda', 'Civic', 2020),
-(2, 'Ford', 'F-150', 2019);
+    (1, 'Toyota', 'Camry', 2018, '2.5L 4-cylinder'),
+    (1, 'Honda', 'Civic', 2020, '1.5L Turbo'),
+    (2, 'Ford', 'F-150', 2019, '3.5L V6 EcoBoost');
 
 INSERT INTO parts 
     (name, description, category) 

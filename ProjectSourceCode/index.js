@@ -104,9 +104,16 @@ app.get('/discover', (req,res) => {
 
 app.get('/logout', (req,res) => {
   if (req.session.user) {
-    req.session.destroy();
-    res.render('pages/logout', {
-      message: "Logged out successfully!"
+    req.session.destroy((err) => {
+      if (err) {
+        console.log(err);
+        return res.redirect('/');
+      }
+      res.clearCookie('connect.sid');
+      res.render('pages/logout', {
+        message: "Logged out successfully!",
+        user: null
+      });
     });
   }
   else {
@@ -191,11 +198,102 @@ app.get('/allparts', (req, res) => {
 });
 
 app.get('/mycars', (req, res) => {
-  if (req.session.user) {
-    res.render('pages/mycars');
-  } else {
+  if (!req.session.user) {
     res.redirect('/discover');
   }
+  // saving vehicle addition into db
+  db.any('SELECT * FROM vehicles WHERE user_id = $1', [req.session.user.id])
+    .then(cars => {
+      res.render('pages/mycars', { cars: cars});
+    })
+    .catch(error => {
+      console.log(error);
+      res.render('pages/mycars', {
+        message: 'Error loading your vehicles',
+        cars: []
+      });
+    });
+});
+
+// To add vehicle to profile and database
+app.post('/api/vehicles', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const {year, make, model, engine} = req.body;
+  
+  // Add validation
+  if (!year || !make || !model || !engine) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  console.log('Attempting to add vehicle:', {
+    user_id: req.session.user.id,
+    make,
+    model,
+    year,
+    engine
+  });
+
+  db.one(
+    'INSERT INTO vehicles(user_id, make, model, year, engine) VALUES($1, $2, $3, $4, $5) RETURNING id',
+    [req.session.user.id, make, model, year, engine]
+  )
+  .then(data => {
+    console.log('Successfully added vehicle:', data);
+    res.json({
+      success: true,
+      id: data.id,
+      vehicle: {id: data.id, year, make, model, engine}
+    });
+  })
+  .catch(error => {
+    console.error('Database error:', error);
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      detail: error.detail
+    });
+    res.status(500).json({error: 'Failed to add vehicle', details: error.message});
+  });
+});
+
+// To edit vehicle on profile and database
+app.put('/api/vehicles/:id', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({error : 'Not authenticated'});
+  }
+
+  const {year, make, model, engine} =req.body;
+
+  db.none('UPDATE vehicles SET make=$1, model=$2, year=$3, engine=$4 WHERE id=$5 AND user_id=$6',
+    [make, model, year, engine, req.params.id, req.session.user.id]
+  )
+  .then(() => {
+    res.json({success: true});
+  })
+  .catch(error=> {
+    console.log(error);
+    res.status(500).json({error: 'Failed to update vehicle'});
+  });
+});
+
+// To delete vehicle from profile and database
+app.delete('/api/vehicles/:id', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  db.none('DELETE FROM vehicles WHERE id=$1 AND user_id=$2',
+    [req.params.id, req.session.user.id])
+    .then(() => {
+      res.json({success: true});
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({error: 'Failed to delete vehicle' });
+    });
 });
 
 app.get('/', (req, res) => {

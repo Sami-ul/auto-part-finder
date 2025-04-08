@@ -24,7 +24,8 @@ CREATE TABLE vehicles (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
-    year INTEGER NOT NULL
+    year INTEGER NOT NULL,
+    engine VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE parts (
