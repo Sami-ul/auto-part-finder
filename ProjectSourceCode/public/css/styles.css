@@ -258,9 +258,20 @@ body {
 .card {
     height:400px;
     color: #030f2d;
+    position: relative;
 }
 
+.card .card-body:last-child {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 5px;
+}
 
+/* Adjust the first card-body to leave space for buttons */
+.card .card-body:first-child {
+    padding-bottom: 60px;
+}
 /* Login */
 
 .form-signin
@@ -271,4 +282,18 @@ body {
 .form-signin .form-floating
 {
     color: #919090;
+}
+
+/* My Car Modals */
+.modal-header {
+    background-color: #030f2d;
+    color: #e7eaf1
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-title {
+    color: #e7eaf1;
 }
