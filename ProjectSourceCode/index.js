@@ -301,26 +301,15 @@ app.get('/address', (req, res) => {
 });
 
 app.post('/address', async (req, res) => {
-  const {address} = req.body;
+  console.log(req.body)
 
-  is_default = false;
+  const {street_address, city, state, postal_code, country, default_address} = req.body;
+  const user_id = 1
 
-  parts = address.split(',');
-  street_address = parts[0];
-  city = parts[1];
-  state = parts[2];
-  // country = parts[3];
-  country = 'US'
-  postal_code = parts[3];
-
-  // const user=req.session.user;
-  const user=1;
-
-  
   // check if email already exists
   const addressExistsForUser = await db.oneOrNone(
     'SELECT * FROM addresses WHERE user_id = $1 AND street_address = $2 AND city = $3 AND state = $4 AND country = $5 AND postal_code = $6;',
-    [user.id, street_address, city, state, country, postal_code]
+    [user_id, street_address, city, state, country, postal_code]
   );
   if (addressExistsForUser) {
     return res.status(400).render('pages/address', {
@@ -329,7 +318,7 @@ app.post('/address', async (req, res) => {
   }
   
   db.none('INSERT INTO addresses (user_id, street_address, city, state, postal_code, country, is_default) VALUES($1, $2, $3, $4, $5, $6, $7);', 
-    [user.id, street_address, city, state, postal_code, country, is_default])
+    [user_id, street_address, city, state, postal_code, country, default_address])
     .then(() => {
       res.status(200).render('pages/address', {
         message: 'Address successfully added'
