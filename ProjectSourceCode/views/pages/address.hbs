@@ -1,17 +1,18 @@
 <main class="py-4 mx-5">
     <div class="form w-50 m-auto mt-5">
         {{> message}}
-        <form action=>
-            <h3>Search for an address</h3>
+        <form>
+            <h3>Autofill Address</h3>
             <div class="form-floating mb-2 position-relative">
                 <input name="address" type="text" class="form-control" id="address" placeholder="address">
                 <label for="address">Address</label>
                 <div id="search-results" style="position: absolute; width: 100%; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;"></div>
             </div>
         </form>
+        <div id="map"></div>
 
         <form action="/address" method="POST">
-            <h3>Enter an address</h3>
+            <h3>Address Details</h3>
             <div class="form-floating mb-2 position-relative">
                 <input name="street_address" type="text" class="form-control" id="street_address" placeholder="Street Address" required>
                 <label for="street_address">Street Address</label>
@@ -114,5 +115,9 @@
         </form>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
     <script src="/js/adress_suggestions.js"></script>
+        
 </main>

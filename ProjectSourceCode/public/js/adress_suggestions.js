@@ -2,6 +2,11 @@ const searchResults = document.getElementById('search-results');
 const addressInput = document.getElementById('address');
 let lastSearched;
 let debounce;
+var map = L.map('map').setView([40.0190, -105.2747], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
 
 addressInput.addEventListener('input', function() {
     const searchAddress = this.value.trim();
@@ -15,7 +20,7 @@ addressInput.addEventListener('input', function() {
     
     debounce = setTimeout(() => {
         suggestAddresses(searchAddress);
-    }, 300);
+    }, 200);
 });
 
 async function suggestAddresses(query) {
@@ -43,6 +48,7 @@ async function suggestAddresses(query) {
                 searchResults.style.display = 'none';
                 const addressArray = (formatAddress(response.data[i]))
                 autofill(addressArray)
+                markOnMap(response.data[i].lat, response.data[i].lon, addressArray[0])
             });
             
             searchResults.appendChild(div);
@@ -93,4 +99,11 @@ function autofill(addressArray) {
     }
   }
     
+}
+
+
+function markOnMap(lat, long, street_address){
+    var marker = L.marker([lat, long]).addTo(map);
+    marker.bindPopup(street_address).openPopup();
+    map.setView([lat, long], 15);
 }
