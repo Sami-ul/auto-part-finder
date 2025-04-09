@@ -297,3 +297,13 @@ body {
 .modal-title {
     color: #e7eaf1;
 }
+/* Shipping */
+.addressResultElement {
+    padding: 0.5em;
+    border: 0.1em black solid;
+}
+
+#map { 
+    height: 180px; 
+    margin-bottom: 2em;
+}
