@@ -101,6 +101,13 @@ body {
     height: 60px;
 }
 
+/* clicking in search bar */
+.search-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #919090;
+}
+
 .vehicle-button {
     background: white;
     border: 2px solid #ccc;
