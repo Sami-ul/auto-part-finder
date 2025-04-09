@@ -20,10 +20,6 @@
     background-color: #030f2d;
 }
 
-.navbar-text {
-    color: white;
-}
-
 /* For the top right links: cart, login, logout */
 .navbar-nav .nav-link {
     padding: 10px 15px;
