@@ -1,13 +1,13 @@
 /* Here is the color palette being used currently */
 :root {
-    --brand-orange: #e6823b;   
-    --dark-blue: #030f2d;     
-    --main-bg: #fef2e7;       
+    --brand-orange: #e6823b;
+    --dark-blue: #030f2d;
+    --main-bg: #fef2e7;
     
-    --nav-text-color: #e7eaf1;          
-    --nav-link-hover: #a5bafc;    
+    --nav-text-color: #e7eaf1;
+    --nav-link-hover: #a5bafc;
     --box-shadow: #5c5c5c;
-    --input-text-color:#919090;  
+    --input-text-color:#919090;
 }
 
 /* NAVBAR */
@@ -20,6 +20,10 @@
     background-color: #030f2d;
 }
 
+.navbar-text {
+    color: white;
+}
+
 /* For the top right links: cart, login, logout */
 .navbar-nav .nav-link {
     padding: 10px 15px;
@@ -27,7 +31,7 @@
 }
 
 .navbar-nav .nav-link:hover {
-    color: #a5bafc; 
+    color: #a5bafc;
 }
 
 /* For "Pocket Mechanics" top left corner */
@@ -219,7 +223,7 @@ body {
 }
 
 .popup .close-btn:hover{
-    color: #a5bafc; 
+    color: #a5bafc;
     background: none;
 }
 
@@ -303,7 +307,7 @@ body {
     border: 0.1em black solid;
 }
 
-#map { 
-    height: 180px; 
+#map {
+    height: 180px;
     margin-bottom: 2em;
 }
