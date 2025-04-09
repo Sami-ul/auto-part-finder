@@ -20,7 +20,7 @@ CREATE TABLE addresses (
     is_default BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE vehicles (
+CREATE TABLE user_vehicles (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     make VARCHAR(100) NOT NULL,

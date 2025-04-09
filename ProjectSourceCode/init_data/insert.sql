@@ -12,7 +12,7 @@ VALUES
 (1, '123 First St', NULL, 'Boulder', 'CO', '80302', 'USA', TRUE),
 (1, '3424 Test Street', '15', 'Denver', 'MA', '23421', 'USA', FALSE);
 
-INSERT INTO vehicles 
+INSERT INTO user_vehicles 
     (user_id, make, model, year, engine)
 VALUES
     (1, 'Toyota', 'Camry', 2018, '2.5L 4-cylinder'),
