@@ -215,7 +215,7 @@ app.get('/mycars', (req, res) => {
     res.redirect('/discover');
   }
   // saving vehicle addition into db
-  db.any('SELECT * FROM vehicles WHERE user_id = $1', [req.session.user.id])
+  db.any('SELECT * FROM user_vehicles WHERE user_id = $1', [req.session.user.id])
     .then(cars => {
       res.render('pages/mycars', { cars: cars});
     })
@@ -250,7 +250,7 @@ app.post('/api/vehicles', (req, res) => {
   });
 
   db.one(
-    'INSERT INTO vehicles(user_id, make, model, year, engine) VALUES($1, $2, $3, $4, $5) RETURNING id',
+    'INSERT INTO user_vehicles(user_id, make, model, year, engine) VALUES($1, $2, $3, $4, $5) RETURNING id',
     [req.session.user.id, make, model, year, engine]
   )
   .then(data => {
@@ -280,7 +280,7 @@ app.put('/api/vehicles/:id', (req, res) => {
 
   const {year, make, model, engine} =req.body;
 
-  db.none('UPDATE vehicles SET make=$1, model=$2, year=$3, engine=$4 WHERE id=$5 AND user_id=$6',
+  db.none('UPDATE user_vehicles SET make=$1, model=$2, year=$3, engine=$4 WHERE id=$5 AND user_id=$6',
     [make, model, year, engine, req.params.id, req.session.user.id]
   )
   .then(() => {
@@ -298,7 +298,7 @@ app.delete('/api/vehicles/:id', (req, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  db.none('DELETE FROM vehicles WHERE id=$1 AND user_id=$2',
+  db.none('DELETE FROM user_vehicles WHERE id=$1 AND user_id=$2',
     [req.params.id, req.session.user.id])
     .then(() => {
       res.json({success: true});
