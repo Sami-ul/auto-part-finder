@@ -304,6 +304,76 @@ app.delete('/api/vehicles/:id', (req, res) => {
     });
 });
 
+app.get('/address', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  return res.render('pages/address')
+});
+
+app.post('/address', async (req, res) => {
+  console.log(req.body)
+
+  const {street_address, apartment, city, state, postal_code, country, default_address} = req.body;
+  const user_id = req.session.user.id;
+  let default_addr;
+  let apt = apartment || null;
+  if (!default_address){
+    default_addr = false
+  }
+  else {
+    default_addr = true
+  }
+
+  let existingAddressQuery;
+  let queryParams;
+  
+  if (apt === null) {
+    existingAddressQuery = 'SELECT * FROM addresses WHERE user_id = $1 AND street_address = $2 AND apt IS NULL AND city = $3 AND state = $4 AND country = $5 AND postal_code = $6;';
+    queryParams = [user_id, street_address, city, state, country, postal_code];
+  } else {
+    existingAddressQuery = 'SELECT * FROM addresses WHERE user_id = $1 AND street_address = $2 AND apt = $3 AND city = $4 AND state = $5 AND country = $6 AND postal_code = $7;';
+    queryParams = [user_id, street_address, apt, city, state, country, postal_code];
+  }
+
+  
+  let addressExistsForUser = await db.any(existingAddressQuery, queryParams);
+  if (addressExistsForUser.length == 0){
+    addressExistsForUser = null;
+  }
+
+  if (addressExistsForUser) {
+    return res.status(400).render('pages/address', {
+      message: 'Address already exists for this user',
+      error: true
+    });
+  }
+
+  if (default_addr){
+    db.none('UPDATE addresses SET is_default = false WHERE user_id = $1 AND is_default = true', [user_id])
+    .catch(error => {
+      console.log(error);
+      res.status(500).render('pages/address', {
+        message: 'Error updating default address'
+      });
+    });
+  }
+  
+  db.none('INSERT INTO addresses (user_id, street_address, apt, city, state, postal_code, country, is_default) VALUES($1, $2, $3, $4, $5, $6, $7, $8);', 
+    [user_id, street_address, apt, city, state, postal_code, country, default_addr])
+    .then(() => {
+      res.status(200).render('pages/address', {
+        message: 'Address successfully added'
+      });
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).render('pages/address', {
+        message: 'Error adding address'
+      });
+    });
+});
+
 app.get('/', (req, res) => {
   res.redirect('/discover');
 });
