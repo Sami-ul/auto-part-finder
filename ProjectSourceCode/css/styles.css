@@ -20,8 +20,9 @@
     background-color: #030f2d;
 }
 
+/* navbar tag */
 .navbar-text {
-    color: white;
+    color: #e7eaf1;
 }
 
 /* For the top right links: cart, login, logout */
@@ -98,6 +99,13 @@ body {
     max-width: 100%;
     position: relative;
     height: 60px;
+}
+
+/* clicking in search bar */
+.search-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #919090;
 }
 
 .vehicle-button {
