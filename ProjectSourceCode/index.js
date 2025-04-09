@@ -297,15 +297,17 @@ app.delete('/api/vehicles/:id', (req, res) => {
 });
 
 app.get('/address', (req, res) => {
-  res.render('pages/address')
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  return res.render('pages/address')
 });
 
 app.post('/address', async (req, res) => {
   console.log(req.body)
 
   const {street_address, apartment, city, state, postal_code, country, default_address} = req.body;
-  // const user_id = req.session.user.id;
-  const user_id = 2;
+  const user_id = req.session.user.id;
   let default_addr;
   let apt = apartment || null;
   if (!default_address){
