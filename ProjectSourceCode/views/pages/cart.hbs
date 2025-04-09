@@ -3,10 +3,79 @@
 <div class="container mt-5">
     <h1 class="mb-4">Your Cart</h1>
     
+    {{#if hasItems}}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Description</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each cartItems}}
+                            <tr>
+                                <td>{{this.name}}</td>
+                                <td>{{this.description}}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-danger remove-from-cart" data-product-id="{{this.id}}">
+                                        Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-end">
+                <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        </div>
+    {{else}}
         <div class="text-center py-5">
             <i class="bi bi-cart-x" style="font-size: 4rem;"></i>
             <h2 class="mt-3">Your cart is empty</h2>
             <p class="text-muted">Looks like you haven't added any parts to your cart yet.</p>
-            <a href="/" class="btn btn-primary mt-3">Browse Parts</a>
+            <a href="/discover" class="btn btn-primary mt-3">Browse Parts</a>
         </div>
+    {{/if}}
+    
+    {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            {{error}}
+        </div>
+    {{/if}}
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners to remove buttons
+        const removeButtons = document.querySelectorAll('.remove-from-cart');
+        
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                
+                // Send request to remove item from cart
+                fetch(`/cart/remove?product_id=${productId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to reflect changes
+                        window.location.reload();
+                    } else {
+                        alert('Failed to remove item from cart');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the item from the cart');
+                });
+            });
+        });
+    });
+</script>

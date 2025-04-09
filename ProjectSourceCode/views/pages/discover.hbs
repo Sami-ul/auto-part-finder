@@ -59,128 +59,67 @@ This should render differently when logged out vs. logged in. --}}
     </script>
 
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-
-        {{!-- API routes should go here --}}
-        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Part name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                    </thead>
-                </table>
+        {{#each products}}
+            <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+                <div class="card-body">
+                    <h1 class="card-title py-3">{{this.name}}</h1>
+                    <table class="table">
+                        <thead>
+                            <tr class="text-start">
+                                <th scope="col">Description:</th>
+                                <td class="text-end">{{this.description}}</td>
+                            </tr>
+                            <!-- Add more product details here -->
+                        </thead>
+                    </table>
+                </div>
+                <div class="card-body text-end">
+                    <button
+                        type="button"
+                        class="btn btn-primary add-to-cart-btn"
+                        data-product-id="{{this.id}}"
+                    >
+                        Add to cart
+                    </button>
+                </div>
             </div>
-            <div class="card-body text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add to cart
-                </button>
-            </div>
-        </div>
-        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Part name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="card-body text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add to cart
-                </button>
-            </div>
-        </div>
-        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Part name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="card-body text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add to cart
-                </button>
-            </div>
-        </div>
-        <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-            <div class="card-body">
-                <h1 class="card-title py-3">Part name</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Info:</th>
-                            <td class="text-end">this.car.desc</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="card-body text-end">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    Add to cart
-                </button>
-            </div>
-        </div>
-
+        {{/each}}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+            
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const productId = this.dataset.productId;
+                    
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ product_id: productId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Item added to cart!');
+                        } else {
+                            if (data.error === 'Not authenticated') {
+                                // Redirect to login page if not authenticated
+                                window.location.href = '/login';
+                            } else {
+                                alert('Error adding item to cart: ' + data.error);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while adding the item to the cart.');
+                    });
+                });
+            });
+        });
+    </script>
 </main>

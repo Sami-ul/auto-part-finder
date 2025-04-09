@@ -35,6 +35,22 @@ CREATE TABLE parts (
     description TEXT,
     category VARCHAR(100)
 );
+CREATE TABLE IF NOT EXISTS cart (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES parts(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add unique constraint if not already present
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'unique_user_product'
+    ) THEN
+        ALTER TABLE cart ADD CONSTRAINT unique_user_product UNIQUE (user_id, product_id);
+    END IF;
+END$$;
 
 CREATE TABLE part_compatibility (
     id SERIAL PRIMARY KEY,
