@@ -12,10 +12,11 @@ CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     street_address VARCHAR(255) NOT NULL,
+    apt VARCHAR(15),
     city VARCHAR(100) NOT NULL,
     state VARCHAR(50),
     postal_code VARCHAR(10) NOT NULL,
-    country VARCHAR(100) DEFAULT 'USA',
+    country VARCHAR(100) DEFAULT 'US',
     is_default BOOLEAN DEFAULT FALSE
 );
 

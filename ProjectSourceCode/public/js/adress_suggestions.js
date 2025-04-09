@@ -78,7 +78,6 @@ function autofill(addressArray) {
   document.getElementById('street_address').value = street_address;
   document.getElementById('city').value = city;
   document.getElementById('postal_code').value = postal_code;
-
   
   for (let i = 0; i < stateSelect.options.length; i++) {
     if (stateSelect.options[i].text === state) {

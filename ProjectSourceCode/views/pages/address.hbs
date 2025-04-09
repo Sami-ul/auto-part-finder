@@ -13,7 +13,7 @@
         <form action="/address" method="POST">
             <h3>Enter an address</h3>
             <div class="form-floating mb-2 position-relative">
-                <input name="street_address" type="text" class="form-control" id="street_address" placeholder="Street Address">
+                <input name="street_address" type="text" class="form-control" id="street_address" placeholder="Street Address" required>
                 <label for="street_address">Street Address</label>
             </div>
 
@@ -23,14 +23,14 @@
             </div>
 
             <div class="form-floating mb-2 position-relative">
-                <input name="city" type="text" class="form-control" id="city" placeholder="City">
+                <input name="city" type="text" class="form-control" id="city" placeholder="City" required>
                 <label for="city">City</label>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-floating mb-2 position-relative">
-                        <select name="state" class="form-select" id="state" placeholder="State">
+                        <select name="state" class="form-select" id="state" placeholder="State" required>
                             <option value="" selected disabled>Select state</option>
                             <option value="AL">Alabama</option>
                             <option value="AK">Alaska</option>
@@ -88,14 +88,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-floating mb-2 position-relative">
-                        <input name="postal_code" type="text" class="form-control" id="postal_code" placeholder="ZIP Code">
+                        <input name="postal_code" type="text" class="form-control" id="postal_code" placeholder="ZIP Code" required>
                         <label for="postal_code">ZIP Code</label>
                     </div>
                 </div>
             </div>
 
             <div class="form-floating mb-2 position-relative">
-                <select name="country" class="form-select" id="country" placeholder="Country">
+                <select name="country" class="form-select" id="country" placeholder="Country" required>
                     <option value="US" selected>United States</option>
                 </select>
                 <label for="country">Country</label>
