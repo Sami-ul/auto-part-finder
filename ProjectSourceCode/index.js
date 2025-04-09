@@ -42,7 +42,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static('./'));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

@@ -8,6 +8,7 @@ services:
     volumes:
       - auto-parts-finder:/var/lib/postgresql/data
       - ./init_data:/docker-entrypoint-initdb.d
+      - ./init_data/vehicle_data.csv:/home/node/app/vehicle_data.csv
   web:
     container_name: auto-parts-finder-web
     image: node:lts
