@@ -83,28 +83,3 @@ CREATE TABLE repairs (
     part_id INTEGER REFERENCES parts(id),
     repair_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
--- Vehicles DB
-
-CREATE TABLE make (
-    id SERIAL PRIMARY KEY,
-    make VARCHAR(25) NOT NULL
-);
-
-CREATE TABLE year (
-    id SERIAL PRIMARY KEY,
-    year_id INTEGER REFERENCES make(id) ON DELETE CASCADE,
-    year INTEGER
-);
-
-CREATE TABLE model (
-    id SERIAL PRIMARY KEY,
-    model_id INTEGER REFERENCES year(id) ON DELETE CASCADE,
-    model VARCHAR(25) NOT NULL
-);
-
-CREATE TABLE engine (
-    id SERIAL PRIMARY KEY,
-    engine_id INTEGER REFERENCES model(id) ON DELETE CASCADE,
-    engine VARCHAR(25) NOT NULL
-);
