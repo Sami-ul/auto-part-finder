@@ -103,8 +103,13 @@
             </div>
 
             <div class="form-check mb-3">
-                <input name="default_address" class="form-check-input" type="checkbox" id="default_address" 
+                <input name="default_address_visible" class="form-check-input" type="checkbox" id="default_address" 
                     {{#if this.needsDefault}}checked disabled{{/if}}>
+                
+                {{#if this.needsDefault}}
+                    <input type="hidden" name="default_address" value="true">
+                {{/if}}
+                
                 <label class="form-check-label" for="default_address">
                     {{#if this.needsDefault}}
                         This is your default address
@@ -113,6 +118,7 @@
                     {{/if}}
                 </label>
             </div>
+            
 
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">Save Address</button>

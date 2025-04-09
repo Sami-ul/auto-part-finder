@@ -330,24 +330,24 @@ app.get('/address', async (req, res) => {
   let needsDefault = false;
 
   if (addresses.length == 0) {
-     defaultExists = true;
+     needsDefault = true;
   }
 
   return res.render('pages/address', {needsDefault: needsDefault})
 });
 
 app.post('/address', async (req, res) => {
-  console.log(req.body)
+  console.log("POSTED ADRESS BODY", req.body)
 
-  const {street_address, apartment, city, state, postal_code, country, default_address} = req.body;
-  const user_id = req.session.user.id;
+  const {street_address, apartment, city, state, postal_code, country, default_address, default_address_visible} = req.body;
+  const user_id = req.session.user.id; 
   let default_addr;
   let apt = apartment || null;
-  if (!default_address){
-    default_addr = false
+  if (default_address || default_address_visible) {
+    default_addr = true
   }
   else {
-    default_addr = true
+    default_addr = false
   }
 
   let existingAddressQuery;
