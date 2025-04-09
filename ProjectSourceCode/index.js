@@ -128,14 +128,6 @@ app.get('/cart', (req, res) => {
   return res.render('pages/cart');
 });
 
-app.get('/checkout', (req, res) => {
-  if (req.session.user) {
-    res.render('pages/checkout')
-  } else {
-    res.redirect('/login');
-  }
-});
-
 //register API testcase
 app.get('/register', (req, res) => {
   res.render('pages/register');
@@ -193,12 +185,25 @@ app.post('/register', async (req, res) => {
     });
 });
 
-app.get('/account', (req, res) => {
-  if (req.session.user) {
-    res.render('pages/account');
-  } else {
-    res.render('pages/login');
+app.get('/account', async (req, res) => {
+  if (!req.session.user) {
+    return res.render('pages/login');
+  } 
+
+  let addresses = []
+  try {
+    addresses = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
   }
+  catch (err){
+    res.status(500).render('pages/account', {
+      message: 'Error accessing user\'s addresses',
+      error: true
+    });
+  }
+
+  console.log(addresses)
+
+  return res.render('pages/account', {addresses: addresses})
 });
 
 app.get('/allparts', (req, res) => {
@@ -304,11 +309,31 @@ app.delete('/api/vehicles/:id', (req, res) => {
     });
 });
 
-app.get('/address', (req, res) => {
+app.get('/address', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
   }
-  return res.render('pages/address')
+
+  let addresses = []
+  try {
+    addresses = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
+  }
+  catch (err){
+    res.status(500).render('pages/address', {
+      message: 'Error accessing user\'s addresses',
+      error: true
+    });
+  }
+
+  console.log(addresses)
+
+  let needsDefault = false;
+
+  if (addresses.length == 0) {
+     defaultExists = true;
+  }
+
+  return res.render('pages/address', {needsDefault: needsDefault})
 });
 
 app.post('/address', async (req, res) => {
@@ -354,7 +379,8 @@ app.post('/address', async (req, res) => {
     .catch(error => {
       console.log(error);
       res.status(500).render('pages/address', {
-        message: 'Error updating default address'
+        message: 'Error updating default address',
+        error: true
       });
     });
   }

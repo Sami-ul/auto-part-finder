@@ -302,9 +302,29 @@ body {
     color: #e7eaf1;
 }
 /* Shipping */
+/* Address */
 .addressResultElement {
-    padding: 0.5em;
-    border: 0.1em black solid;
+    padding: 0.75rem;
+    margin-bottom: 0.25rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    background-color: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    color: var(--dark-blue);
+}
+
+.addressResultElement:hover {
+    background-color: var(--main-bg);
+    border-color: var(--brand-orange);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(92, 92, 92, 0.2);
+}
+
+.addressResultElement.active {
+    background-color: var(--main-bg);
+    border-color: var(--brand-orange);
+    border-left: 3px solid var(--brand-orange);
 }
 
 #map {

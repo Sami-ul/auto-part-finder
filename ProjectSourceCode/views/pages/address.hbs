@@ -103,9 +103,14 @@
             </div>
 
             <div class="form-check mb-3">
-                <input name="default_address" class="form-check-input" type="checkbox" id="default_address">
+                <input name="default_address" class="form-check-input" type="checkbox" id="default_address" 
+                    {{#if this.needsDefault}}checked disabled{{/if}}>
                 <label class="form-check-label" for="default_address">
-                    Make this my default address
+                    {{#if this.needsDefault}}
+                        This is your default address
+                    {{else}}
+                        Make this my default address
+                    {{/if}}
                 </label>
             </div>
 

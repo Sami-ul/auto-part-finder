@@ -12,9 +12,15 @@
                         <th scope="col">Email:</th>
                         <td class="text-end">{{this.user.email}}</td>
                     </tr>
-                    <tr class="text-start">
-                        <th scope="col">Location:</th>
-                        <td class="text-end">this.user.location</td>
+                    <tr class="text-start" id="address">
+                        <th scope="col">Address:</th>
+                        {{#each this.addresses}}
+                        <td class="text-end">
+                            {{this.street_address}}, {{this.city}}, {{this.state}}
+                        </td>
+                        {{else}}
+                        <p>No addresses found</p>
+                        {{/each}}
                     </tr>
                 </thead>
             </table>
