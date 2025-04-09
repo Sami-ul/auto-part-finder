@@ -65,7 +65,6 @@ app.use((req, res, next) => {
 
 /* Routes */
 
-
 app.get('/login', (req, res) => {
   res.render('pages/login');
 });

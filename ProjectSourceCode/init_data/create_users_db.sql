@@ -20,7 +20,7 @@ CREATE TABLE addresses (
     is_default BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE vehicles (
+CREATE TABLE user_vehicles (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     make VARCHAR(100) NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE pricing (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
-    vehicle_id INTEGER REFERENCES vehicles(id),
+    vehicle_id INTEGER REFERENCES user_vehicles(id),
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(25)
 );
@@ -80,32 +80,7 @@ CREATE TABLE order_items (
 -- Repair history
 CREATE TABLE repairs (
     id SERIAL PRIMARY KEY,
-    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+    vehicle_id INTEGER REFERENCES user_vehicles(id) ON DELETE CASCADE,
     part_id INTEGER REFERENCES parts(id),
     repair_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Vehicles DB
-
-CREATE TABLE make (
-    id SERIAL PRIMARY KEY,
-    make VARCHAR(25) NOT NULL
-);
-
-CREATE TABLE year (
-    id SERIAL PRIMARY KEY,
-    year_id INTEGER REFERENCES make(id) ON DELETE CASCADE,
-    year INTEGER
-);
-
-CREATE TABLE model (
-    id SERIAL PRIMARY KEY,
-    model_id INTEGER REFERENCES year(id) ON DELETE CASCADE,
-    model VARCHAR(25) NOT NULL
-);
-
-CREATE TABLE engine (
-    id SERIAL PRIMARY KEY,
-    engine_id INTEGER REFERENCES model(id) ON DELETE CASCADE,
-    engine VARCHAR(25) NOT NULL
 );
