@@ -7,10 +7,10 @@ VALUES
 ('mike.johnson@example.com', 'pass', 'testusername4', 'Mike', 'Jones');
 
 INSERT INTO addresses 
-    (user_id, street_address, city, state, postal_code, country, is_default) 
+    (user_id, street_address, apt, city, state, postal_code, country, is_default) 
 VALUES
-(1, '123 First St', 'Boulder', 'CO', '80302', 'USA', TRUE),
-(1, '3424 Test Street', 'Denver', 'MA', '23421', 'USA', FALSE);
+(1, '123 First St', NULL, 'Boulder', 'CO', '80302', 'USA', TRUE),
+(1, '3424 Test Street', '15', 'Denver', 'MA', '23421', 'USA', FALSE);
 
 INSERT INTO vehicles 
     (user_id, make, model, year, engine)
