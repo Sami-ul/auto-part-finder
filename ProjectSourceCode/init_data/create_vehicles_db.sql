@@ -1,8 +1,5 @@
 -- Vehicles DB
 
-CREATE DATABASE vehicles_db;
-\c vehicles_db
-
 CREATE TABLE vehicle_data (
     make VARCHAR(50) NOT NULL,
     year INTEGER,
@@ -12,25 +9,21 @@ CREATE TABLE vehicle_data (
 
 COPY vehicle_data FROM '/home/node/app/vehicle_data.csv' WITH (FORMAT CSV, HEADER);
 
-CREATE TABLE make (
-    id SERIAL PRIMARY KEY,
-    make VARCHAR(25) NOT NULL
-);
+-- To get vehicle Makes
+-- SELECT DISTINCT make FROM vehicle_data ORDER BY make;
 
-CREATE TABLE year (
-    id SERIAL PRIMARY KEY,
-    year_id INTEGER REFERENCES make(id) ON DELETE CASCADE,
-    year INTEGER
-);
+-- To get vehicle Years
+-- @make in WHERE clause should contain the value of first dropdown box for vehicle Make
+-- @year in WHERE clause should be >= 1960 to ensure threshold
+-- SELECT year FROM vehicle_data WHERE make = 'Honda' AND year >= 1960 ORDER BY year DESC;
 
-CREATE TABLE model (
-    id SERIAL PRIMARY KEY,
-    model_id INTEGER REFERENCES year(id) ON DELETE CASCADE,
-    model VARCHAR(25) NOT NULL
-);
+-- To get vehicle Model
+-- @make in WHERE clause should contain the value of first dropdown box for vehicle Make (String)
+-- @year in WHERE clause should contain the value of second dropdown box for vehicle Year (Integer)
+-- SELECT model FROM vehicle_data WHERE make = 'Honda' AND year = 2020 ORDER BY model;
 
-CREATE TABLE engine (
-    id SERIAL PRIMARY KEY,
-    engine_id INTEGER REFERENCES model(id) ON DELETE CASCADE,
-    engine VARCHAR(25) NOT NULL
-);
+-- To get vehicle Engine
+-- @make in WHERE clause should contain the value of first dropdown box for vehicle Make (String)
+-- @year in WHERE clause should contain the value of second dropdown box for vehicle Year (Integer)
+-- @model in WHERE clause should contain the value of third dropdown box for vehicle Model (String)
+-- SELECT engine FROM vehicle_data WHERE make = 'Honda' AND year = 2020 AND model='CR-V' ORDER BY engine;
