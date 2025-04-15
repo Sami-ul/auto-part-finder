@@ -3,21 +3,12 @@ services:
     container_name: auto-parts-finder-db
     image: postgres:14
     env_file: .env
-    environment:
-      - POSTGRES_DB=auto_parts_finder
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
     expose:
       - '5432'
     volumes:
       - auto-parts-finder:/var/lib/postgresql/data
       - ./init_data:/docker-entrypoint-initdb.d
       - ./init_data/vehicle_data.csv:/home/node/app/vehicle_data.csv
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
   web:
     container_name: auto-parts-finder-web
     image: node:lts
@@ -26,13 +17,8 @@ services:
     env_file: .env
     environment:
       - NODE_ENV=development
-      - POSTGRES_HOST=db
-      - POSTGRES_DB=auto_parts_finder
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
     depends_on:
-      db:
-        condition: service_healthy
+      -db
     ports:
       - '3000:3000'
     volumes:
