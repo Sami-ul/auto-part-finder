@@ -10,6 +10,7 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const { match } = require('assert');
+// const apiRouter = require('./routes/api');  // Remove this line
 
 /* Connect to DB */
 const hbs = handlebars.create({
@@ -254,7 +255,7 @@ app.get('/allparts', (req, res) => {
 
 app.get('/mycars', (req, res) => {
   if (!req.session.user) {
-    res.redirect('/discover');
+    return res.redirect('/discover');
   }
   // saving vehicle addition into db
   db.any('SELECT * FROM user_vehicles WHERE user_id = $1', [req.session.user.id])
@@ -262,12 +263,33 @@ app.get('/mycars', (req, res) => {
       res.render('pages/mycars', { cars: cars });
     })
     .catch(error => {
-      console.log(error);
+      console.error('Error loading vehicles:', error);
       res.render('pages/mycars', {
         message: 'Error loading your vehicles',
         cars: []
       });
     });
+});
+
+// Add the vehicle data route directly in index.js
+app.get('/vehicle-data', async (req, res) => {
+    try {
+        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
+        const result = await db.any(query);
+        
+        // Transform the data into the expected array format
+        const data = result.map(row => [
+            row.make,
+            row.year,
+            row.model,
+            row.engine
+        ]);
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching vehicle data:', error);
+        res.status(500).json({ error: 'Failed to fetch vehicle data' });
+    }
 });
 
 // To add vehicle to profile and database
