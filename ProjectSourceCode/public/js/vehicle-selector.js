@@ -1,12 +1,12 @@
 let vehicleData = null;
 
-// Fetch and parse CSV data
+// parsing CSV data
 async function loadVehicleData() {
     const response = await fetch('/vehicle-data');
     const data = await response.json();
     vehicleData = data;
     
-    // Populate initial make dropdown
+    //populate initial make dropdown
     const makeSelect = document.getElementById('make');
     const uniqueMakes = [...new Set(data.map(row => row[0]))].sort();
     
@@ -16,7 +16,7 @@ async function loadVehicleData() {
     });
 }
 
-// Update year dropdown based on selected make
+//Update years based on make choice
 function updateYearDropdown(selectedMake) {
     const yearSelect = document.getElementById('year');
     yearSelect.innerHTML = '<option value="">Select Year</option>';
@@ -29,7 +29,7 @@ function updateYearDropdown(selectedMake) {
     const years = [...new Set(vehicleData
         .filter(row => row[0] === selectedMake)
         .map(row => row[1]))
-    ].sort((a, b) => b - a); // Sort years descending
+    ].sort((a, b) => b - a); // sort years descending
     
     years.forEach(year => {
         yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
@@ -37,7 +37,7 @@ function updateYearDropdown(selectedMake) {
     yearSelect.disabled = false;
 }
 
-// Update model dropdown based on selected make and year
+//Populate models based on make, year
 function updateModelDropdown(selectedMake, selectedYear) {
     const modelSelect = document.getElementById('model');
     modelSelect.innerHTML = '<option value="">Select Model</option>';
@@ -58,7 +58,7 @@ function updateModelDropdown(selectedMake, selectedYear) {
     modelSelect.disabled = false;
 }
 
-// Update engine dropdown based on selected make, year, and model
+//Populate engines based on make, year, model
 function updateEngineDropdown(selectedMake, selectedYear, selectedModel) {
     const engineSelect = document.getElementById('engine');
     engineSelect.innerHTML = '<option value="">Select Engine</option>';

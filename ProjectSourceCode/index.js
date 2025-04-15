@@ -271,13 +271,13 @@ app.get('/mycars', (req, res) => {
     });
 });
 
-// Add the vehicle data route directly in index.js
+// Vehicle data route from csv
 app.get('/vehicle-data', async (req, res) => {
     try {
         const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
         const result = await db.any(query);
         
-        // Transform the data into the expected array format
+        // For csv mapping
         const data = result.map(row => [
             row.make,
             row.year,
