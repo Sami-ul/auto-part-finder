@@ -17,7 +17,7 @@ db.connect()
         obj.done();
     })
     .catch(error => {
-        console.log('ERROR', error_message || error);
+        console.log('ERROR', error);
     });
 
 
