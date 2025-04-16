@@ -1,5 +1,7 @@
 const searchResults = document.getElementById('search-results');
 const addressInput = document.getElementById('address');
+const showStoresButton = document.getElementById('show-stores');
+let storeMarkers = [];
 let lastSearched;
 let debounce;
 var map = L.map('map').setView([40.0190, -105.2747], 13);
@@ -108,3 +110,128 @@ function markOnMap(lat, long, street_address){
     marker.bindPopup(street_address).openPopup();
     map.setView([lat, long], 15);
 }
+
+
+async function findAutoPartsStores(lat, lon) {
+    // Clear previous markers
+    clearStoreMarkers();
+    
+    try {
+        // Use Overpass API to find auto parts stores
+        const overpassApi = 'https://overpass-api.de/api/interpreter';
+        const radius = 5000; // 5km radius
+        
+        const query = `
+        [out:json];
+        node(around:${radius},${lat},${lon})
+          ["shop"="car_parts"];
+        out body;
+        node(around:${radius},${lat},${lon})
+          ["shop"="car_repair"];
+        out body;
+        node(around:${radius},${lat},${lon})
+          ["amenity"="car_parts"];
+        out body;
+        `;
+        
+        const response = await axios.post(overpassApi, query);
+        
+        if (response.data && response.data.elements) {
+            const storeIcon = L.icon({
+                iconUrl: '../img/maintenance.png',
+                iconSize: [25, 25],
+                iconAnchor: [12, 25],
+                popupAnchor: [0, -25]
+            });
+
+            
+            response.data.elements.forEach(store => {
+                const marker = L.marker([store.lat, store.lon], {icon: storeIcon}).addTo(map);
+                const storeName = store.tags.name || 'Auto Parts Store';
+                
+                const popupContent = `
+                    <strong>${storeName}</strong>
+                    <button class="choose-store-btn" 
+                            data-lat="${store.lat}"
+                            data-lon="${store.lon}"
+                            data-name="${storeName}">
+                        Choose This Store
+                    </button>
+                `;
+                
+                marker.bindPopup(popupContent);
+                
+                marker.on('popupopen', function() {
+                    const button = document.querySelector('.choose-store-btn');
+                    if (button) {
+                        button.addEventListener('click', async function() {
+                            const storeLat = this.getAttribute('data-lat');
+                            const storeLon = this.getAttribute('data-lon');
+                            const storeName = this.getAttribute('data-name');
+                            
+                            marker.closePopup();
+                            
+                            await getAddressFromCoordinates(storeLat, storeLon, storeName);
+                        });
+                    }
+                });
+                
+                storeMarkers.push(marker);
+            });
+            
+            if (response.data.elements.length === 0) {
+                alert('No auto parts stores found in this area.');
+            }
+        }
+    } catch (error) {
+        alert('Error searching for auto parts stores');
+    }
+}
+
+async function getAddressFromCoordinates(lat, lon, storeName) {
+    try {
+        const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+            params: {
+                format: 'json',
+                lat: lat,
+                lon: lon,
+                zoom: 18,
+                addressdetails: 1
+            },
+        });
+
+        if (response.data && response.data.address) {
+            const addressData = formatAddress(response.data);
+            
+            autofill(addressData);
+            
+            const streetField = document.getElementById('street_address');
+            if (streetField && streetField.value && storeName) {
+                streetField.value = `${storeName}, ${streetField.value}`;
+            }
+            
+        } else {
+            alert('Could not retrieve address for this store.');
+        }
+    } catch (error) {
+        alert('Error retrieving store address.');
+    }
+}
+
+function clearStoreMarkers() {
+    storeMarkers.forEach(marker => {
+        map.removeLayer(marker);
+    });
+    storeMarkers = [];
+}
+
+findAutoPartsStores(40.0190, -105.2747);
+
+showStoresButton.addEventListener('change', function() {
+    if (this.checked) {
+        const center = map.getCenter();
+        findAutoPartsStores(center.lat, center.lng);
+    } else {
+        clearStoreMarkers();
+    }
+});
