@@ -185,21 +185,72 @@ body {
     background: #e65c00;
 }
 
+/* vehicle selection popup */
+
+/* Main popup container - centered fixed position with white background */
 .popup {
-    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-    width: 400px;
-    z-index: 1002;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    width: 80%;
+    max-width: 500px;
 }
 
+/* Show popup when active class is added */
 .popup.active {
     display: block;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Dropdown select elements in vehicle selector */
+.form-select {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Modal footer */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Close button on select vehicle popup discover page */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* For clear vehicle button on discover popup*/
+#clearVehicle {
+    margin-right: auto;
 }
 
 .popup select {
@@ -265,21 +316,6 @@ body {
 
 .add-btn:hover{
     background: #e65c00;
-}
-
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1001;
-}
-
-.overlay.active {
-    display: block;
 }
 
 /* Car modals */

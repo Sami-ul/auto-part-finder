@@ -1,5 +1,5 @@
 {{!-- Add all car options to discover page, plys make it an option to choose your own car from your garage --}}
-
+<script src="/js/vehicle-selector.js"></script>
 {{!-- Discover page should be the initial landing page instead of the login/register page
 This should render differently when logged out vs. logged in. --}}
 <main>
@@ -17,46 +17,240 @@ This should render differently when logged out vs. logged in. --}}
         <div class="popup-header">
             <h2>Choose a Vehicle</h2>
         </div>
-        <select id="year">
-            <option value="">Year</option>
-            <option>2024</option>
-            <option>2023</option>
-            <option>2022</option>
-        </select>
-        <select id="make">
-            <option>Make</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <select id="model">
-            <option>Model</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <select id="engine">
-            <option>Engine</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <button id="addVehicle" class="add-btn">Add</button>
+        <div class="modal-body">
+            <form id="vehicleSelectForm">
+                <div class="mb-3">
+                    <select id="make" class="form-select" required>
+                        <option value="">Select Make</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <select id="year" class="form-select" required disabled>
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <select id="model" class="form-select" required disabled>
+                        <option value="">Select Model</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <select id="engine" class="form-select" required disabled>
+                        <option value="">Select Engine</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="clearVehicle">Clear Vehicle</button>
+            <button type="button" class="btn btn-primary" id="addVehicle">Select Vehicle</button>
+        </div>
     </div>
 
     <script>
-        // Open the popup when the "Choose a Vehicle" button is clicked
-        document.getElementById("chooseVehicle").addEventListener("click", function () {
-            document.getElementById("vehiclePopup").classList.add("active");
-            document.getElementById("overlay").classList.add("active");
-        });
+    document.addEventListener('DOMContentLoaded', async function() {
+        // First, verify all required elements exist
+        const makeSelect = document.getElementById('make');
+        const yearSelect = document.getElementById('year');
+        const modelSelect = document.getElementById('model');
+        const engineSelect = document.getElementById('engine');
+        const chooseVehicleBtn = document.getElementById('chooseVehicle');
+        const vehiclePopup = document.getElementById('vehiclePopup');
+        const closePopupBtn = document.getElementById('closePopup');
+        const clearVehicleBtn = document.getElementById('clearVehicle');
+        const addVehicleBtn = document.getElementById('addVehicle');
+        const overlay = document.getElementById('overlay');
 
-        // Close the popup when the "Close" button is clicked
-        document.getElementById("closePopup").addEventListener("click", function () {
-            document.getElementById("vehiclePopup").classList.remove("active");
-            document.getElementById("overlay").classList.remove("active");
-        });
+        // Check if all required elements exist
+        if (!makeSelect || !yearSelect || !modelSelect || !engineSelect || 
+            !chooseVehicleBtn || !vehiclePopup || !closePopupBtn || 
+            !clearVehicleBtn || !addVehicleBtn || !overlay) {
+            console.error('Required DOM elements not found');
+            return;
+        }
+
+        try {
+            // Load vehicle data
+            const response = await fetch('/vehicle-data');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                throw new Error('Invalid vehicle data received');
+            }
+            
+            vehicleData = Array.isArray(data) ? data : Object.values(data);
+
+            // Populate initial make dropdown
+            const uniqueMakes = [...new Set(vehicleData.map(row => row[0]))].sort();
+            makeSelect.innerHTML = '<option value="">Select Make</option>';
+            uniqueMakes.forEach(make => {
+                if (make && make.trim()) {
+                    makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+                }
+            });
+
+            // Add event listeners
+            makeSelect.addEventListener('change', function() {
+                updateDropdowns('year', this.value);
+            });
+
+            yearSelect.addEventListener('change', function() {
+                updateDropdowns('model', makeSelect.value, this.value);
+            });
+
+            modelSelect.addEventListener('change', function() {
+                updateDropdowns('engine', makeSelect.value, yearSelect.value, this.value);
+            });
+
+            // Open popup
+            chooseVehicleBtn.addEventListener('click', function() {
+                vehiclePopup.classList.add('active');
+                overlay.classList.add('active');
+            });
+
+            // Close popup
+            closePopupBtn.addEventListener('click', closePopup);
+            
+            // Clear vehicle
+            clearVehicleBtn.addEventListener('click', function() {
+                localStorage.removeItem('selectedVehicle');
+                makeSelect.value = '';
+                yearSelect.value = '';
+                modelSelect.value = '';
+                engineSelect.value = '';
+                yearSelect.disabled = true;
+                modelSelect.disabled = true;
+                engineSelect.disabled = true;
+                chooseVehicleBtn.textContent = "Choose Vehicle";
+                closePopup();
+            });
+
+            // Add vehicle
+            addVehicleBtn.addEventListener('click', function() {
+                const year = yearSelect.value;
+                const make = makeSelect.value;
+                const model = modelSelect.value;
+                const engine = engineSelect.value;
+
+                if (!year || !make || !model || !engine) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                const selectedVehicle = { year, make, model, engine };
+                localStorage.setItem('selectedVehicle', JSON.stringify(selectedVehicle));
+                chooseVehicleBtn.textContent = `${year} ${make} ${model}`;
+                closePopup();
+            });
+
+            // Check for saved vehicle
+            const savedVehicle = localStorage.getItem('selectedVehicle');
+            if (savedVehicle) {
+                const vehicle = JSON.parse(savedVehicle);
+                chooseVehicleBtn.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+            }
+
+        } catch (error) {
+            console.error('Error loading vehicle data:', error);
+            alert(`Failed to load vehicle data: ${error.message}. Please try again later.`);
+        }
+    });
+
+    function closePopup() {
+        const vehiclePopup = document.getElementById('vehiclePopup');
+        const overlay = document.getElementById('overlay');
+        if (vehiclePopup && overlay) {
+            vehiclePopup.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+    }
+
+    function updateDropdowns(type, make, year, model) {
+        const yearSelect = document.getElementById('year');
+        const modelSelect = document.getElementById('model');
+        const engineSelect = document.getElementById('engine');
+
+        switch(type) {
+            case 'year':
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                modelSelect.innerHTML = '<option value="">Select Model</option>';
+                engineSelect.innerHTML = '<option value="">Select Engine</option>';
+                
+                if (!make) {
+                    yearSelect.disabled = true;
+                    modelSelect.disabled = true;
+                    engineSelect.disabled = true;
+                    return;
+                }
+
+                const years = [...new Set(vehicleData
+                    .filter(row => row[0] === make)
+                    .map(row => row[1]))
+                ].sort((a, b) => b - a);
+
+                years.forEach(year => {
+                    yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+                });
+
+                yearSelect.disabled = false;
+                modelSelect.disabled = true;
+                engineSelect.disabled = true;
+                break;
+
+            case 'model':
+                modelSelect.innerHTML = '<option value="">Select Model</option>';
+                engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+                if (!make || !year) {
+                    modelSelect.disabled = true;
+                    engineSelect.disabled = true;
+                    return;
+                }
+
+                const models = [...new Set(vehicleData
+                    .filter(row => row[0] === make && row[1] === parseInt(year))
+                    .map(row => row[2]))
+                ].sort();
+
+                models.forEach(model => {
+                    modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+                });
+
+                modelSelect.disabled = false;
+                engineSelect.disabled = true;
+                break;
+
+            case 'engine':
+                engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+                if (!make || !year || !model) {
+                    engineSelect.disabled = true;
+                    return;
+                }
+
+                const engines = [...new Set(vehicleData
+                    .filter(row => 
+                        row[0] === make && 
+                        row[1] === parseInt(year) && 
+                        row[2] === model
+                    )
+                    .map(row => row[3]))
+                ].sort();
+
+                engines.forEach(engine => {
+                    engineSelect.innerHTML += `<option value="${engine}">${engine}</option>`;
+                });
+
+                engineSelect.disabled = false;
+                break;
+        }
+    }
     </script>
+
 
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
         {{#each products}}
