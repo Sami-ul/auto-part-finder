@@ -272,8 +272,11 @@ app.get('/account', async (req, res) => {
   }
 
   let addresses = []
+  let list_addresses = []
+
   try {
-    addresses = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
+    def_address = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
+    list_addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1', [req.session.user.id])
   }
   catch (err) {
     res.status(500).render('pages/account', {
@@ -284,7 +287,10 @@ app.get('/account', async (req, res) => {
 
   console.log(addresses)
 
-  return res.render('pages/account', { addresses: addresses })
+  return res.render('pages/account', {
+    def_address: def_address,
+    list_addresses: list_addresses
+  })
 });
 
 app.get('/allparts', (req, res) => {
