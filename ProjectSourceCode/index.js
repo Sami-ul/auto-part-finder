@@ -10,6 +10,7 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const { match } = require('assert');
+// const apiRouter = require('./routes/api');  // Remove this line
 
 /* Connect to DB */
 const hbs = handlebars.create({
@@ -47,7 +48,12 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     saveUninitialized: false,
-    resave: false
+    resave: false,
+    // Keeps user logged in
+    cookie: { 
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24
+    }
   })
 );
 
@@ -254,7 +260,7 @@ app.get('/allparts', (req, res) => {
 
 app.get('/mycars', (req, res) => {
   if (!req.session.user) {
-    res.redirect('/discover');
+    return res.redirect('/discover');
   }
   // saving vehicle addition into db
   db.any('SELECT * FROM user_vehicles WHERE user_id = $1', [req.session.user.id])
@@ -262,12 +268,33 @@ app.get('/mycars', (req, res) => {
       res.render('pages/mycars', { cars: cars });
     })
     .catch(error => {
-      console.log(error);
+      console.error('Error loading vehicles:', error);
       res.render('pages/mycars', {
         message: 'Error loading your vehicles',
         cars: []
       });
     });
+});
+
+// Vehicle data route from csv
+app.get('/vehicle-data', async (req, res) => {
+    try {
+        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
+        const result = await db.any(query);
+        
+        // For csv mapping
+        const data = result.map(row => [
+            row.make,
+            row.year,
+            row.model,
+            row.engine
+        ]);
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching vehicle data:', error);
+        res.status(500).json({ error: 'Failed to fetch vehicle data' });
+    }
 });
 
 // To add vehicle to profile and database

@@ -1,3 +1,5 @@
+<script src="/js/vehicle-selector.js"></script> 
+{{!-- above script for referencing vehicle csv data --}}
 <main class="py-4 mx-5">
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h1>My Garage</h1>
@@ -46,6 +48,7 @@
     <div class="text-center py-5">
         <i class="bi bi-car-front" style="font-size: 4rem;"></i>
         <h2 class="mt-3">No vehicles in your garage</h2>
+        <p class="text-muted">Add your first vehicle to get started!</p>
     </div>
     {{/if}}
 </main>
@@ -61,40 +64,23 @@
             <div class="modal-body">
                 <form id="addVehicleForm">
                     <div class="mb-3">
-                        <select id="year" class="form-select" required>
-                            <option value="">Select Year</option>
-                            <option>2024</option>
-                            <option>2023</option>
-                            <option>2022</option>
-                            {{!-- More options... --}}
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <select id="make" class="form-select" required>
                             <option value="">Select Make</option>
-                            <option>Toyota</option>
-                            <option>Honda</option>
-                            <option>Ford</option>
-                            {{!-- More options... --}}
                         </select>
                     </div>
                     <div class="mb-3">
-                        <select id="model" class="form-select" required>
+                        <select id="year" class="form-select" required disabled>
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select id="model" class="form-select" required disabled>
                             <option value="">Select Model</option>
-                            <option>Camry</option>
-                            <option>Corolla</option>
-                            <option>Civic</option>
-                            <option>Accord</option>
-                           {{!-- More options.. should change based on make choice --}}
                         </select>
                     </div>
                     <div class="mb-3">
-                        <select id="engine" class="form-select" required>
+                        <select id="engine" class="form-select" required disabled>
                             <option value="">Select Engine</option>
-                            <option>2.0L 4-cylinder</option>
-                            <option>2.5L 4-cylinder</option>
-                            <option>3.0L V6</option>
-                            {{!-- More options.. should change based on make and model choice --}}
                         </select>
                     </div>
                 </form>
@@ -115,23 +101,26 @@
                 <h5 class="modal-title" id="carModalLabel">Edit Vehicle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            {{!-- Options for below are all populated based on the "add vehicle" form --}}
             <div class="modal-body">
                 <form id="editVehicleForm">
                     <div class="mb-3">
-                        <select id="editYear" class="form-select" required>
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <select id="editMake" class="form-select" required>
+                            <option value="">Select Make</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <select id="editModel" class="form-select" required>
+                        <select id="editYear" class="form-select" required disabled>
+                            <option value="">Select Year</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <select id="editEngine" class="form-select" required>
+                        <select id="editModel" class="form-select" required disabled>
+                            <option value="">Select Model</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select id="editEngine" class="form-select" required disabled>
+                            <option value="">Select Engine</option>
                         </select>
                     </div>
                     <input type="hidden" id="editCarId">
@@ -163,6 +152,153 @@
 </div>
 
 <script>
+    let vehicleData = null;
+
+    // Load vehicle data when the page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            // Update the fetch URL to remove /api prefix
+            const response = await fetch('/vehicle-data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            // Convert the data into the expected format if it's not already
+            // Expecting each row to be an array where row[0] is make, row[1] is year, etc.
+            vehicleData = Array.isArray(data) ? data : Object.values(data);
+            
+            console.log('Loaded vehicle data:', vehicleData); // For debugging
+            
+            // Initialize dropdowns for both add and edit forms
+            initializeDropdowns('make', 'year', 'model', 'engine');
+            initializeDropdowns('editMake', 'editYear', 'editModel', 'editEngine');
+
+            // Initialize the edit form
+            initializeEditForm();
+        } catch (error) {
+            console.error('Error loading vehicle data:', error);
+            alert('Failed to load vehicle data. Please refresh the page.');
+        }
+    });
+
+    function initializeDropdowns(makeId, yearId, modelId, engineId) {
+        const makeSelect = document.getElementById(makeId);
+        const yearSelect = document.getElementById(yearId);
+        const modelSelect = document.getElementById(modelId);
+        const engineSelect = document.getElementById(engineId);
+
+        if (!vehicleData || !vehicleData.length) {
+            console.error('No vehicle data available');
+            return;
+        }
+
+        // Populate initial make dropdown
+        try {
+            // Get unique makes and sort them alphabetically
+            const uniqueMakes = [...new Set(vehicleData.map(row => row[0]))].sort((a, b) => 
+                a.toLowerCase().localeCompare(b.toLowerCase())
+            );
+
+            console.log('Unique makes:', uniqueMakes); // For debugging
+
+            makeSelect.innerHTML = '<option value="">Select Make</option>';
+            uniqueMakes.forEach(make => {
+                if (make && make.trim()) { // Only add non-empty makes
+                    makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+                }
+            });
+        } catch (error) {
+            console.error('Error populating makes:', error);
+        }
+
+        // Add event listeners
+        makeSelect.addEventListener('change', function() {
+            updateYearDropdown(this.value, yearSelect, modelSelect, engineSelect);
+        });
+
+        yearSelect.addEventListener('change', function() {
+            updateModelDropdown(makeSelect.value, this.value, modelSelect, engineSelect);
+        });
+
+        modelSelect.addEventListener('change', function() {
+            updateEngineDropdown(makeSelect.value, yearSelect.value, this.value, engineSelect);
+        });
+    }
+
+    function updateYearDropdown(selectedMake, yearSelect, modelSelect, engineSelect) {
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        engineSelect.innerHTML = '<option value="">Select Engine</option>';
+        
+        if (!selectedMake) {
+            yearSelect.disabled = true;
+            modelSelect.disabled = true;
+            engineSelect.disabled = true;
+            return;
+        }
+
+        const years = [...new Set(vehicleData
+            .filter(row => row[0] === selectedMake)
+            .map(row => row[1]))
+        ].sort((a, b) => b - a);
+
+        years.forEach(year => {
+            yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+        });
+
+        yearSelect.disabled = false;
+        modelSelect.disabled = true;
+        engineSelect.disabled = true;
+    }
+
+    function updateModelDropdown(selectedMake, selectedYear, modelSelect, engineSelect) {
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+        if (!selectedMake || !selectedYear) {
+            modelSelect.disabled = true;
+            engineSelect.disabled = true;
+            return;
+        }
+
+        const models = [...new Set(vehicleData
+            .filter(row => row[0] === selectedMake && row[1] === parseInt(selectedYear))
+            .map(row => row[2]))
+        ].sort();
+
+        models.forEach(model => {
+            modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+        });
+
+        modelSelect.disabled = false;
+        engineSelect.disabled = true;
+    }
+
+    function updateEngineDropdown(selectedMake, selectedYear, selectedModel, engineSelect) {
+        engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+        if (!selectedMake || !selectedYear || !selectedModel) {
+            engineSelect.disabled = true;
+            return;
+        }
+
+        const engines = [...new Set(vehicleData
+            .filter(row => 
+                row[0] === selectedMake && 
+                row[1] === parseInt(selectedYear) && 
+                row[2] === selectedModel
+            )
+            .map(row => row[3]))
+        ].sort();
+
+        engines.forEach(engine => {
+            engineSelect.innerHTML += `<option value="${engine}">${engine}</option>`;
+        });
+
+        engineSelect.disabled = false;
+    }
+
     // Show the modal
     document.getElementById('addVehicleBtn').addEventListener('click', function() {
         const modal = new bootstrap.Modal(document.getElementById('addVehicleModal'));
@@ -301,12 +437,15 @@
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
                 modal.hide();
 
-                // Sees if any cards still remaining
+                // Check if any cards still remain
                 const container = document.getElementById('carsContainer');
                 if (container && container.children.length === 0) {
                     container.remove();
-                    const main = document.querySelector('main');
-                    main.innerHTML = `
+                    // Only replace the cars container, not the entire main content
+                    const mainContent = document.querySelector('main');
+                    const headerSection = mainContent.querySelector('.mb-3.d-flex');
+                    mainContent.innerHTML = `
+                        ${headerSection.outerHTML}
                         <div class="text-center py-5">
                             <i class="bi bi-car-front" style="font-size: 4rem;"></i>
                             <h2 class="mt-3">No vehicles in your garage</h2>
@@ -352,14 +491,64 @@
             const year = currentEditCard.querySelector('tr:nth-child(3) td').textContent;
             const engine = currentEditCard.querySelector('tr:nth-child(4) td').textContent;
             
-            // Populate the edit form
-            document.getElementById('editYear').value = year;
-            document.getElementById('editMake').value = make;
-            document.getElementById('editModel').value = model;
-            document.getElementById('editEngine').value = engine;
-            document.getElementById('editCarId').value = currentEditCard.id;
+            // Set the make first and trigger its change event
+            const editMakeSelect = document.getElementById('editMake');
+            editMakeSelect.value = make;
+            editMakeSelect.dispatchEvent(new Event('change'));
+
+            // Short delay to allow for year dropdown to populate
+            setTimeout(() => {
+                // Set the year and trigger its change event
+                const editYearSelect = document.getElementById('editYear');
+                editYearSelect.value = year;
+                editYearSelect.dispatchEvent(new Event('change'));
+
+                // Short delay to allow for model dropdown to populate
+                setTimeout(() => {
+                    // Set the model and trigger its change event
+                    const editModelSelect = document.getElementById('editModel');
+                    editModelSelect.value = model;
+                    editModelSelect.dispatchEvent(new Event('change'));
+
+                    // Short delay to allow for engine dropdown to populate
+                    setTimeout(() => {
+                        // Set the engine
+                        const editEngineSelect = document.getElementById('editEngine');
+                        editEngineSelect.value = engine;
+                    }, 100);
+                }, 100);
+            }, 100);
+
+            // Store the car ID
+            document.getElementById('editCarId').value = currentEditCard.id.split('-')[1];
         }
     });
+
+    // Make sure the edit form dropdowns are properly initialized
+    function initializeEditForm() {
+        const editMakeSelect = document.getElementById('editMake');
+        const editYearSelect = document.getElementById('editYear');
+        const editModelSelect = document.getElementById('editModel');
+        const editEngineSelect = document.getElementById('editEngine');
+
+        // Enable all dropdowns initially
+        editYearSelect.disabled = false;
+        editModelSelect.disabled = false;
+        editEngineSelect.disabled = false;
+
+        // Add event listeners for the edit form dropdowns
+        editMakeSelect.addEventListener('change', function() {
+            updateYearDropdown(this.value, editYearSelect, editModelSelect, editEngineSelect);
+        });
+
+        editYearSelect.addEventListener('change', function() {
+            updateModelDropdown(editMakeSelect.value, this.value, editModelSelect, editEngineSelect);
+        });
+
+        editModelSelect.addEventListener('change', function() {
+            updateEngineDropdown(editMakeSelect.value, editYearSelect.value, this.value, editEngineSelect);
+        });
+    }
 
     // Saves any changes made
     document.getElementById('saveChanges').addEventListener('click', function() {
