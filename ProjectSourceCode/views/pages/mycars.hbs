@@ -409,15 +409,16 @@
     // For deleting modal
     let cardToDelete = null;
 
+    // When delete button is clicked, store the card reference
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('delete-car-btn')) {
-            // Storing id
-            cardToDelete = e.target.closest('.card');
+            cardToDelete = e.target.closest('.col-md-4');
             const carId = cardToDelete.id.split('-')[1];
             console.log('Preparing to delete car with ID:', carId);
         }
     });
 
+    // When confirm delete is clicked in the modal
     document.getElementById('confirmDelete').addEventListener('click', function() {
         if (!cardToDelete) {
             console.error('No card selected for deletion');
@@ -425,31 +426,32 @@
         }
 
         const carId = cardToDelete.id.split('-')[1];
-        console.log('Attempting to delete car with ID:', carId);
         
         fetch(`/api/vehicles/${carId}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             }
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json().then(err => Promise.reject(err));
             }
             return response.json();
         })
         .then(data => {
             if (data.success) {
+                // Remove the card from the DOM
                 cardToDelete.remove();
+                
+                // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
                 modal.hide();
 
-                // Check if any cards still remain
+                // Check if any cards remain
                 const container = document.getElementById('carsContainer');
                 if (container && container.children.length === 0) {
                     container.remove();
-                    // Only replace the cars container, not the entire main content
                     const mainContent = document.querySelector('main');
                     const headerSection = mainContent.querySelector('.mb-3.d-flex');
                     mainContent.innerHTML = `
@@ -462,12 +464,12 @@
                     `;
                 }
             } else {
-                throw new Error('Failed to delete vehicle');
+                throw new Error(data.error || 'Failed to delete vehicle');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to delete vehicle');
+            alert(error.message || 'Failed to delete vehicle');
         })
         .finally(() => {
             cardToDelete = null;

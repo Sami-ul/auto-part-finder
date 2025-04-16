@@ -429,17 +429,22 @@ app.put('/api/vehicles/:id', (req, res) => {
 // To delete vehicle from profile and database
 app.delete('/api/vehicles/:id', (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
+    return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
 
-  db.none('DELETE FROM user_vehicles WHERE id=$1 AND user_id=$2',
-    [req.params.id, req.session.user.id])
+  const vehicleId = parseInt(req.params.id);
+  if (isNaN(vehicleId)) {
+    return res.status(400).json({ success: false, error: 'Invalid vehicle ID' });
+  }
+
+  db.none('DELETE FROM user_vehicles WHERE id = $1 AND user_id = $2', 
+    [vehicleId, req.session.user.id])
     .then(() => {
       res.json({ success: true });
     })
     .catch(error => {
-      console.log(error);
-      res.status(500).json({ error: 'Failed to delete vehicle' });
+      console.error('Error deleting vehicle:', error);
+      res.status(500).json({ success: false, error: 'Failed to delete vehicle' });
     });
 });
 
