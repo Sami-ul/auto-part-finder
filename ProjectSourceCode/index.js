@@ -175,6 +175,25 @@ app.post('/cart/add', (req, res) => {
       res.status(500).json({ error: 'Failed to add to cart' });
     });
 });
+app.delete('/cart/remove', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, error: 'Not authenticated' });
+  }
+  const { product_id } = req.query;
+  if (!product_id) {
+    return res.status(400).json({ error: 'Part ID is required' });
+  }
+  const user_id = req.session.user.id;
+  db.none('DELETE FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
+    .then(() => {
+      res.status(200).json({ success: true });
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ error: 'Failed to add to cart' });
+    });
+});
+
 
 //register API testcase
 app.get('/register', (req, res) => {
