@@ -5,11 +5,11 @@ This should render differently when logged out vs. logged in. --}}
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">Select Vehicle</button>
-        <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
-        <button class="search-button">Search</button>
+        <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
         {{#if searchQuery}}
-            <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
+            <button class="clear-search" title="Clear search">×</button>
         {{/if}}
+        <button class="search-button">Search</button>
     </div>
 
     <div class="overlay" id="overlay"></div>
@@ -257,13 +257,44 @@ This should render differently when logged out vs. logged in. --}}
     }
 
     // search
-         document.querySelector(".search-button").addEventListener("click", function () {
-             const searchInput = document.querySelector(".search-input").value;
-             if (searchInput) {
-                 window.location.href = `/search?query=${encodeURIComponent(searchInput)}`;
-             }
-         });
-         
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('.search-button');
+        const clearButton = document.querySelector('.clear-search');
+
+        // Function to handle search
+        function performSearch() {
+            const searchValue = searchInput.value.trim();
+            if (searchValue) {
+                window.location.href = `/search?query=${encodeURIComponent(searchValue)}`;
+            }
+        }
+
+        // Handle click on search button
+        searchButton.addEventListener('click', performSearch);
+
+        // Handle Enter key press
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                performSearch();
+            }
+        });
+
+        // Handle clear button click
+        if (clearButton) {
+            clearButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                window.location.href = '/discover';
+            });
+        }
+
+        // Ensure the cursor can be placed anywhere in the input
+        searchInput.addEventListener('click', function(event) {
+            // Remove any default selection behavior
+            event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+        });
+    });
     </script>
 
 

@@ -143,6 +143,27 @@ body {
     border-top: 1px solid #919090;
     border-bottom: 1px solid #919090;
     height: 45px;
+    padding-right: 40px;
+}
+
+.clear-search {
+    background: none;
+    border: none;
+    color: #919090;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    transition: color 0.2s ease;
+    border-top: 1px solid #919090;
+    border-bottom: 1px solid #919090;
+}
+
+.clear-search:hover {
+    color: #e6823b;
 }
 
 .search-button {
@@ -150,7 +171,7 @@ body {
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 0 20px 20px 0;
+    border-radius: 0 30px 30px 0;
     cursor: pointer;
     font-size: 16px;
     height: 45px;
