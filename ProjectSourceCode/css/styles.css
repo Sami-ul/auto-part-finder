@@ -188,7 +188,7 @@ body {
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 10px #5c5c5c;;
     width: 400px;
     z-index: 1002;
 }
@@ -284,6 +284,12 @@ body {
     overflow: hidden;
     padding: 0;
     border: 1px solid #0c1c43;
+    box-shadow: 0 2px 10px rgba(92, 92, 92, 0.5) !important; /* Using direct color value and !important */
+}
+
+/* If you're using Bootstrap cards, this more specific selector might help */
+.container .card {
+    box-shadow: 0 2px 10px rgba(92, 92, 92, 0.5);
 }
 
 /* Dark blue header on parts discover page */
@@ -394,7 +400,7 @@ body {
     background-color: var(--main-bg);
     border-color: var(--brand-orange);
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(92, 92, 92, 0.2);
+    box-shadow: 0 2px 5px #5c5c5c;;
 }
 
 .addressResultElement.active {
