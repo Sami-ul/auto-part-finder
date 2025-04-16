@@ -6,7 +6,11 @@ This should render differently when logged out vs. logged in. --}}
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
         <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
+        <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
         <button class="search-button">Search</button>
+        {{#if searchQuery}}
+            <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
+        {{/if}}
         {{#if searchQuery}}
             <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
         {{/if}}

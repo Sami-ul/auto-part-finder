@@ -321,12 +321,6 @@ app.get('/vehicle-data', async (req, res) => {
         const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
         const result = await db.any(query);
         
-        // Add error handling for empty results
-        if (!result || result.length === 0) {
-            console.log('No vehicle data found in database');
-            return res.status(404).json({ error: 'No vehicle data found' });
-        }
-        
         // For csv mapping
         const data = result.map(row => [
             row.make,
