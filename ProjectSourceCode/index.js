@@ -317,23 +317,23 @@ app.get('/mycars', (req, res) => {
 
 // Vehicle data route from csv
 app.get('/vehicle-data', async (req, res) => {
-  try {
-    const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
-    const result = await db.any(query);
-
-    // For csv mapping
-    const data = result.map(row => [
-      row.make,
-      row.year,
-      row.model,
-      row.engine
-    ]);
-
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching vehicle data:', error);
-    res.status(500).json({ error: 'Failed to fetch vehicle data' });
-  }
+    try {
+        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
+        const result = await db.any(query);
+        
+        // For csv mapping
+        const data = result.map(row => [
+            row.make,
+            row.year,
+            row.model,
+            row.engine
+        ]);
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching vehicle data:', error);
+        res.status(500).json({ error: 'Failed to fetch vehicle data' });
+    }
 });
 
 // To add vehicle to profile and database
