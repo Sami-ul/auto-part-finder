@@ -8,6 +8,7 @@ const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const getParts = require('./js/get_parts.js');
 const axios = require('axios');
 const { match } = require('assert');
 // const apiRouter = require('./routes/api');  // Remove this line

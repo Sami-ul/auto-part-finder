@@ -67,16 +67,16 @@ VALUES
 (1, 2, '2022-12-10');
 
 -- Insert sample data into the products table
-INSERT INTO products (name, description) VALUES
-('Air Filter', 'High-performance air filter for improved engine airflow.'),
-('Brake Pads (Front)', 'Set of front brake pads for reliable stopping power.'),
-('Spark Plug', 'Standard spark plug for optimal engine performance.'),
-('Oil Filter', 'Premium oil filter to keep your engine clean.'),
-('Headlight Bulb', 'Bright and long-lasting headlight bulb.'),
-('Timing Belt', 'Durable timing belt for engine synchronization.'),
-('Water Pump', 'Efficient water pump for engine cooling.'),
-('Fuel Injector', 'Precision fuel injector for optimal fuel delivery.'),
-('Alternator', 'Reliable alternator for charging your vehicle''s battery.'),
-('Starter Motor', 'Powerful starter motor for quick engine starts.');
+-- INSERT INTO products (name, description) VALUES
+-- ('Air Filter', 'High-performance air filter for improved engine airflow.'),
+-- ('Brake Pads (Front)', 'Set of front brake pads for reliable stopping power.'),
+-- ('Spark Plug', 'Standard spark plug for optimal engine performance.'),
+-- ('Oil Filter', 'Premium oil filter to keep your engine clean.'),
+-- ('Headlight Bulb', 'Bright and long-lasting headlight bulb.'),
+-- ('Timing Belt', 'Durable timing belt for engine synchronization.'),
+-- ('Water Pump', 'Efficient water pump for engine cooling.'),
+-- ('Fuel Injector', 'Precision fuel injector for optimal fuel delivery.'),
+-- ('Alternator', 'Reliable alternator for charging your vehicle''s battery.'),
+-- ('Starter Motor', 'Powerful starter motor for quick engine starts.');
 
 -- You can add more INSERT statements to populate the table further.

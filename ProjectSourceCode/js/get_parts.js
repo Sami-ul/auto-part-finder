@@ -1,3 +1,5 @@
+/* getParts(data) */
+/* @data is a JSON object with keys {make, year, model, engine, part} */
 import * as cheerio from "cheerio";
 import axios from "axios";
 
