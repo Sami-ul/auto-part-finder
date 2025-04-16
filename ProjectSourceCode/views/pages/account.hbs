@@ -32,8 +32,8 @@
         </div>
     </div>
 </main>
+{{!-- Account edit feature --}}
 
-{{!-- Account edit feature
 <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -57,6 +57,10 @@
                         <select id="addresses" class="form-select">
                             <option value="" selected disabled>Select an address</option>
                             {{#each this.list_addresses}}
+                            {{#if this.def_address}}
+                            <option value="address" disabled>{{this.street_address}}, {{this.city}}, {{this.state}}</option>
+                            {{else}}
+                            {{/if}}
                             <option value="address">{{this.street_address}}, {{this.city}}, {{this.state}}</option>
                             {{/each}}
                         </select>
@@ -65,9 +69,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveChanges">Save Changes</button>
+                <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary m-2" id="saveChanges">Save</button>
             </div>
         </div>
     </div>
-</div>  --}}
+</div>

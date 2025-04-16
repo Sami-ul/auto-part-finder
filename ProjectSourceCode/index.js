@@ -277,7 +277,7 @@ app.get('/account', async (req, res) => {
 
   try {
     def_address = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
-    list_addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1', [req.session.user.id])
+    list_addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1 ANd is_default = FALSE', [req.session.user.id])
   }
   catch (err) {
     res.status(500).render('pages/account', {
@@ -294,8 +294,33 @@ app.get('/account', async (req, res) => {
   })
 });
 
-app.get('/allparts', (req, res) => {
-  res.render('pages/allparts');
+app.get('/checkout', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  } else {
+    const user_id = req.session.user.id;
+    try {
+      // Fetch cart items with product details
+      const cartItems = await db.any(
+        'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
+        [user_id]
+      );
+  
+      // Render the cart page with the cart items
+      return res.render('pages/checkout', {
+        cartItems: cartItems,
+        hasItems: cartItems.length > 0,
+        amtItems: cartItems.length
+      });
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      return res.render('pages/checkout', {
+        error: 'Failed to load cart items',
+        hasItems: false
+      });
+    }
+
+  }
 });
 
 app.get('/mycars', (req, res) => {
