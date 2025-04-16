@@ -108,3 +108,68 @@ function markOnMap(lat, long, street_address){
     marker.bindPopup(street_address).openPopup();
     map.setView([lat, long], 15);
 }
+
+let storeMarkers = [];
+
+async function findAutoPartsStores(lat, lon) {
+    // Clear previous markers
+    clearStoreMarkers();
+    
+    try {
+        // Use Overpass API to find auto parts stores
+        const overpassApi = 'https://overpass-api.de/api/interpreter';
+        const radius = 5000; // 5km radius
+        
+        const query = `
+        [out:json];
+        node(around:${radius},${lat},${lon})
+          ["shop"="car_parts"];
+        out body;
+        node(around:${radius},${lat},${lon})
+          ["shop"="car_repair"];
+        out body;
+        node(around:${radius},${lat},${lon})
+          ["amenity"="car_parts"];
+        out body;
+        `;
+        
+        const response = await axios.post(overpassApi, query);
+        
+        if (response.data && response.data.elements) {
+            const storeIcon = L.icon({
+                iconUrl: '../img/maintenance.png',
+                iconSize: [25, 25],
+                iconAnchor: [12, 25],
+                popupAnchor: [0, -25]
+            });
+
+            
+            response.data.elements.forEach(store => {
+                const marker = L.marker([store.lat, store.lon], {icon: storeIcon}).addTo(map);
+                const storeName = store.tags.name || 'Auto Parts Store';
+                const storeType = store.tags.shop || store.tags.amenity || '';
+                
+                marker.bindPopup(`<strong>${storeName}</strong>`);
+                storeMarkers.push(marker);
+            });
+            
+            if (response.data.elements.length === 0) {
+                alert('No auto parts stores found in this area.');
+            } else {
+                console.log(`Found ${response.data.elements.length} auto parts stores nearby.`);
+            }
+        }
+    } catch (error) {
+        console.error('Error finding auto parts stores:', error);
+        alert('Error searching for auto parts stores. Please try again.');
+    }
+}
+
+function clearStoreMarkers() {
+    storeMarkers.forEach(marker => {
+        map.removeLayer(marker);
+    });
+    storeMarkers = [];
+}
+
+findAutoPartsStores(40.0190, -105.2747);
