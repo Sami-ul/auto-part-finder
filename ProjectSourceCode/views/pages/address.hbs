@@ -8,7 +8,14 @@
                 <label for="address">Address</label>
                 <div id="search-results" style="position: absolute; width: 100%; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;"></div>
             </div>
+            <div class="form-check mb-3">
+                <input name="show-stores" class="form-check-input" type="checkbox" id="show-stores" checked>
+                <label class="form-check-label" for="show-stores">
+                    Show nearby stores
+                </label>
+            </div>
         </form>
+        
         <div id="map"></div>
 
         <form action="/address" method="POST">
