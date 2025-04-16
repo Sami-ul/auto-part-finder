@@ -255,6 +255,15 @@ This should render differently when logged out vs. logged in. --}}
                 break;
         }
     }
+
+    // search
+         document.querySelector(".search-button").addEventListener("click", function () {
+             const searchInput = document.querySelector(".search-input").value;
+             if (searchInput) {
+                 window.location.href = `/search?query=${encodeURIComponent(searchInput)}`;
+             }
+         });
+         
     </script>
 
 
