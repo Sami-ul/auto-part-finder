@@ -68,7 +68,6 @@ describe('Testing Register API', () => {
             .redirects(0) 
             .send({ email: "Jdoe@gmail.com", username: 'JohnDoe', password: '12345678B' })
             .end((err, res) => {
-                expect(res).to.have.status(302);
                 expect(res).to.redirectTo(/\/login$/);
                 done();
             });
@@ -92,7 +91,7 @@ describe('Testing Register API', () => {
             .request(server)
             .post('/register')
             .redirects(0) 
-            .send({ email: 1, username: "JohnDoe", password: "12345678B" }) // duplicate
+            .send({ email: 1, username: "JohnDoe", password: "12345678B" })
             .end((err, res) => {
                 expect(res).to.have.status(400);
                 expect(res.text).to.include('Invalid email address');

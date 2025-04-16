@@ -50,7 +50,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     // Keeps user logged in
-    cookie: { 
+    cookie: {
       secure: false,
       maxAge: 1000 * 60 * 60 * 24
     }
@@ -110,6 +110,20 @@ app.get('/discover', async (req, res) => {
   } catch (error) {
     console.error('Error fetching products:', error);
     res.render('pages/discover', { products: [], error: 'Failed to load products' }); // Handle errors
+  }
+});
+app.get('/search', async (req, res) => {
+  const query = req.query.query;
+
+  if (!query) {
+    return res.redirect('/discover');
+  }
+  try {
+    const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
+    res.render('pages/discover', { products: products, searchQuery: query });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
   }
 });
 
@@ -433,8 +447,8 @@ app.get('/address', async (req, res) => {
 app.post('/address', async (req, res) => {
   console.log("POSTED ADRESS BODY", req.body)
 
-  const {street_address, apartment, city, state, postal_code, country, default_address, default_address_visible} = req.body;
-  const user_id = req.session.user.id; 
+  const { street_address, apartment, city, state, postal_code, country, default_address, default_address_visible } = req.body;
+  const user_id = req.session.user.id;
   let default_addr;
   let apt = apartment || null;
   if (default_address || default_address_visible) {
