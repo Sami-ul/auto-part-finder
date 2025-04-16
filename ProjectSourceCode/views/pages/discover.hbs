@@ -4,13 +4,9 @@
 This should render differently when logged out vs. logged in. --}}
 <main>
     <div class="search-container">
-        <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
-        <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
+        <button id="chooseVehicle" class="choose-vehicle">Select Vehicle</button>
         <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
         <button class="search-button">Search</button>
-        {{#if searchQuery}}
-            <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
-        {{/if}}
         {{#if searchQuery}}
             <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
         {{/if}}
@@ -148,18 +144,21 @@ This should render differently when logged out vs. logged in. --}}
                     return;
                 }
 
-                const selectedVehicle = { year, make, model, engine };
-                localStorage.setItem('selectedVehicle', JSON.stringify(selectedVehicle));
+                // Remove localStorage setting
+                // localStorage.setItem('selectedVehicle', JSON.stringify(selectedVehicle));
                 chooseVehicleBtn.textContent = `${year} ${make} ${model}`;
                 closePopup();
             });
 
+            // Remove or comment out this block of code that checks localStorage
+            /*
             // Check for saved vehicle
             const savedVehicle = localStorage.getItem('selectedVehicle');
             if (savedVehicle) {
                 const vehicle = JSON.parse(savedVehicle);
                 chooseVehicleBtn.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
             }
+            */
 
         } catch (error) {
             console.error('Error loading vehicle data:', error);
