@@ -44,6 +44,7 @@ class Vehicle {
     +make
     +model
     +year
+    +engine
 }
 
 class Part {
@@ -100,3 +101,4 @@ class Repair {
     +repair_date
     +notes
 }
+```
