@@ -1,5 +1,5 @@
-const cheerio = require('cheerio');
-const axios = require('axios');
+import * as cheerio from "cheerio";
+import axios from "axios";
 
 const partsDict = {
   "headlamp assembly": { parameters: "body+&+lamp+assembly,headlamp+assembly", partNum: "10762" },
@@ -86,6 +86,7 @@ function getIndexList(html, carcode, partnumber) {
   const iIndex = iMatch[1];
 
   // Locate the element with id "part_groupindexes_in_this_listing[i]".
+
   const partGroupElem = listingsContainer.find(`#part_groupindexes_in_this_listing\\[${iIndex}\\]`).first();
   if (!partGroupElem.length) return null;
 
@@ -103,7 +104,6 @@ function extractProducts(html, carcode, partnumber) {
   const $ = cheerio.load(html);
   const indexList = getIndexList(html, carcode, partnumber);
   if (!indexList) return [];
-  
   const products = [];
   
   indexList.forEach(idx => {
@@ -118,7 +118,8 @@ function extractProducts(html, carcode, partnumber) {
     const total = $(`span#dtotal\\[${idx}\\]\\[v\\]`).first().text().trim();
     
     // Extract inline image value and then get image links from the "Slots" array.
-    let images = [];
+    let imagesFull = [];
+    let imagesThumb = [];
     const inlineImgElem = $(`#jsninlineimg\\[${idx}\\]`).first();
     if (inlineImgElem.length) {
       let rawVal = inlineImgElem.attr('value') || "";
@@ -133,9 +134,12 @@ function extractProducts(html, carcode, partnumber) {
         }
       }
       if (imgJSON && Array.isArray(imgJSON.Slots)) {
-        images = imgJSON.Slots
+        imagesFull = imgJSON.Slots
           .filter(slot => slot.ImageData && slot.ImageData.Full)
           .map(slot => slot.ImageData.Full);
+        imagesThumb = imgJSON.Slots
+        .filter(slot => slot.ImageData && slot.ImageData.Thumb)
+        .map(slot => slot.ImageData.Thumb);
       }
     }
     
@@ -156,14 +160,15 @@ function extractProducts(html, carcode, partnumber) {
       pack,
       total,
       fits,
-      images
+      imagesFull,
+      imagesThumb,
     });
   });
   
   return products;
 }
 
-async function getParts(data) {
+export async function getParts(data) {
   const make = data.make,
         year = data.year,
         model = data.model,
@@ -174,21 +179,9 @@ async function getParts(data) {
   
   let htmlContent = await fetchUrl(carcodeUrl);
   const carcode = getCarCode(htmlContent, make, year, model, engine);
-  
   const partUrl = `${carcodeUrl},${carcode},${partsDict[part].parameters},${partsDict[part].partNum}`;
   htmlContent = await fetchUrl(partUrl);
   
-  const items = extractProducts(htmlContent, carcode, partsDict[part].partNum);
-  console.log(JSON.stringify(items, null, 2));
+  return extractProducts(htmlContent, carcode, partsDict[part].partNum);
 }
-
- const data = {
-    "make": "gmc",
-    "year": "2012",
-    "model": "sierra 2500",
-    "engine": "6.6l v8 diesel turbocharged",
-    "part": "brake pad"
-  };
-
-getParts(data);
 
