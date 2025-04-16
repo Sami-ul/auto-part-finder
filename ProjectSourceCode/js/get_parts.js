@@ -1,5 +1,42 @@
-/* getParts(data) */
-/* @data is a JSON object with keys {make, year, model, engine, part} */
+/* 
+async function getParts(data)                                                     
+@data is a JSON object with keys {make, year, model, engine, part} 
+
+Example usage:  
+---                                                   
+const data = {
+  "make": "honda",
+  "year": "2020",
+  "model": "cr-v",
+  "engine": "1.5l l4 turbocharged",
+  "part": "brake pad"
+};
+
+const results = getParts(data);
+---
+Results is an array of JSON objects and can be navigated as such
+An example JSON object looks like this (This is a brake pad, rear, for the vehicle above):
+
+results[0]:
+  {
+    brand: 'PRO LINE',
+    partNumber: 'PS2037C',
+    description: 'Wholesaler Closeout -- 30 Day Warranty',
+    price: '$8.43',
+    core: '$0.00',
+    pack: '+ Sold in packs of 1x1',
+    total: '$8.43',
+    fits: 'Rear',
+    imagesFull: [ '/info/873/873_PS2037C_1.jpg', '/info/873/873_PS2037C_2.jpg' ],
+    imagesThumb: [
+      '/info/873/873_PS2037C_1__ra_m.jpg',
+      '/info/873/873_PS2037C_2__ra_m.jpg'
+    ]
+  }
+
+NOTE - all images need to be prepended with the host and domain https://www.rockauto.com
+*/
+
 import * as cheerio from "cheerio";
 import axios from "axios";
 
