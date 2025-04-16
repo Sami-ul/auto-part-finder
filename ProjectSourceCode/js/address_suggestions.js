@@ -150,7 +150,7 @@ async function findAutoPartsStores(lat, lon) {
                 const storeName = store.tags.name || 'Auto Parts Store';
                 
                 const popupContent = `
-                    <strong>${storeName}</strong>
+                    <strong class="store-popup-label">${storeName}</strong>
                     <button class="choose-store-btn" 
                             data-lat="${store.lat}"
                             data-lon="${store.lon}"
