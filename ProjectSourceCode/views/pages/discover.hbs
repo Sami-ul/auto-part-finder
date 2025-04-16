@@ -162,7 +162,7 @@ This should render differently when logged out vs. logged in. --}}
 
         } catch (error) {
             console.error('Error loading vehicle data:', error);
-            alert(`Failed to load vehicle data: ${error.message}. Please try again later.`);
+            alert(`Failed to load vehicle data: ${error.message}. Please try again later. Received data: ${JSON.stringify(data)}`);
         }
     });
 
