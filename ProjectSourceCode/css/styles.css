@@ -6,7 +6,7 @@
     --dark-blue: #0c1c43;
     --main-bg: #fef2e7;
     
-    --nav-text-color: #e7eaf1;
+    --nav-text-color: #f3f7ff;
     --nav-link-hover: #a5bafc;
     --box-shadow: #5c5c5c;
     --input-text-color:#919090;
@@ -26,13 +26,13 @@
 
 /* navbar tag */
 .navbar-text {
-    color: #e7eaf1;
+    color: #f3f7ff;
 }
 
 /* For the top right links: cart, login, logout */
 .navbar-nav .nav-link {
     padding: 10px 15px;
-    color: #e7eaf1;
+    color: #f3f7ff;
 }
 
 .navbar-nav .nav-link:hover {
@@ -231,7 +231,7 @@ body {
     padding: 10px;
     margin-top: 15px;
     background: #e6823b;
-    color: #e7eaf1;
+    color: #f3f7ff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -268,7 +268,7 @@ body {
 /* Dark blue header on parts discover page */
 .card-header {
     background-color: #0c1c43;
-    color: #e7eaf1;
+    color: #f3f7ff;
     width: 100%;
     padding: 0.5rem;
     margin: 0;
@@ -282,7 +282,7 @@ body {
 
 /* Parts card on discover page */
 .card-title {
-    color: #e7eaf1;
+    color: #f3f7ff;
     margin: 0;
     padding: 0.5rem;
     text-align: center;
@@ -315,7 +315,7 @@ body {
 /* My Car Modals */
 .modal-header {
     background-color: #0c1c43;
-    color: #e7eaf1
+    color: #f3f7ff
 }
 
 .modal-header .btn-close {
@@ -323,9 +323,40 @@ body {
 }
 
 .modal-title {
-    color: #e7eaf1;
+    color: #f3f7ff;
 }
 
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 15px 0 0 0;
+    border-top: none;
+}
+
+/* Button styling for vehicle popup */
+.modal-footer .btn {
+    flex: 1;
+    max-width: 120px;  /* Limit button width */
+    padding: 8px 16px;  /* Reduce padding to make buttons smaller */
+    font-size: 14px;   /* Reduce font size */
+}
+
+/* Specific styling for clear button */
+.modal-footer .btn-danger {
+    background-color: #b6a8aa;
+    border: none;
+}
+
+/* Specific styling for select button */
+.modal-footer .btn-primary {
+    background-color: #e6823b;
+    border: none;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #e65c00;
+}
 /* Address */
 .addressResultElement {
     padding: 0.75rem;

@@ -12,14 +12,16 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse justify-content-end" id="navbar-collapse">
-				{{!-- Renders a different navbar if logged in vs logged out --}}
 				{{#if user}}
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item">
-						<a class="nav-link" href="/cart">Cart</a>
+						<a class="nav-link" href="/discover">Shop</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="/mycars">My Cars</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/cart">Cart</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="/account">Account</a>
@@ -31,13 +33,16 @@
 				{{else}}
 				<ul class="navbar-nav ml-auto">
 					<li class="nav-item">
+						<a class="nav-link" href="/discover">Shop</a>
+					</li>
+					<li class="nav-item">
 						<a class="nav-link" href="/cart">Cart</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="/login">Login</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="/logout">Logout</a>
+						<a class="nav-link" href="/register">Register</a>
 					</li>
 				</ul>
 				{{/if}}
