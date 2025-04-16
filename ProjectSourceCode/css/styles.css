@@ -1,13 +1,17 @@
-/* Here is the color palette being used currently */
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
     --brand-orange: #e6823b;
-    --dark-blue: #030f2d;
+    --dark-blue: #0c1c43;
     --main-bg: #fef2e7;
     
     --nav-text-color: #e7eaf1;
     --nav-link-hover: #a5bafc;
     --box-shadow: #5c5c5c;
     --input-text-color:#919090;
+    
+    --main-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* NAVBAR */
@@ -17,7 +21,7 @@
     left:0;
     width: 100%;
     font-size: 18px;
-    background-color: #030f2d;
+    background-color: #0c1c43;
 }
 
 /* navbar tag */
@@ -47,15 +51,9 @@
     transition: 0.3s ease;
 }
 
-/* Car cards discover page */
-main{
-    position: relative;
-    z-index: 1;
-}
-
 /* body contains search bar with choose vehicle and search button */
 body {
-    font-family: Arial, sans-serif;
+    font-family: var(--main-font);
     margin: 0;
     padding: 0;
     display: flex;
@@ -64,32 +62,8 @@ body {
     height: 100%;
     background-color: #f5f5f5;
     padding-top: 70px;
-}
-
-/* header for car cards discover page */
-.card-header {
-    background-color: #030f2d;
-    color: #e7eaf1;
-    width: calc(100% + 2px);
-    margin: -1px;
-    padding: 1rem;
-    border-radius: 0.375rem 0.375rem 0 0;
-    position: relative;
-    left: -1px;
-    text-align: center; /* Center the content */
-}
-
-.card-title {
-    color: #e7eaf1;
-}
-
-.card .card-body h1.card-title {
-    color: #030f2d;  /* Keep the title dark blue when it's in the body */
-}
-
-/* For the card body text */
-.card-body {
-    color: #030f2d;
+    -webkit-font-smoothing: antialiased;  /* Better font rendering on webkit browsers */
+    -moz-osx-font-smoothing: grayscale;   /* Better font rendering on macOS Firefox */
 }
 
 .btn-primary{
@@ -185,72 +159,21 @@ body {
     background: #e65c00;
 }
 
-/* vehicle selection popup */
-
-/* Main popup container - centered fixed position with white background */
 .popup {
+    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    display: none;
-    width: 80%;
-    max-width: 500px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    z-index: 1002;
 }
 
-/* Show popup when active class is added */
 .popup.active {
     display: block;
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    z-index: 999;
-}
-
-.overlay.active {
-    display: block;
-}
-
-/* Dropdown select elements in vehicle selector */
-.form-select {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-/* Modal footer */
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-/* Close button on select vehicle popup discover page */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-/* For clear vehicle button on discover popup*/
-#clearVehicle {
-    margin-right: auto;
 }
 
 .popup select {
@@ -318,37 +241,52 @@ body {
     background: #e65c00;
 }
 
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+}
+
+.overlay.active {
+    display: block;
+}
+
 /* Car modals */
 .card {
     height:400px;
     position: relative;
     overflow: hidden;
+    padding: 0;
+    border: 1px solid #0c1c43;
 }
 
 /* Dark blue header on parts discover page */
 .card-header {
-    background-color: #030f2d;
-    width: 120%;
-    margin: -1px;
-    padding: 0;
+    background-color: #0c1c43;
+    color: #e7eaf1;
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0;
     border-radius: 0.375rem 0.375rem 0 0;
-    position: relative;
-    left: -25px;
     text-align: center; 
     display: flex;     
     justify-content: center; 
-    align-items: center;   
+    align-items: center;  
+    border: none; 
 }
 
 /* Parts card on discover page */
 .card-title {
     color: #e7eaf1;
     margin: 0;
-    padding: 1rem;
+    padding: 0.5rem;
     text-align: center;
-    width: 83%; 
-    position: relative;
-    right: 10px; 
+    width: 100%; 
 }
 
 .card .card-body:last-child {
@@ -366,7 +304,7 @@ body {
 
 .form-signin
 {
-    color: #030f2d;
+    color: #0c1c43;
 }
 
 .form-signin .form-floating
@@ -376,7 +314,7 @@ body {
 
 /* My Car Modals */
 .modal-header {
-    background-color: #030f2d;
+    background-color: #0c1c43;
     color: #e7eaf1
 }
 

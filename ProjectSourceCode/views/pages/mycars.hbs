@@ -10,8 +10,10 @@
     <div class="row row-cols-3 row-cols-md-3 mb-3 text-center" id="carsContainer">
         {{#each cars}}
         <div class="card my-3 mx-1 rounded-3 shadow-sm" id="car-{{this.id}}">
+            <div class="card-header">
+                <h1 class="card-title">{{this.year}} {{this.make}} {{this.model}}</h1>
+            </div>
             <div class="card-body">
-                <h1 class="card-title py-3">{{this.year}} {{this.make}} {{this.model}}</h1>
                 <table class="table">
                     <thead>
                         <tr class="text-start">
@@ -332,8 +334,10 @@
                 newCard.className = 'card my-3 mx-1 rounded-3 shadow-sm';
                 newCard.id = 'car-' + data.id;
                 newCard.innerHTML = `
+                    <div class="card-header">
+                        <h1 class="card-title">${year} ${make} ${model}</h1>
+                    </div>
                     <div class="card-body">
-                        <h1 class="card-title py-3">${year} ${make} ${model}</h1>
                         <table class="table">
                             <thead>
                                 <tr class="text-start">

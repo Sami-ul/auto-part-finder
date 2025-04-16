@@ -270,8 +270,10 @@ This should render differently when logged out vs. logged in. --}}
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
         {{#each products}}
             <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+                <div class="card-header">
+                    <h1 class="card-title">{{this.name}}</h1>
+                </div>
                 <div class="card-body">
-                    <h1 class="card-title py-3">{{this.name}}</h1>
                     <table class="table">
                         <thead>
                             <tr class="text-start">
