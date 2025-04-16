@@ -5,8 +5,11 @@ This should render differently when logged out vs. logged in. --}}
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
-        <input type="text" class="search-input" placeholder="Search for parts">
+        <input type="text" class="search-input" placeholder={{#if searchQuery}}{{searchQuery}}{{else}}Search for parts...{{/if}} />
         <button class="search-button">Search</button>
+        {{#if searchQuery}}
+            <a href="/discover" class="btn btn-secondary ml-2">Clear Search</a>
+        {{/if}}
     </div>
 
     <div class="overlay" id="overlay"></div>
@@ -55,6 +58,13 @@ This should render differently when logged out vs. logged in. --}}
         document.getElementById("closePopup").addEventListener("click", function () {
             document.getElementById("vehiclePopup").classList.remove("active");
             document.getElementById("overlay").classList.remove("active");
+        });
+        // search
+        document.querySelector(".search-button").addEventListener("click", function () {
+            const searchInput = document.querySelector(".search-input").value;
+            if (searchInput) {
+                window.location.href = `/search?query=${encodeURIComponent(searchInput)}`;
+            }
         });
     </script>
 
