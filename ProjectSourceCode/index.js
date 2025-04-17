@@ -176,18 +176,32 @@ app.post('/cart/add', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
+  
   const { product_id } = req.body;
   if (!product_id) {
     return res.status(400).json({ error: 'Part ID is required' });
   }
+  
   const user_id = req.session.user.id;
-  db.none('INSERT INTO cart (user_id, product_id) VALUES ($1, $2)', [user_id, product_id])
+  
+  db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
+    .then(existingItem => {
+      if (existingItem) {
+        return Promise.reject({ status: 400, message: 'Product already in cart' });
+      }
+      
+      return db.none('INSERT INTO cart (user_id, product_id) VALUES ($1, $2)', [user_id, product_id]);
+    })
     .then(() => {
       res.status(200).json({ success: true });
     })
     .catch(error => {
-      console.error('Error adding to cart:', error);
-      res.status(500).json({ error: 'Failed to add to cart' });
+      if (error.status) {
+        return res.status(error.status).json({ error: error.message });
+      }
+      
+      console.error('Error in cart operation:', error);
+      res.status(500).json({ error: 'Failed to process cart operation' });
     });
 });
 app.delete('/cart/remove', (req, res) => {

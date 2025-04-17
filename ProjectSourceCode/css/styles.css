@@ -435,3 +435,47 @@ body {
 {
     margin-left: 2px;
 }
+
+/* Add to cart modal styling */
+.success-icon {
+    color: var(--brand-orange);
+    font-size: 3rem;
+    margin: 15px 0;
+  }
+  
+  #itemAddedModal .modal-header {
+    background-color: var(--dark-blue); 
+    color: var(--nav-text-color);
+    border-radius: 0.375rem 0.375rem 0 0;
+  }
+  
+  #itemAddedModal .modal-content {
+    border: 1px solid var(--dark-blue);
+    box-shadow: 0 2px 10px var(--box-shadow);
+  }
+  
+  #itemAddedModal .btn-secondary {
+    background-color: #b6a8aa;
+    border: none;
+    display: block;
+  }
+  
+  #itemAddedModal .btn-success {
+    background-color: var(--brand-orange);
+    border: none;
+    display: block;
+  }
+  
+  #itemAddedModal .btn-success:hover {
+    background-color: #e65c00;
+  }
+  
+  #itemAddedModal .modal-footer {
+    display: flex;
+    justify-content: space-around;
+    /* gap: 0.3em; */
+  }
+  
+  #itemAddedModal .modal-footer button {
+    flex: 1;
+  }

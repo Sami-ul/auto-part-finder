@@ -328,13 +328,57 @@ This should render differently when logged out vs. logged in. --}}
         {{/each}}
     </div>
 
+    <div class="modal fade" id="itemAddedModal" tabindex="-1" aria-labelledby="itemAddedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemAddedModalLabel">Item Added to Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <div class="success-icon">✓</div>
+                <p class="text-muted" id="itemDetails">Your item has been added to your shopping cart.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                <button type="button" class="btn btn-success" onclick="goToCart()">Go to Cart</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
             
+            function showItemAddedAlert(itemName = "Item", isAlreadyInCart = false) {
+                const modalTitle = document.getElementById('itemAddedModalLabel');
+                const itemDetails = document.getElementById('itemDetails');
+                
+                if (isAlreadyInCart) {
+                    modalTitle.textContent = "Item Already in Cart";
+                    itemDetails.textContent = `${itemName} is already in your shopping cart.`;
+                } else {
+                    modalTitle.textContent = "Item Added to Cart";
+                    itemDetails.textContent = `${itemName} has been added to your shopping cart.`;
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('itemAddedModal'));
+                modal.show();
+            }
+            
+            function goToCart() {
+                window.location.href = "/cart";
+            }
+            
+            window.goToCart = goToCart;
+            
             addToCartButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const productId = this.dataset.productId;
+                    const card = this.closest('.card');
+                    const productName = card ? card.querySelector('.card-title').textContent : "Item";
                     
                     fetch('/cart/add', {
                         method: 'POST',
@@ -343,10 +387,28 @@ This should render differently when logged out vs. logged in. --}}
                         },
                         body: JSON.stringify({ product_id: productId })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 400) {
+                            // Item is already in cart
+                            return response.json().then(data => {
+                                if (data.error === 'Product already in cart') {
+                                    showItemAddedAlert(productName, true);
+                                    return { success: false, handled: true };
+                                }
+                                return { success: false, error: data.error };
+                            });
+                        } else {
+                            return response.json();
+                        }
+                    })
                     .then(data => {
+                        if (data.handled) {
+                            // Already handled by the "item already in cart" case
+                            return;
+                        }
                         if (data.success) {
-                            alert('Item added to cart!');
+                            // Successfully added to cart
+                            showItemAddedAlert(productName, false);
                         } else {
                             if (data.error === 'Not authenticated') {
                                 // Redirect to login page if not authenticated
