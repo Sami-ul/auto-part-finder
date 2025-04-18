@@ -6,7 +6,7 @@ services:
     expose:
       - '5432'
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "root", "-d", "userinfo"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "userinfo"]
       interval: 10s
       timeout: 10s
       retries: 3
