@@ -21,8 +21,8 @@ const hbs = handlebars.create({
 });
 
 const dbConfig = {
-  host: 'db',
-  port: 5432,
+  host: process.env.POSTGRES_HOST || 'db',
+  port: process.env.POSTGRES_PORT || 5432,
   database: process.env.POSTGRES_DB,
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD
@@ -36,11 +36,24 @@ db.connect()
     obj.done();
   })
   .catch(error => {
-    console.log('ERROR', error_message || error);
+    console.log('ERROR', error);
   });
 
 /* App Settings */
 app.engine('hbs', hbs.engine);
+Handlebars.registerHelper('add', function (a, b) {
+  return parseInt(a, 10) + parseInt(b, 10);
+});
+Handlebars.registerHelper('subtract', function (a, b) {
+  return parseInt(a, 10) - parseInt(b, 10);
+});
+Handlebars.registerHelper('multiply', function (a, b) {
+  return parseInt(a, 10) * parseInt(b, 10);
+});
+Handlebars.registerHelper('min', function (a, b) {
+  return Math.min(parseInt(a, 10), parseInt(b, 10));
+});
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json());
@@ -51,7 +64,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     // Keeps user logged in
-    cookie: { 
+    cookie: {
       secure: false,
       maxAge: 1000 * 60 * 60 * 24
     }
@@ -114,22 +127,112 @@ app.get('/discover', async (req, res) => {
   }
 });
 
-app.get('/logout', (req, res) => {
-  if (req.session.user) {
-    req.session.destroy((err) => {
-      if (err) {
-        console.log(err);
-        return res.redirect('/');
-      }
-      res.clearCookie('connect.sid');
-      res.render('pages/logout', {
-        message: "Logged out successfully!",
-        user: null
-      });
-    });
+// app.get('/search', async (req, res) => {
+//   const query = req.query.query;
+
+//   if (!query) {
+//     return res.redirect('/discover');
+//   }
+//   try {
+//     // const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
+//     const products = await db.any('SELECT DISTINCT part, brand, description, fits, price, thumbimg FROM vehicle_data WHERE part ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
+//     res.render('pages/discover', { products: products, searchQuery: query });
+//   } catch (error) {
+//     console.error('Error fetching products:', error);
+//     res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
+//   }
+// });
+
+// app.get('/logout', (req, res) => {
+//   if (req.session.user) {
+//     req.session.destroy((err) => {
+//       if (err) {
+//         console.log(err);
+//         return res.redirect('/');
+//       }
+//       res.clearCookie('connect.sid');
+//       res.render('pages/logout', {
+//         message: "Logged out successfully!",
+//         user: null
+//       });
+//     });
+//   }
+//   else {
+//     res.redirect('/login');
+//   }
+// });
+
+// Assuming 'app' is your Express app and 'db' is your database connection (e.g., pg-promise)
+
+app.get('/search', async (req, res) => {
+  const query = req.query.query;
+  // Get page number from query, default to 1, ensure it's an integer >= 1
+  let page = parseInt(req.query.page, 10) || 1;
+  if (page < 1) {
+      page = 1;
   }
-  else {
-    res.redirect('/login');
+
+  const limit = 15; // Results per page
+  const offset = (page - 1) * limit;
+
+  if (!query) {
+      // Redirect if no search query is provided
+      return res.redirect('/discover');
+  }
+
+  try {
+      const resultsQuery = `
+          SELECT DISTINCT
+              part, partnumber, brand, description, pack, fits, price, thumbimg,
+              COUNT(*) OVER() as total_count
+          FROM vehicle_data
+          WHERE part ILIKE $1 OR description ILIKE $1
+          ORDER BY part, brand -- Add an ORDER BY for consistent pagination
+          LIMIT $2 OFFSET $3
+      `;
+
+      const productsData = await db.any(resultsQuery, [`%${query}%`, limit, offset]);
+      console.log(productsData[0].thumbimg);
+      let totalCount = 0;
+      // total_count will be the same on all rows returned by the query (if any)
+      if (productsData.length > 0) {
+          totalCount = parseInt(productsData[0].total_count, 10);
+      }
+      // Remove the total_count from the product objects before sending to template
+      const products = productsData.map(({ total_count, ...rest }) => rest);
+
+
+      // --- Calculate Pagination Details ---
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+      const nextPage = page + 1;
+      const previousPage = page - 1;
+
+      // --- Render the page ---
+      res.render('pages/discover', {
+          products: products, // Products for the current page
+          searchQuery: query,
+          pagination: {
+              currentPage: page,
+              totalPages: totalPages,
+              totalCount: totalCount,
+              limit: limit,
+              hasNextPage: hasNextPage,
+              hasPreviousPage: hasPreviousPage,
+              nextPage: nextPage,
+              previousPage: previousPage
+          }
+      });
+
+  } catch (error) {
+      console.error('Error fetching products:', error);
+      res.render('pages/discover', {
+          products: [],
+          error: 'Failed to load products',
+          searchQuery: query,
+          pagination: null // Indicate no pagination available on error
+      });
   }
 });
 
@@ -176,6 +279,25 @@ app.post('/cart/add', (req, res) => {
       res.status(500).json({ error: 'Failed to add to cart' });
     });
 });
+app.delete('/cart/remove', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, error: 'Not authenticated' });
+  }
+  const { product_id } = req.query;
+  if (!product_id) {
+    return res.status(400).json({ error: 'Part ID is required' });
+  }
+  const user_id = req.session.user.id;
+  db.none('DELETE FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
+    .then(() => {
+      res.status(200).json({ success: true });
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ error: 'Failed to add to cart' });
+    });
+});
+
 
 //register API testcase
 app.get('/register', (req, res) => {
@@ -240,8 +362,11 @@ app.get('/account', async (req, res) => {
   }
 
   let addresses = []
+  let list_addresses = []
+
   try {
-    addresses = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
+    def_address = await db.any('SELECT * from addresses WHERE user_id = $1 AND is_default = TRUE', [req.session.user.id])
+    list_addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1 ANd is_default = FALSE', [req.session.user.id])
   }
   catch (err) {
     res.status(500).render('pages/account', {
@@ -252,11 +377,39 @@ app.get('/account', async (req, res) => {
 
   console.log(addresses)
 
-  return res.render('pages/account', { addresses: addresses })
+  return res.render('pages/account', {
+    def_address: def_address,
+    list_addresses: list_addresses
+  })
 });
 
-app.get('/allparts', (req, res) => {
-  res.render('pages/allparts');
+app.get('/checkout', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  } else {
+    const user_id = req.session.user.id;
+    try {
+      // Fetch cart items with product details
+      const cartItems = await db.any(
+        'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
+        [user_id]
+      );
+  
+      // Render the cart page with the cart items
+      return res.render('pages/checkout', {
+        cartItems: cartItems,
+        hasItems: cartItems.length > 0,
+        amtItems: cartItems.length
+      });
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      return res.render('pages/checkout', {
+        error: 'Failed to load cart items',
+        hasItems: false
+      });
+    }
+
+  }
 });
 
 app.get('/mycars', (req, res) => {
@@ -365,17 +518,22 @@ app.put('/api/vehicles/:id', (req, res) => {
 // To delete vehicle from profile and database
 app.delete('/api/vehicles/:id', (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
+    return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
 
-  db.none('DELETE FROM user_vehicles WHERE id=$1 AND user_id=$2',
-    [req.params.id, req.session.user.id])
+  const vehicleId = parseInt(req.params.id);
+  if (isNaN(vehicleId)) {
+    return res.status(400).json({ success: false, error: 'Invalid vehicle ID' });
+  }
+
+  db.none('DELETE FROM user_vehicles WHERE id = $1 AND user_id = $2', 
+    [vehicleId, req.session.user.id])
     .then(() => {
       res.json({ success: true });
     })
     .catch(error => {
-      console.log(error);
-      res.status(500).json({ error: 'Failed to delete vehicle' });
+      console.error('Error deleting vehicle:', error);
+      res.status(500).json({ success: false, error: 'Failed to delete vehicle' });
     });
 });
 
@@ -409,8 +567,8 @@ app.get('/address', async (req, res) => {
 app.post('/address', async (req, res) => {
   console.log("POSTED ADRESS BODY", req.body)
 
-  const {street_address, apartment, city, state, postal_code, country, default_address, default_address_visible} = req.body;
-  const user_id = req.session.user.id; 
+  const { street_address, apartment, city, state, postal_code, country, default_address, default_address_visible } = req.body;
+  const user_id = req.session.user.id;
   let default_addr;
   let apt = apartment || null;
   if (default_address || default_address_visible) {

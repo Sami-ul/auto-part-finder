@@ -51,21 +51,18 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add event listeners to remove buttons
         const removeButtons = document.querySelectorAll('.remove-from-cart');
         
         removeButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const productId = this.dataset.productId;
                 
-                // Send request to remove item from cart
                 fetch(`/cart/remove?product_id=${productId}`, {
                     method: 'DELETE'
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Reload the page to reflect changes
                         window.location.reload();
                     } else {
                         alert('Failed to remove item from cart');

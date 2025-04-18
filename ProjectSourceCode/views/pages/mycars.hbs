@@ -7,39 +7,43 @@
     </div>
 
     {{#if cars}}
-    <div class="row row-cols-3 row-cols-md-3 mb-3 text-center" id="carsContainer">
+    <div class="row g-4" id="carsContainer">
         {{#each cars}}
-        <div class="card my-3 mx-1 rounded-3 shadow-sm" id="car-{{this.id}}">
-            <div class="card-body">
-                <h1 class="card-title py-3">{{this.year}} {{this.make}} {{this.model}}</h1>
-                <table class="table">
-                    <thead>
-                        <tr class="text-start">
-                            <th scope="col">Make:</th>
-                            <td class="text-end">{{this.make}}</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Model:</th>
-                            <td class="text-end">{{this.model}}</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Year:</th>
-                            <td class="text-end">{{this.year}}</td>
-                        </tr>
-                        <tr class="text-start">
-                            <th scope="col">Engine:</th>
-                            <td class="text-end">{{this.engine}}</td>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="card-body text-end">
-                <button type="button" class="btn btn-primary edit-car-btn" data-bs-toggle="modal" data-bs-target="#carModal">
-                    Edit
-                </button>
-                <button type="button" class="btn btn-danger delete-car-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                    Delete
-                </button>
+        <div class="col-md-4" id="car-{{this.id}}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">
+                    <h1 class="card-title">{{this.year}} {{this.make}} {{this.model}}</h1>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr class="text-start">
+                                <th scope="col">Make:</th>
+                                <td class="text-end">{{this.make}}</td>
+                            </tr>
+                            <tr class="text-start">
+                                <th scope="col">Model:</th>
+                                <td class="text-end">{{this.model}}</td>
+                            </tr>
+                            <tr class="text-start">
+                                <th scope="col">Year:</th>
+                                <td class="text-end">{{this.year}}</td>
+                            </tr>
+                            <tr class="text-start">
+                                <th scope="col">Engine:</th>
+                                <td class="text-end">{{this.engine}}</td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="card-footer text-end bg-transparent">
+                    <button type="button" class="btn btn-primary edit-car-btn" data-bs-toggle="modal" data-bs-target="#carModal">
+                        Edit
+                    </button>
+                    <button type="button" class="btn btn-danger delete-car-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Delete
+                    </button>
+                </div>
             </div>
         </div>
         {{/each}}
@@ -329,39 +333,43 @@
             if (data.success) {
                 // Create new card HTML with the returned ID
                 const newCard = document.createElement('div');
-                newCard.className = 'card my-3 mx-1 rounded-3 shadow-sm';
+                newCard.className = 'col-md-4';
                 newCard.id = 'car-' + data.id;
                 newCard.innerHTML = `
-                    <div class="card-body">
-                        <h1 class="card-title py-3">${year} ${make} ${model}</h1>
-                        <table class="table">
-                            <thead>
-                                <tr class="text-start">
-                                    <th scope="col">Make:</th>
-                                    <td class="text-end">${make}</td>
-                                </tr>
-                                <tr class="text-start">
-                                    <th scope="col">Model:</th>
-                                    <td class="text-end">${model}</td>
-                                </tr>
-                                <tr class="text-start">
-                                    <th scope="col">Year:</th>
-                                    <td class="text-end">${year}</td>
-                                </tr>
-                                <tr class="text-start">
-                                    <th scope="col">Engine:</th>
-                                    <td class="text-end">${engine}</td>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <div class="card-body text-end">
-                        <button type="button" class="btn btn-primary edit-car-btn" data-bs-toggle="modal" data-bs-target="#carModal">
-                            Edit
-                        </button>
-                        <button type="button" class="btn btn-danger delete-car-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            Delete
-                        </button>
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header">
+                            <h1 class="card-title">${year} ${make} ${model}</h1>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-start">
+                                        <th scope="col">Make:</th>
+                                        <td class="text-end">${make}</td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th scope="col">Model:</th>
+                                        <td class="text-end">${model}</td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th scope="col">Year:</th>
+                                        <td class="text-end">${year}</td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th scope="col">Engine:</th>
+                                        <td class="text-end">${engine}</td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="card-footer text-end bg-transparent">
+                            <button type="button" class="btn btn-primary edit-car-btn" data-bs-toggle="modal" data-bs-target="#carModal">
+                                Edit
+                            </button>
+                            <button type="button" class="btn btn-danger delete-car-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -369,7 +377,7 @@
                 const container = document.getElementById('carsContainer');
                 if (!container) {
                     const newContainer = document.createElement('div');
-                    newContainer.className = 'row row-cols-3 row-cols-md-3 mb-3 text-center';
+                    newContainer.className = 'row g-4';
                     newContainer.id = 'carsContainer';
                     newContainer.appendChild(newCard);
                     document.querySelector('main').appendChild(newContainer);
@@ -401,15 +409,16 @@
     // For deleting modal
     let cardToDelete = null;
 
+    // When delete button is clicked, store the card reference
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('delete-car-btn')) {
-            // Storing id
-            cardToDelete = e.target.closest('.card');
+            cardToDelete = e.target.closest('.col-md-4');
             const carId = cardToDelete.id.split('-')[1];
             console.log('Preparing to delete car with ID:', carId);
         }
     });
 
+    // When confirm delete is clicked in the modal
     document.getElementById('confirmDelete').addEventListener('click', function() {
         if (!cardToDelete) {
             console.error('No card selected for deletion');
@@ -417,31 +426,32 @@
         }
 
         const carId = cardToDelete.id.split('-')[1];
-        console.log('Attempting to delete car with ID:', carId);
         
         fetch(`/api/vehicles/${carId}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             }
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json().then(err => Promise.reject(err));
             }
             return response.json();
         })
         .then(data => {
             if (data.success) {
+                // Remove the card from the DOM
                 cardToDelete.remove();
+                
+                // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
                 modal.hide();
 
-                // Check if any cards still remain
+                // Check if any cards remain
                 const container = document.getElementById('carsContainer');
                 if (container && container.children.length === 0) {
                     container.remove();
-                    // Only replace the cars container, not the entire main content
                     const mainContent = document.querySelector('main');
                     const headerSection = mainContent.querySelector('.mb-3.d-flex');
                     mainContent.innerHTML = `
@@ -454,12 +464,12 @@
                     `;
                 }
             } else {
-                throw new Error('Failed to delete vehicle');
+                throw new Error(data.error || 'Failed to delete vehicle');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to delete vehicle');
+            alert(error.message || 'Failed to delete vehicle');
         })
         .finally(() => {
             cardToDelete = null;

@@ -1,6 +1,6 @@
 <main class="py-4 mx-5">
     <div class="card">
-        <div class="card-body p-5">
+        <div class="card-body p-5" id="accountCard">
             <h2 class="mb-3">Account settings</h2>
             <table class="table">
                 <thead>
@@ -14,21 +14,64 @@
                     </tr>
                     <tr class="text-start" id="address">
                         <th scope="col">Address:</th>
-                        {{#each this.addresses}}
+                        {{#each this.def_address}}
                         <td class="text-end">
                             {{this.street_address}}, {{this.city}}, {{this.state}}
                         </td>
                         {{else}}
-                        <p>None</p>
+                        <td class="text-end"><a href="/address">Add home address</a></td>
                         {{/each}}
                     </tr>
                 </thead>
             </table>
         </div>
-            <div class="card-body text-end p-5">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accountModal">
-                    Edit
-                </button>
-            </div>
+        <div class="card-body text-end p-5">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                Edit
+            </button>
+        </div>
     </div>
 </main>
+{{!-- Account edit feature --}}
+
+<div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAccountLabel">Edit Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAddressForm">
+                    <div class="mb-3">
+                        <label for="username">Edit username</label>
+                        <input name="username" type="text" class="form-control" id="username"
+                            placeholder={{this.user.username}}>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email">Edit email</label>
+                        <input name="email" type="text" class="form-control" id="email" placeholder={{this.user.email}}>
+                    </div>
+                    <div class="mb-2">
+                        <label for="addresses">Edit default address</label>
+                        <select id="addresses" class="form-select">
+                            <option value="" selected disabled>Select an address</option>
+                            {{#each this.list_addresses}}
+                            {{#if this.def_address}}
+                            <option value="address" disabled>{{this.street_address}}, {{this.city}}, {{this.state}}</option>
+                            {{else}}
+                            {{/if}}
+                            <option value="address">{{this.street_address}}, {{this.city}}, {{this.state}}</option>
+                            {{/each}}
+                        </select>
+                        <a type="button" class="btn btn-primary mt-2" id="moreAddresses" href="/address">Add more addresses</a>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary m-2" id="saveChanges">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

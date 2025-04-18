@@ -5,10 +5,15 @@ services:
     env_file: .env
     expose:
       - '5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "root", "-d", "userinfo"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
     volumes:
       - auto-parts-finder:/var/lib/postgresql/data
       - ./init_data:/docker-entrypoint-initdb.d
-      - ./init_data/vehicle_data.csv:/home/node/app/vehicle_data.csv
+      - ./init_data/data/vehicle_data.csv:/home/node/app/vehicle_data.csv
   web:
     container_name: auto-parts-finder-web
     image: node:lts
@@ -18,7 +23,8 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - '3000:3000'
     volumes:

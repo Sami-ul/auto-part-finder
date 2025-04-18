@@ -31,9 +31,11 @@ CREATE TABLE user_vehicles (
 CREATE TABLE parts (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    partnum VARCHAR(25),
     description TEXT,
     category VARCHAR(100)
 );
+
 CREATE TABLE IF NOT EXISTS cart (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -99,3 +101,4 @@ CREATE TABLE repairs (
     part_id INTEGER REFERENCES parts(id),
     repair_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+

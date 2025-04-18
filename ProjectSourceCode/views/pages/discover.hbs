@@ -1,125 +1,457 @@
 {{!-- Add all car options to discover page, plys make it an option to choose your own car from your garage --}}
-
+{{!--
+<script src="/js/vehicle-selector.js"></script> --}}
 {{!-- Discover page should be the initial landing page instead of the login/register page
 This should render differently when logged out vs. logged in. --}}
 <main>
-    <div class="search-container">
-        <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
-        <input type="text" class="search-input" placeholder="Search for parts">
-        <button class="search-button">Search</button>
+  <div class="search-container">
+    <button id="chooseVehicle" class="choose-vehicle">Select Vehicle</button>
+    <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
+    {{#if searchQuery}}
+    <button class="clear-search" title="Clear search">×</button>
+    {{/if}}
+    <button class="search-button">Search</button>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  {{!-- Needs filtering model based on make, engine based on make and model --}}
+  <div class="popup" id="vehiclePopup">
+    <button id="closePopup" class="close-btn">&times;</button>
+    <div class="popup-header">
+      <h2>Choose a Vehicle</h2>
     </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    {{!-- Needs filtering model based on make, engine based on make and model --}}
-    <div class="popup" id="vehiclePopup">
-        <button id="closePopup" class="close-btn">&times;</button>
-        <div class="popup-header">
-            <h2>Choose a Vehicle</h2>
+    <div class="modal-body">
+      <form id="vehicleSelectForm">
+        <div class="mb-3">
+          <select id="make" class="form-select" required>
+            <option value="">Select Make</option>
+          </select>
         </div>
-        <select id="year">
-            <option value="">Year</option>
-            <option>2024</option>
-            <option>2023</option>
-            <option>2022</option>
-        </select>
-        <select id="make">
-            <option>Make</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <select id="model">
-            <option>Model</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <select id="engine">
-            <option>Engine</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
-        <button id="addVehicle" class="add-btn">Add</button>
+        <div class="mb-3">
+          <select id="year" class="form-select" required disabled>
+            <option value="">Select Year</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <select id="model" class="form-select" required disabled>
+            <option value="">Select Model</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <select id="engine" class="form-select" required disabled>
+            <option value="">Select Engine</option>
+          </select>
+        </div>
+      </form>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" id="clearVehicle">Clear</button>
+      <button type="button" class="btn btn-primary" id="addVehicle">Select</button>
+    </div>
+  </div>
 
-    <script>
-        // Open the popup when the "Choose a Vehicle" button is clicked
-        document.getElementById("chooseVehicle").addEventListener("click", function () {
-            document.getElementById("vehiclePopup").classList.add("active");
-            document.getElementById("overlay").classList.add("active");
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      // First, verify all required elements exist
+      const makeSelect = document.getElementById('make');
+      const yearSelect = document.getElementById('year');
+      const modelSelect = document.getElementById('model');
+      const engineSelect = document.getElementById('engine');
+      const chooseVehicleBtn = document.getElementById('chooseVehicle');
+      const vehiclePopup = document.getElementById('vehiclePopup');
+      const closePopupBtn = document.getElementById('closePopup');
+      const clearVehicleBtn = document.getElementById('clearVehicle');
+      const addVehicleBtn = document.getElementById('addVehicle');
+      const overlay = document.getElementById('overlay');
+
+      // Check if all required elements exist
+      if (!makeSelect || !yearSelect || !modelSelect || !engineSelect ||
+        !chooseVehicleBtn || !vehiclePopup || !closePopupBtn ||
+        !clearVehicleBtn || !addVehicleBtn || !overlay) {
+        console.error('Required DOM elements not found');
+        return;
+      }
+
+      try {
+        // Load vehicle data
+        const response = await fetch('/vehicle-data');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          throw new Error('Invalid vehicle data received');
+        }
+
+        vehicleData = Array.isArray(data) ? data : Object.values(data);
+
+        // Populate initial make dropdown
+        const uniqueMakes = [...new Set(vehicleData.map(row => row[0]))].sort();
+        makeSelect.innerHTML = '<option value="">Select Make</option>';
+        uniqueMakes.forEach(make => {
+          if (make && make.trim()) {
+            makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+          }
         });
 
-        // Close the popup when the "Close" button is clicked
-        document.getElementById("closePopup").addEventListener("click", function () {
-            document.getElementById("vehiclePopup").classList.remove("active");
-            document.getElementById("overlay").classList.remove("active");
+        // Add event listeners
+        makeSelect.addEventListener('change', function () {
+          updateDropdowns('year', this.value);
         });
-    </script>
 
-    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-        {{#each products}}
-            <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-                <div class="card-body">
-                    <h1 class="card-title py-3">{{this.name}}</h1>
-                    <table class="table">
-                        <thead>
-                            <tr class="text-start">
-                                <th scope="col">Description:</th>
-                                <td class="text-end">{{this.description}}</td>
-                            </tr>
-                            <!-- Add more product details here -->
-                        </thead>
-                    </table>
-                </div>
-                <div class="card-body text-end">
-                    <button
-                        type="button"
-                        class="btn btn-primary add-to-cart-btn"
-                        data-product-id="{{this.id}}"
-                    >
-                        Add to cart
-                    </button>
-                </div>
-            </div>
-        {{/each}}
+        yearSelect.addEventListener('change', function () {
+          updateDropdowns('model', makeSelect.value, this.value);
+        });
+
+        modelSelect.addEventListener('change', function () {
+          updateDropdowns('engine', makeSelect.value, yearSelect.value, this.value);
+        });
+
+        // Open popup
+        chooseVehicleBtn.addEventListener('click', function () {
+          vehiclePopup.classList.add('active');
+          overlay.classList.add('active');
+        });
+
+        // Close popup
+        closePopupBtn.addEventListener('click', closePopup);
+
+        // Clear vehicle
+        clearVehicleBtn.addEventListener('click', function () {
+          localStorage.removeItem('selectedVehicle');
+          makeSelect.value = '';
+          yearSelect.value = '';
+          modelSelect.value = '';
+          engineSelect.value = '';
+          yearSelect.disabled = true;
+          modelSelect.disabled = true;
+          engineSelect.disabled = true;
+          chooseVehicleBtn.textContent = "Choose Vehicle";
+          closePopup();
+        });
+
+        // Add vehicle
+        addVehicleBtn.addEventListener('click', function () {
+          const year = yearSelect.value;
+          const make = makeSelect.value;
+          const model = modelSelect.value;
+          const engine = engineSelect.value;
+
+          if (!year || !make || !model || !engine) {
+            alert('Please fill in all fields');
+            return;
+          }
+
+          // Remove localStorage setting
+          // localStorage.setItem('selectedVehicle', JSON.stringify(selectedVehicle));
+          chooseVehicleBtn.textContent = `${year} ${make} ${model}`;
+          closePopup();
+        });
+
+        // Remove or comment out this block of code that checks localStorage
+        /*
+        // Check for saved vehicle
+        const savedVehicle = localStorage.getItem('selectedVehicle');
+        if (savedVehicle) {
+            const vehicle = JSON.parse(savedVehicle);
+            chooseVehicleBtn.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+        }
+        */
+
+      } catch (error) {
+        console.error('Error loading vehicle data:', error);
+        alert(`Failed to load vehicle data: ${error.message}. Please try again later. Received data: ${JSON.stringify(data)}`);
+      }
+    });
+
+    function closePopup() {
+      const vehiclePopup = document.getElementById('vehiclePopup');
+      const overlay = document.getElementById('overlay');
+      if (vehiclePopup && overlay) {
+        vehiclePopup.classList.remove('active');
+        overlay.classList.remove('active');
+      }
+    }
+
+    function updateDropdowns(type, make, year, model) {
+      const yearSelect = document.getElementById('year');
+      const modelSelect = document.getElementById('model');
+      const engineSelect = document.getElementById('engine');
+
+      switch (type) {
+        case 'year':
+          yearSelect.innerHTML = '<option value="">Select Year</option>';
+          modelSelect.innerHTML = '<option value="">Select Model</option>';
+          engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+          if (!make) {
+            yearSelect.disabled = true;
+            modelSelect.disabled = true;
+            engineSelect.disabled = true;
+            return;
+          }
+
+          const years = [...new Set(vehicleData
+            .filter(row => row[0] === make)
+            .map(row => row[1]))
+          ].sort((a, b) => b - a);
+
+          years.forEach(year => {
+            yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+          });
+
+          yearSelect.disabled = false;
+          modelSelect.disabled = true;
+          engineSelect.disabled = true;
+          break;
+
+        case 'model':
+          modelSelect.innerHTML = '<option value="">Select Model</option>';
+          engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+          if (!make || !year) {
+            modelSelect.disabled = true;
+            engineSelect.disabled = true;
+            return;
+          }
+
+          const models = [...new Set(vehicleData
+            .filter(row => row[0] === make && row[1] === parseInt(year))
+            .map(row => row[2]))
+          ].sort();
+
+          models.forEach(model => {
+            modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+          });
+
+          modelSelect.disabled = false;
+          engineSelect.disabled = true;
+          break;
+
+        case 'engine':
+          engineSelect.innerHTML = '<option value="">Select Engine</option>';
+
+          if (!make || !year || !model) {
+            engineSelect.disabled = true;
+            return;
+          }
+
+          const engines = [...new Set(vehicleData
+            .filter(row =>
+              row[0] === make &&
+              row[1] === parseInt(year) &&
+              row[2] === model
+            )
+            .map(row => row[3]))
+          ].sort();
+
+          engines.forEach(engine => {
+            engineSelect.innerHTML += `<option value="${engine}">${engine}</option>`;
+          });
+
+          engineSelect.disabled = false;
+          break;
+      }
+    }
+
+    // search
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.querySelector('.search-input');
+      const searchButton = document.querySelector('.search-button');
+      const clearButton = document.querySelector('.clear-search');
+
+      // Function to handle search
+      function performSearch() {
+        const searchValue = searchInput.value.trim();
+        if (searchValue) {
+          window.location.href = `/search?query=${encodeURIComponent(searchValue)}`;
+        }
+      }
+
+      // Handle click on search button
+      searchButton.addEventListener('click', performSearch);
+
+      // Handle Enter key press
+      searchInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          performSearch();
+        }
+      });
+
+      // Handle clear button click
+      if (clearButton) {
+        clearButton.addEventListener('click', function (event) {
+          event.preventDefault();
+          window.location.href = '/discover';
+        });
+      }
+
+
+    });
+  </script>
+
+
+  <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+    {{#each products}}
+    {{!-- <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
+      <div class="card-header">
+        <h1 class="card-title">{{this.part}}</h1>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <img src="{{this.thumbimg}}" class="card-img-top" alt="No Image Available">
+            </tr>
+            <tr class="text-start">
+              <th scope="col">Brand:</th>
+              <td class="text-end">{{this.brand}}</td>
+            </tr>
+            <tr class="text-start">
+              <th scope="col">Description:</th>
+              <td class="text-end">{{this.description}}</td>
+            </tr>
+            <tr class="text-start">
+              <th scope="col">Fits:</th>
+              <td class="text-end">{{this.fits}}</td>
+            </tr>
+            <tr class="text-start">
+              <th scope="col">Price:</th>
+              <td class="text-end">{{this.price}}</td>
+            </tr>
+            <!-- Add more product details here -->
+          </thead>
+        </table>
+      </div>
+      <div class="card-body text-end">
+        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
+          Add to cart
+        </button>
+      </div>
+    </div> --}}
+    <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
+
+      <div class="card-header">
+        <h1 class="card-title">{{this.part}}</h1>
+      </div>
+
+      <div class="card-body">
+        <div class="product-image-container mb-3">
+          <img src="{{#if this.thumbimg}}{{this.thumbimg}}{{else}}/path/to/placeholder.png{{/if}}"
+            class="img-fluid product-thumbnail" alt="{{this.part}} - {{this.brand}}">
+        </div>
+
+        <table class="table table-sm product-details-table">
+          <tbody>
+            <tr>
+              <th scope="row" style="width: 30%;">Brand:</th>
+              <td>{{this.brand}} {{this.partnumber}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description:</th>
+              <td>{{this.description}}<br>
+                {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
+                {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Price:</th>
+              <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-body text-end">
+        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
+          Add to cart
+        </button>
+      </div>
+
     </div>
+    {{/each}}
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-            
-            addToCartButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const productId = this.dataset.productId;
-                    
-                    fetch('/cart/add', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ product_id: productId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Item added to cart!');
-                        } else {
-                            if (data.error === 'Not authenticated') {
-                                // Redirect to login page if not authenticated
-                                window.location.href = '/login';
-                            } else {
-                                alert('Error adding item to cart: ' + data.error);
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while adding the item to the cart.');
-                    });
-                });
+  <div class="pagination-container">
+    {{#if pagination}}
+    <nav aria-label="Search results pagination" class="pagination-controls">
+      <ul class="pagination">
+
+        {{#if pagination.hasPreviousPage}}
+        <li class="page-item">
+          <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.previousPage}}"
+            aria-label="Previous">
+            « Previous
+          </a>
+        </li>
+        {{else}}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">« Previous</span>
+        </li>
+        {{/if}}
+
+        <li class="page-item disabled">
+          <span class="page-link">Page {{pagination.currentPage}} of {{pagination.totalPages}}</span>
+        </li>
+
+        {{#if pagination.hasNextPage}}
+        <li class="page-item">
+          <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.nextPage}}" aria-label="Next">
+            Next »
+          </a>
+        </li>
+        {{else}}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">Next »</span>
+        </li>
+        {{/if}}
+
+      </ul>
+    </nav>
+    {{else}}
+    <p>No products found matching your search.</p>
+    {{/if}}
+  </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+      addToCartButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const productId = this.dataset.productId;
+
+          fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ product_id: productId })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert('Item added to cart!');
+              } else {
+                if (data.error === 'Not authenticated') {
+                  // Redirect to login page if not authenticated
+                  window.location.href = '/login';
+                } else {
+                  alert('Error adding item to cart: ' + data.error);
+                }
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred while adding the item to the cart.');
             });
         });
-    </script>
+      });
+    });
+  </script>
 </main>

@@ -112,6 +112,8 @@ function extractProducts(html, carcode, partNum) {
     const brand = tbody.find('span.listing-final-manufacturer').first().text().trim();
     const partNum = tbody.find('span.listing-final-partnumber').first().text().trim();
     const description = tbody.find('span.span-link-underline-remover').first().text().trim();
+    let infolink = tbody.find('span.span-link-underline-remover').next().attr('href');
+    infolink = (infolink == undefined) ? "N/A" : infolink.trim();
     const price = $(`span#dprice\\[${idx}\\]\\[v\\]`).first().text().trim();
     const core  = $(`span#dcore\\[${idx}\\]\\[v\\]`).first().text().trim();
     const pack  = $(`span#dpack\\[${idx}\\]\\[v\\]`).first().text().trim();
@@ -136,10 +138,10 @@ function extractProducts(html, carcode, partNum) {
       if (imgJSON && Array.isArray(imgJSON.Slots)) {
         imagesFull = imgJSON.Slots
           .filter(slot => slot.ImageData && slot.ImageData.Full)
-          .map(slot => slot.ImageData.Full);
+          .map(slot => `https://www.rockauto.com${slot.ImageData.Full}`);
         imagesThumb = imgJSON.Slots
         .filter(slot => slot.ImageData && slot.ImageData.Thumb)
-        .map(slot => slot.ImageData.Thumb);
+        .map(slot => `https://www.rockauto.com${slot.ImageData.Thumb}`);
       }
     }
     
@@ -162,6 +164,7 @@ function extractProducts(html, carcode, partNum) {
       fits,
       imagesFull,
       imagesThumb,
+      infolink
     });
   });
   
