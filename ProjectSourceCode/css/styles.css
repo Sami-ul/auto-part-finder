@@ -279,7 +279,7 @@ body {
 
 /* Car modals */
 .card {
-    height:400px;
+    height:800px;
     position: relative;
     overflow: hidden;
     padding: 0;
@@ -327,6 +327,49 @@ body {
 .card .card-body:first-child {
     padding-bottom: 60px;
 }
+
+/* --- Product Card Image Styling --- */
+
+.product-image-container {
+    max-height: 300px; /* Adjust max height */
+    text-align: center;
+    overflow: hidden;
+}
+  
+.product-image-container .product-thumbnail {
+    max-width: 100%;
+    max-height: 300px; /* Match container or set specific */
+    height: auto;
+    width: auto;
+    object-fit: contain; /* Or 'cover' */
+    display: inline-block;
+}
+
+
+.product-details-table th {
+    text-align: left;
+}
+
+.product-details-table td {
+    text-align: left;
+}
+
+/* Center pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    width: 100%; 
+}
+
+.pagination-controls {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
 /* Login */
 
 .form-signin
