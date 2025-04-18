@@ -1,3 +1,15 @@
+<!-- Success alert - hidden by default -->
+<div class="alert alert-success alert-dismissible fade" id="successAlert" role="alert" style="display: none;">
+    Account updated successfully!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<!-- Error alert - hidden by default -->
+<div class="alert alert-danger alert-dismissible fade" id="errorAlert" role="alert" style="display: none;">
+    <span id="errorMessage">An error occurred</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
 <main class="py-4 mx-5">
     <div class="card">
         <div class="card-body p-5" id="accountCard">
@@ -34,6 +46,7 @@
 </main>
 {{!-- Account edit feature --}}
 
+<!-- Edit Account Modal -->
 <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -42,36 +55,94 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editAddressForm">
+                <form id="editAccountForm">
                     <div class="mb-3">
                         <label for="username">Edit username</label>
-                        <input name="username" type="text" class="form-control" id="username"
-                            placeholder={{this.user.username}}>
+                        <input name="username" type="text" class="form-control" id="username" 
+                               placeholder="{{user.username}}" value="{{user.username}}">
                     </div>
                     <div class="mb-3">
                         <label for="email">Edit email</label>
-                        <input name="email" type="text" class="form-control" id="email" placeholder={{this.user.email}}>
+                        <input name="email" type="email" class="form-control" id="email" 
+                               placeholder="{{user.email}}" value="{{user.email}}">
                     </div>
                     <div class="mb-2">
-                        <label for="addresses">Edit default address</label>
-                        <select id="addresses" class="form-select">
+                        <label for="addressId">Edit default address</label>
+                        <select id="addressId" name="addressId" class="form-select">
                             <option value="" selected disabled>Select an address</option>
-                            {{#each this.list_addresses}}
-                            {{#if this.def_address}}
-                            <option value="address" disabled>{{this.street_address}}, {{this.city}}, {{this.state}}</option>
-                            {{else}}
-                            {{/if}}
-                            <option value="address">{{this.street_address}}, {{this.city}}, {{this.state}}</option>
+                            {{#each list_addresses}}
+                            <option value="{{this.id}}">{{this.street_address}}, {{this.city}}, {{this.state}}</option>
                             {{/each}}
                         </select>
-                        <a type="button" class="btn btn-primary mt-2" id="moreAddresses" href="/address">Add more addresses</a>
+                        <div class="mt-2">
+                            <a class="btn btn-primary" id="moreAddresses" href="/address">Add more addresses</a>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary m-2" id="saveChanges">Save</button>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+document.getElementById('editAccountForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const addressIdSelect = document.getElementById('addressId');
+    const addressId = addressIdSelect.options[addressIdSelect.selectedIndex].value;
+    
+    const data = {};
+    if (username) data.username = username;
+    if (email) data.email = email;
+    if (addressId && addressId !== '') data.addressId = addressId;
+    
+    fetch('/account/edit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Hide the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editAccountModal'));
+            modal.hide();
+            
+            // Show success message
+            const successAlert = document.getElementById('successAlert');
+            successAlert.style.display = 'block';
+            successAlert.classList.add('show');
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            // Show error message
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = data.error || 'Update failed';
+            errorAlert.style.display = 'block';
+            errorAlert.classList.add('show');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Show error message
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = 'An error occurred while updating your account';
+        errorAlert.style.display = 'block';
+        errorAlert.classList.add('show');
+    });
+});
+</script>

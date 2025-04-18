@@ -308,6 +308,100 @@ app.get('/account', async (req, res) => {
   })
 });
 
+app.post('/account/edit', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, error: 'Not authenticated' });
+  }
+  
+  const userId = req.session.user.id;
+  const { username, email, addressId } = req.body;
+  
+  try {
+    // Handle username and email updates
+    if (username || email) {
+      const updateFields = [];
+      const updateValues = [];
+      let paramCount = 1;
+      
+      if (username) {
+        // Username validation
+        const usernameRegex = /^[a-zA-Z0-9-_]+$/;
+        if (!usernameRegex.test(username)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid username format'
+          });
+        }
+        
+        // Check if username already exists
+        const existingUsername = await db.oneOrNone('SELECT * FROM users WHERE username = $1 AND id != $2', [username, userId]);
+        if (existingUsername) {
+          return res.status(400).json({
+            success: false,
+            error: 'Username already exists'
+          });
+        }
+        
+        updateFields.push(`username = $${paramCount++}`);
+        updateValues.push(username);
+      }
+      
+      if (email) {
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid email address'
+          });
+        }
+        
+        // Check if email already exists
+        const existingEmail = await db.oneOrNone('SELECT * FROM users WHERE email = $1 AND id != $2', [email, userId]);
+        if (existingEmail) {
+          return res.status(400).json({
+            success: false,
+            error: 'Email already exists'
+          });
+        }
+        
+        updateFields.push(`email = $${paramCount++}`);
+        updateValues.push(email);
+      }
+      
+      if (updateFields.length > 0) {
+        updateValues.push(userId);
+        await db.none(`UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount}`, updateValues);
+        
+        // Update the session with new user info
+        const updatedUser = await db.one('SELECT id, username, email FROM users WHERE id = $1', [userId]);
+        req.session.user = updatedUser;
+      }
+    }
+    
+    // Handle address update
+    if (addressId) {
+      // First, set all addresses to non-default
+      await db.none('UPDATE addresses SET is_default = false WHERE user_id = $1', [userId]);
+      
+      // Then set the selected address as default
+      await db.none('UPDATE addresses SET is_default = true WHERE id = $1 AND user_id = $2', [addressId, userId]);
+    }
+    
+    // Return success JSON response
+    return res.json({
+      success: true,
+      message: 'Account updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating account:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to update account'
+    });
+  }
+});
+
 app.get('/checkout', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
