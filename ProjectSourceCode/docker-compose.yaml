@@ -14,6 +14,7 @@ services:
       - auto-parts-finder:/var/lib/postgresql/data
       - ./init_data:/docker-entrypoint-initdb.d
       - ./init_data/data/vehicle_data.csv:/home/node/app/vehicle_data.csv
+      - ./init_data/data/parts_with_compatibility.csv:/home/node/app/parts_with_compatibility.csv
   web:
     container_name: auto-parts-finder-web
     image: node:lts

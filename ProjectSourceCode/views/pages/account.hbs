@@ -44,7 +44,6 @@
         </div>
     </div>
 </main>
-{{!-- Account edit feature --}}
 
 <!-- Edit Account Modal -->
 <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountLabel" aria-hidden="true">
@@ -113,16 +112,13 @@ document.getElementById('editAccountForm').addEventListener('submit', function(e
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Hide the modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('editAccountModal'));
             modal.hide();
             
-            // Show success message
             const successAlert = document.getElementById('successAlert');
             successAlert.style.display = 'block';
             successAlert.classList.add('show');
             
-            // Refresh the page after a short delay
             setTimeout(() => {
                 window.location.reload();
             }, 1500);

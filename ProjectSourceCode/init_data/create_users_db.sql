@@ -28,12 +28,21 @@ CREATE TABLE user_vehicles (
     engine VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE parts (
+-- CREATE TABLE parts (
+--     id SERIAL PRIMARY KEY,
+--     name VARCHAR(255) NOT NULL,
+--     description TEXT,
+--     category VARCHAR(100)
+-- );
+CREATE TABLE IF NOT EXISTS parts (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    brand VARCHAR(100) NOT NULL,
     description TEXT,
-    category VARCHAR(100)
+    category VARCHAR(100),
+    UNIQUE(name)
 );
+
 CREATE TABLE IF NOT EXISTS cart (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -51,30 +60,27 @@ BEGIN
     END IF;
 END$$;
 
-CREATE TABLE part_compatibility (
-    id SERIAL PRIMARY KEY,
-    part_id INTEGER REFERENCES parts(id) ON DELETE CASCADE,
-    make VARCHAR(100) NOT NULL,
-    model VARCHAR(100) NOT NULL,
-    year_start INTEGER, -- year that it is first compatitble for
-    year_end INTEGER -- year that it is last compatitble for
-);
+-- CREATE TABLE part_compatibility (
+--     id SERIAL PRIMARY KEY,
+--     part_id INTEGER REFERENCES parts(id) ON DELETE CASCADE,
+--     vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+-- );
 
-CREATE TABLE vendors (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    website VARCHAR(255) NOT NULL
-);
+-- CREATE TABLE vendors (
+--     id SERIAL PRIMARY KEY,
+--     name VARCHAR(100) NOT NULL,
+--     website VARCHAR(255) NOT NULL
+-- );
 
-CREATE TABLE pricing (
-    id SERIAL PRIMARY KEY,
-    part_id INTEGER REFERENCES parts(id) ON DELETE CASCADE,
-    vendor_id INTEGER REFERENCES vendors(id),
-    price DECIMAL(10, 2) NOT NULL,
-    -- shipping DECIMAL(10, 2),
-    -- url VARCHAR(255),
-    UNIQUE(part_id, vendor_id)
-);
+-- CREATE TABLE pricing (
+--     id SERIAL PRIMARY KEY,
+--     part_id INTEGER REFERENCES parts(id) ON DELETE CASCADE,
+--     vendor_id INTEGER REFERENCES vendors(id),
+--     price DECIMAL(10, 2) NOT NULL,
+--     -- shipping DECIMAL(10, 2),
+--     -- url VARCHAR(255),
+--     UNIQUE(part_id, vendor_id)
+-- );
 
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
