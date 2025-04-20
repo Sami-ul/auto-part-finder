@@ -116,7 +116,6 @@
             
             // Clear vehicle
             clearVehicleBtn.addEventListener('click', function() {
-                localStorage.removeItem('selectedVehicle');
                 makeSelect.value = '';
                 yearSelect.value = '';
                 modelSelect.value = '';
@@ -124,7 +123,9 @@
                 yearSelect.disabled = true;
                 modelSelect.disabled = true;
                 engineSelect.disabled = true;
-                chooseVehicleBtn.textContent = "Choose Vehicle";
+                chooseVehicleBtn.textContent = "Select Vehicle";
+                const cookieName = "currentVehicle";
+                document.cookie = `${cookieName}=; Max-Age=-99999`;
                 closePopup();
             });
 
@@ -134,28 +135,24 @@
                 const make = makeSelect.value;
                 const model = modelSelect.value;
                 const engine = engineSelect.value;
-
                 if (!year || !make || !model || !engine) {
                     alert('Please fill in all fields');
                     return;
                 }
+                const vehicle = {
+                    make: make,
+                    year: year,
+                    model: model,
+                    engine: engine
+                };
+                const cookieBody = encodeURIComponent(JSON.stringify(vehicle));
+                const cookieName = "currentVehicle";
+                document.cookie = `${cookieName}=${cookieBody}; Max-Age=3600`;
 
-                // Remove localStorage setting
-                // localStorage.setItem('selectedVehicle', JSON.stringify(selectedVehicle));
+                // update badge here, consider lowering badge below search bar
                 chooseVehicleBtn.textContent = `${year} ${make} ${model}`;
                 closePopup();
             });
-
-            // Remove or comment out this block of code that checks localStorage
-            /*
-            // Check for saved vehicle
-            const savedVehicle = localStorage.getItem('selectedVehicle');
-            if (savedVehicle) {
-                const vehicle = JSON.parse(savedVehicle);
-                chooseVehicleBtn.textContent = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-            }
-            */
-
         } catch (error) {
             console.error('Error loading vehicle data:', error);
             alert(`Failed to load vehicle data: ${error.message}. Please try again later. Received data: ${JSON.stringify(data)}`);
@@ -252,7 +249,6 @@
         }
     }
 
-    // search
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('.search-button');
@@ -293,117 +289,87 @@
     });
     </script>
 
-
-    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-        {{#each products}}
-            {{!-- <div class="card m-3 rounded-3 shadow-sm" style="width:25rem;">
-                <div class="card-header">
-                    <h1 class="card-title">{{this.name}}</h1>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr class="text-start">
-                                <th scope="col">Description:</th>
-                                <td class="text-end">{{this.description}}</td>
-                            </tr>
-                            <!-- Add more product details here -->
-                        </thead>
-                    </table>
-                </div>
-                <div class="card-body text-end">
-                    <button
-                        type="button"
-                        class="btn btn-primary add-to-cart-btn"
-                        data-product-id="{{this.id}}"
-                    >
+    {{#if this.noquery}}
+    <div class
+    <p>This is the Discover page with no active queries</p>
+    {{else}}
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+            {{#each products}}
+                <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
+                    <div class="card-header">
+                        <h1 class="card-title">{{this.part}}</h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="product-image-container mb-3">
+                            <img src="{{#if this.thumbimg}}{{this.thumbimg}}{{else}}/path/to/placeholder.png{{/if}}"
+                                class="img-fluid product-thumbnail" alt="{{this.part}} - {{this.brand}}">
+                        </div>
+                        <table class="table table-sm product-details-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="width: 30%;">Brand:</th>
+                                    <td>{{this.brand}} {{this.partnumber}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Description:</th>
+                                    <td>{{this.description}}<br>
+                                        {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
+                                        {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Price:</th>
+                                    <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-body text-end">
+                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
                         Add to cart
-                    </button>
+                        </button>
+                    </div>
                 </div>
-            </div> --}}
-            <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
-
-        <div class="card-header">
-            <h1 class="card-title">{{this.part}}</h1>
+            {{/each}}
         </div>
 
-        <div class="card-body">
-            <div class="product-image-container mb-3">
-            <img src="{{#if this.thumbimg}}{{this.thumbimg}}{{else}}/path/to/placeholder.png{{/if}}"
-                class="img-fluid product-thumbnail" alt="{{this.part}} - {{this.brand}}">
-            </div>
-
-            <table class="table table-sm product-details-table">
-            <tbody>
-                <tr>
-                <th scope="row" style="width: 30%;">Brand:</th>
-                <td>{{this.brand}} {{this.partnumber}}</td>
-                </tr>
-                <tr>
-                <th scope="row">Description:</th>
-                <td>{{this.description}}<br>
-                    {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
-                    {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
-                </td>
-                </tr>
-                <tr>
-                <th scope="row">Price:</th>
-                <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
-                </tr>
-            </tbody>
-            </table>
-        </div>
-
-        <div class="card-body text-end">
-            <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
-            Add to cart
-            </button>
-        </div>
-
-        </div>
-        {{/each}}
-    </div>
-
-    <div class="pagination-container">
-        {{#if pagination}}
-        <nav aria-label="Search results pagination" class="pagination-controls">
-        <ul class="pagination">
-
-            {{#if pagination.hasPreviousPage}}
-            <li class="page-item">
-            <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.previousPage}}"
-                aria-label="Previous">
-                « Previous
-            </a>
-            </li>
-            {{else}}
-            <li class="page-item disabled">
-            <span class="page-link" aria-hidden="true">« Previous</span>
-            </li>
+        <div class="pagination-container">
+            {{#if pagination}}
+            <nav aria-label="Search results pagination" class="pagination-controls">
+                <ul class="pagination">
+                    {{#if pagination.hasPreviousPage}}
+                        <li class="page-item">
+                            <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.previousPage}}"
+                                aria-label="Previous">
+                                « Previous
+                            </a>
+                        </li>
+                    {{else}}
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">« Previous</span>
+                        </li>
+                    {{/if}}
+                        <li class="page-item disabled">
+                            <span class="page-link">Page {{pagination.currentPage}} of {{pagination.totalPages}}</span>
+                        </li>
+                    {{#if pagination.hasNextPage}}
+                        <li class="page-item">
+                            <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.nextPage}}" aria-label="Next">
+                                Next »
+                            </a>
+                        </li>
+                    {{else}}
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">Next »</span>
+                        </li>
+                    {{/if}}
+                </ul>
+            </nav>
+            {{else if this.noResults}}
+                <p>No products were found for '{{this.searchQuery}}'</p>
             {{/if}}
-
-            <li class="page-item disabled">
-            <span class="page-link">Page {{pagination.currentPage}} of {{pagination.totalPages}}</span>
-            </li>
-
-            {{#if pagination.hasNextPage}}
-            <li class="page-item">
-            <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.nextPage}}" aria-label="Next">
-                Next »
-            </a>
-            </li>
-            {{else}}
-            <li class="page-item disabled">
-            <span class="page-link" aria-hidden="true">Next »</span>
-            </li>
-            {{/if}}
-
-        </ul>
-        </nav>
-        {{else}}
-        <p>No products found matching your search.</p>
-        {{/if}}
-    </div>
+        </div>
+    {{/if}}
 
     <div class="modal fade" id="itemAddedModal" tabindex="-1" aria-labelledby="itemAddedModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

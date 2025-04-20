@@ -105,23 +105,77 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
-  try {
-    const products = await db.any('SELECT id, brand, name, description FROM parts'); // Fetch product data
-    res.render('pages/discover', { products: products }); // Pass data to the template
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    res.render('pages/discover', { products: [], error: 'Failed to load products' }); // Handle errors
-  }
+  res.render('pages/discover', {noquery: 'true'});
 });
-app.get('/search', async (req, res) => {
-  const query = req.query.query;
 
+// app.get('/search', async (req, res) => {
+//   const query = req.query.query;
+//   const savedVehicle = localStorage.getItem('selectedVehicle');
+//   let vehicle = None;
+//   if (savedVehicle) {
+//     vehicle = JSON.parse(savedVehicle);
+//   }
+//   if (!query) {
+//     return res.redirect('/discover');
+//   }
+//   console.log(query) // debug line
+//   try {
+//     let searchsql = None;
+//     if (vehicle) {
+//       // consider information from vehicle in query
+//     } else {
+//       // just return robust searchsql
+//       searchsql = `SELECT part, brand, partnumber, description, pack, fits, thumbimg, category 
+//                     FROM parts 
+//                     WHERE name ILIKE ${query} OR description ILIKE $${query}`;
+//     }
+//     console.log(`searchsql: ${searchsql}`) // debug line
+//     // const products = await db.any(searchsql);
+//     const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
+//     // check compatibility
+//     // append as new key to products json
+//     res.render('pages/discover', { products: products, searchQuery: query });
+//   } catch (error) {
+//     console.error('Error fetching products:', error);
+//     res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
+//   }
+// });
+
+// Route to receive and store filter updates
+
+// search
+
+app.get('/search', async (req, res) => {
+  const query = decodeURIComponent(req.query.query);
+  let vehicle;
+  for (let i=0; i < req.rawHeaders.length; i++) {
+    if (req.rawHeaders[i] === 'Cookie') {
+      vehicle = JSON.parse(decodeURIComponent(req.rawHeaders[i+1].substring(15)));
+      break;
+    }    
+  }
   if (!query) {
     return res.redirect('/discover');
   }
+
   try {
-    const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
-    res.render('pages/discover', { products: products, searchQuery: query });
+    let searchsql;
+    if (vehicle) {
+      // consider information from vehicle in query
+      console.log(vehicle);
+      searchsql = `SELECT name, brand, partnumber, description, pack, fits, thumbimg, category 
+                    FROM parts 
+                    WHERE name ILIKE '${query}' OR description ILIKE '${query}'`;
+    } else {
+      // just return robust searchsql
+      searchsql = `SELECT name, brand, partnumber, description, pack, fits, thumbimg, category 
+                    FROM parts 
+                    WHERE name ILIKE '${query}' OR description ILIKE '${query}'`;
+    }
+    const products = await db.any(searchsql);
+    // check compatibility
+    // append as new key to products json
+    res.render('pages/discover', { products: products, searchQuery: query, noResults: products.length == 0 ? 'true' : ''});
   } catch (error) {
     console.error('Error fetching products:', error);
     res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
@@ -452,7 +506,7 @@ app.get('/mycars', (req, res) => {
 // Vehicle data route from csv
 app.get('/vehicle-data', async (req, res) => {
     try {
-        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
+        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicles ORDER BY make ASC';
         const result = await db.any(query);
         
         // For csv mapping

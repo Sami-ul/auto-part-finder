@@ -32,7 +32,12 @@ CREATE TABLE IF NOT EXISTS parts (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     brand VARCHAR(100) NOT NULL,
+    partnumber VARCHAR(100) NOT NULL,
     description TEXT,
+    pack VARCHAR(200),
+    fits TEXT,
+    fullimg TEXT,
+    thumbimg TEXT,
     category VARCHAR(100),
     UNIQUE(name)
 );
@@ -45,11 +50,16 @@ CREATE TABLE IF NOT EXISTS parts_compatibility (
 );
 
 -- 6. Import parts data
-INSERT INTO parts (name, brand, description, category)
+INSERT INTO parts (name, brand, partnumber, description, pack, fits, fullimg, thumbimg, category)
 SELECT 
     part AS name,
     brand,
+    partnumber,
     description,
+    pack,
+    fits,
+    fullimg,
+    thumbimg,
     part AS category
 FROM temp_parts_data tp
 ON CONFLICT DO NOTHING;
