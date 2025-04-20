@@ -296,7 +296,7 @@
             {{#each products}}
                 <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
                     <div class="card-header">
-                        <h1 class="card-title">{{this.name}}</h1>
+                        <h1 class="card-title">{{this.brand}} {{this.partnumber}}</h1>
                     </div>
                     <div class="card-body">
                         <div class="product-image-container mb-3">
@@ -305,10 +305,6 @@
                         </div>
                         <table class="table table-sm product-details-table">
                             <tbody>
-                                <tr>
-                                    <th scope="row" style="width: 30%;">Brand:</th>
-                                    <td>{{this.brand}} {{this.partnumber}}</td>
-                                </tr>
                                 <tr>
                                     <th scope="row">Description:</th>
                                     <td>{{this.description}}<br>
