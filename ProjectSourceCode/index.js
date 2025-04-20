@@ -505,7 +505,7 @@ app.get('/checkout', async (req, res) => {
 
 app.get('/mycars', (req, res) => {
   if (!req.session.user) {
-    return res.redirect('/discover');
+    return res.redirect('/login');
   }
   // saving vehicle addition into db
   db.any('SELECT * FROM user_vehicles WHERE user_id = $1', [req.session.user.id])
