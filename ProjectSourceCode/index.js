@@ -111,81 +111,141 @@ app.get('/discover', async (req, res) => {
 // search
 
 app.get('/search', async (req, res) => {
-  const query = decodeURIComponent(req.query.query);
-  let page = parseInt(req.query.page, 10) || 1;
-  if (page < 1) {page = 1;}
-  const limit = 15; // Results per page
-  const offset = (page - 1) * limit;
-  
-  let vehicle;
-  for (let i=0; i < req.rawHeaders.length; i++) {
-    if (req.rawHeaders[i] === 'Cookie') {
-      vehicle = JSON.parse(decodeURIComponent(req.rawHeaders[i+1].substring(15)));
-      break;
-    }    
-  }
+  const { query } = req.query;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = 12;
+  const offset = (page > 0 ? page - 1 : 0) * limit;
+
   if (!query) {
     return res.redirect('/discover');
   }
+
+  let vehicle = null;
   try {
-    let searchsql;
-    if (vehicle) {
-      // consider information from vehicle in query
-      console.log(vehicle);
-      searchsql = `
-          SELECT DISTINCT
-              name, brand, partnumber, description, pack, fits, thumbimg,
-              COUNT(*) OVER() as total_count
-          FROM parts
-          WHERE name ILIKE '${query}' OR description ILIKE '${query}'
-          ORDER BY name, brand
-          LIMIT ${limit} OFFSET ${offset}
-      `;
-    } else {
-      // just return robust searchsql
-      searchsql = `
-          SELECT DISTINCT
-              name, brand, partnumber, description, pack, fits, thumbimg,
-              COUNT(*) OVER() as total_count
-          FROM parts
-          WHERE name ILIKE '${query}' OR description ILIKE '${query}'
-          ORDER BY name, brand
-          LIMIT ${limit} OFFSET ${offset}
-      `;     
-    }
-    const productsData = await db.any(searchsql);
-    // check compatibility
-    // append results as new key to products json to extract in discover
-    let totalCount = 0;
-      // total_count will be the same on all rows returned by the query (if any)
-      if (productsData.length > 0) {
-          totalCount = parseInt(productsData[0].total_count, 10);
-      }
-      // Remove the total_count from the product objects before sending to template
-      const products = productsData.map(({ total_count, ...rest }) => rest);
-      // --- Calculate Pagination Details ---
-      const totalPages = Math.ceil(totalCount / limit);
-      const hasNextPage = page < totalPages;
-      const hasPreviousPage = page > 1;
-      const nextPage = page + 1;
-      const previousPage = page - 1;
-      res.render('pages/discover', {
-        products: products, // Products for the current page
-        searchQuery: query,
-        pagination: {
-            currentPage: page,
-            totalPages: totalPages,
-            totalCount: totalCount,
-            limit: limit,
-            hasNextPage: hasNextPage,
-            hasPreviousPage: hasPreviousPage,
-            nextPage: nextPage,
-            previousPage: previousPage
+    for (let i = 0; i < req.rawHeaders.length; i += 2) {
+      if (req.rawHeaders[i] === 'Cookie') {
+        const cookieHeader = req.rawHeaders[i + 1];
+        const vehicleCookieString = cookieHeader.split('; ').find(c => c.startsWith('vehicle='));
+        if (vehicleCookieString) {
+           const encodedJson = vehicleCookieString.substring(8);
+           const decodedJson = decodeURIComponent(encodedJson);
+           vehicle = JSON.parse(decodedJson);
+           if (!vehicle || !vehicle.make || !vehicle.year || !vehicle.model || !vehicle.engine) {
+               vehicle = null;
+           }
         }
-      });
+        break;
+      }
+    }
+  } catch (err) {
+    vehicle = null;
+  }
+
+  let countSql = '';
+  let dataSql = '';
+  let countParams = [];
+  let dataParams = [];
+  const queryParam = `%${query}%`;
+
+  try {
+    if (vehicle) {
+      countSql = `
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
+      `;
+      dataSql = `
+        SELECT DISTINCT p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price AS price, p.thumbimg
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
+        ORDER BY p.brand, p.partnumber
+        LIMIT $6 OFFSET $7;
+      `;
+      countParams = [
+        queryParam,
+        vehicle.make,
+        parseInt(vehicle.year, 10),
+        vehicle.model,
+        vehicle.engine
+      ];
+      dataParams = [...countParams, limit, offset];
+    } else {
+      countSql = `
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1);
+      `;
+      dataSql = `
+        SELECT DISTINCT p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price AS price, p.thumbimg
+        FROM parts p
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
+        ORDER BY p.brand, p.partnumber
+        LIMIT $2 OFFSET $3;
+      `;
+      countParams = [queryParam];
+      dataParams = [...countParams, limit, offset];
+    }
+
+    const countResult = await db.one(countSql, countParams);
+    const totalCount = parseInt(countResult.total_count, 10) || 0;
+
+    let products = [];
+    let pagination = {};
+    let noResults = 'true';
+
+    if (totalCount > 0 && offset < totalCount) {
+       products = await db.any(dataSql, dataParams);
+       if (products && products.length > 0) {
+          noResults = '';
+       }
+    } else {
+        products = [];
+        noResults = 'true';
+    }
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasPreviousPage = page > 1;
+    const hasNextPage = page < totalPages;
+    const previousPage = hasPreviousPage ? page - 1 : null;
+    const nextPage = hasNextPage ? page + 1 : null;
+
+    pagination = {
+        currentPage: page,
+        totalPages: totalPages,
+        totalCount: totalCount,
+        limit: limit,
+        hasPreviousPage: hasPreviousPage,
+        hasNextPage: hasNextPage,
+        previousPage: previousPage,
+        nextPage: nextPage,
+    };
+
+    res.render('pages/discover', {
+        searchQuery: query,
+        products: products,
+        pagination: products.length > 0 ? pagination : '',
+        noResults: noResults
+    });
+
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query, noResults: 'true' });
+    console.error('Error in /search route:', error);
+    res.render('pages/discover', {
+        searchQuery: query,
+        products: [],
+        pagination: {},
+        error: 'Search failed. Please try again.',
+        noResults: noResults
+    });
   }
 });
 
