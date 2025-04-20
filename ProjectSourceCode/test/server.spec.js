@@ -242,4 +242,50 @@ describe('negative : /mycars. logged out', () => {
             });
     });
 });
+describe('Feature 2: Search for Car Parts', () => {
+    // search form must render on the discover page
+    it('Renders the discover page with search form', done => {
+      chai
+        .request(server)
+        .get('/discover')
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.text).to.include('Choose Vehicle');
+          expect(res.text).to.include('Make');
+          expect(res.text).to.include('Model');
+          expect(res.text).to.include('Year');
+          expect(res.text).to.include('Engine');
+          expect(res.text).to.include('Search');
+          done();
+        });
+    });
+  
+    // search for parts using a complete vehicle query
+    it('Searches parts with a valid query and returns matching results', done => {
+      const query = 'filter';
+      chai
+        .request(server)
+        .get('/search')
+        .query({ query })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.text.toLowerCase()).to.include('filter');
+          expect(res.text).to.match(/page/i);
+          done();
+        });
+    });
+  
+    // attempt a search with no query, should redirect back to /discover
+    it('Redirects to /discover when no query param provided', done => {
+      chai
+        .request(server)
+        .get('/search')
+        .redirects(0)
+        .end((err, res) => {
+          expect(res).to.have.status(302);
+          expect(res).to.redirectTo(/\/discover$/);
+          done();
+        });
+    });
+  });
 // ********************************************************************************
