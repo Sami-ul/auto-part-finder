@@ -94,8 +94,7 @@ SELECT
     tp.price
 FROM temp_parts_data tp
 JOIN parts p ON p.partnumber = tp.partnumber
-CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v
-ON CONFLICT DO NOTHING;
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v;
 
 -- 11. Populate vehicles from the JSON data
 WITH vehicle_json AS (
@@ -118,7 +117,7 @@ WITH compatibility_pairs AS (
         p.id AS part_id,
         v.id AS vehicle_id
     FROM temp_parts_data tp
-    JOIN parts p ON p.name = tp.part
+    JOIN parts p ON p.partnumber = tp.partnumber
     CROSS JOIN LATERAL jsonb_array_elements(tp.compatible_vehicles::jsonb) AS vehicle_data
     JOIN vehicles v ON 
         v.make = (vehicle_data->>'make')::VARCHAR AND
@@ -128,8 +127,7 @@ WITH compatibility_pairs AS (
 )
 INSERT INTO parts_compatibility (part_id, vehicle_id)
 SELECT part_id, vehicle_id
-FROM compatibility_pairs
-ON CONFLICT DO NOTHING;
+FROM compatibility_pairs;
 
 -- Drop the temporary table when done
 DROP TABLE temp_parts_data;
