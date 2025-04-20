@@ -2,16 +2,12 @@
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
-const Handlebars = require('handlebars');
 const path = require('path');
 const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const getParts = require('./js/get_parts.js');
-const axios = require('axios');
-const { match } = require('assert');
-// const apiRouter = require('./routes/api');  // Remove this line
+const cookieParser = require('cookie-parser');
 
 /* Connect to DB */
 const hbs = handlebars.create({
@@ -44,6 +40,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static('./'));
 app.use(
   session({
@@ -69,6 +66,22 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user;
   next();
 })
+
+/* Get vehicle cookie */
+function getVehicleCookie(cookies) {
+  const vehicleCookie = 'currentVehicle';
+  try {
+    const vehicleCookieValue = cookies ? cookies[vehicleCookie] : null;
+    if (vehicleCookieValue) {
+       const decodedJson = decodeURIComponent(vehicleCookieValue);
+       return JSON.parse(decodedJson);
+    }
+    return null;
+  } catch (err) {
+    console.error("Error parsing vehicle data from req.cookies:", err);
+    return null;
+  }
+}
 
 /* Routes */
 
@@ -105,36 +118,22 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
-  res.render('pages/discover', {noquery: 'true'});
+  let vehicle = getVehicleCookie(req.cookies);
+  console.log(vehicle);
+  res.render('pages/discover', {noquery: 'true', vehicleBadge: vehicle == null ? '' : vehicle});
 });
 
 // search
 
 app.get('/search', async (req, res) => {
   const { query } = req.query;
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = 12;
-  const offset = (page > 0 ? page - 1 : 0) * limit;
-
   if (!query) {
     return res.redirect('/discover');
   }
-
-  let vehicle = null;
-  try {
-    for (let i = 0; i < req.rawHeaders.length; i++) {
-      if (req.rawHeaders[i] === 'Cookie') {
-        const cookieValue = req.rawHeaders[i + 1];
-        const encodedJson = cookieValue.substring(15);
-        const decodedJson = decodeURIComponent(encodedJson);
-        vehicle = JSON.parse(decodedJson);
-        break;
-      }
-    }
-  } catch (err) {
-    vehicle = null;
-  }
-
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = 12;
+  const offset = (page > 0 ? page - 1 : 0) * limit;
+  let vehicle = getVehicleCookie(req.cookies);
   let countSql = '';
   let dataSql = '';
   let countParams = [];
@@ -143,7 +142,6 @@ app.get('/search', async (req, res) => {
 
   try {
     if (vehicle) {
-      console.log(vehicle);
       countSql = `
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
@@ -229,7 +227,8 @@ app.get('/search', async (req, res) => {
         searchQuery: query,
         products: products,
         pagination: products.length > 0 ? pagination : '',
-        noResults: noResults
+        noResults: noResults,
+        vehicleBadge: vehicle == null ? '' : vehicle
     });
 
   } catch (error) {
@@ -239,7 +238,8 @@ app.get('/search', async (req, res) => {
         products: [],
         pagination: {},
         error: 'Search failed. Please try again.',
-        noResults: noResults
+        noResults: noResults,
+        vehicleBadge: vehicle == null ? '' : vehicle
     });
   }
 });
