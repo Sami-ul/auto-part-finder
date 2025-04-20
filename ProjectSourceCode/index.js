@@ -191,6 +191,7 @@ app.get('/cart', async (req, res) => {
     });
   }
 });
+
 app.post('/cart/add', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
