@@ -6,12 +6,16 @@
         "bcryptjs": "^2.4.0",
         "body-parser": "^1.20.3",
         "cheerio": "^1.0.0",
+        "cheero": "^0.0.1",
+        "csv-parse": "^5.6.0",
         "express": "^4.6.1",
         "express-handlebars": "^7.1.2",
         "express-session": "^1.18.1",
         "fs": "^0.0.1-security",
+        "https-proxy-agent": "^7.0.6",
         "nodejs": "^0.0.0",
-        "pg-promise": "^10.11.1"
+        "pg-promise": "^10.11.1",
+        "puppeteer": "^24.6.1"
     },
     "devDependencies": {
         "chai": "^4.2.0",

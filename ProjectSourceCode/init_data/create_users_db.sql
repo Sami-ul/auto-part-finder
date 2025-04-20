@@ -83,3 +83,4 @@ CREATE TABLE repairs (
     part_id INTEGER REFERENCES parts(id),
     repair_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+

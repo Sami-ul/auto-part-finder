@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">Select Vehicle</button>
@@ -7,15 +8,49 @@
         {{/if}}
         <button class="search-button">Search</button>
     </div>
+=======
+{{!-- Add all car options to discover page, plys make it an option to choose your own car from your garage --}}
+{{!--
+<script src="/js/vehicle-selector.js"></script> --}}
+{{!-- Discover page should be the initial landing page instead of the login/register page
+This should render differently when logged out vs. logged in. --}}
+<main>
+  <div class="search-container">
+    <button id="chooseVehicle" class="choose-vehicle">Select Vehicle</button>
+    <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
+    {{#if searchQuery}}
+    <button class="clear-search" title="Clear search">×</button>
+    {{/if}}
+    <button class="search-button">Search</button>
+  </div>
+>>>>>>> ffcad63671c20ce311266daf8ab623b509fb8702
 
-    <div class="overlay" id="overlay"></div>
+  <div class="overlay" id="overlay"></div>
 
-    {{!-- Needs filtering model based on make, engine based on make and model --}}
-    <div class="popup" id="vehiclePopup">
-        <button id="closePopup" class="close-btn">&times;</button>
-        <div class="popup-header">
-            <h2>Choose a Vehicle</h2>
+  {{!-- Needs filtering model based on make, engine based on make and model --}}
+  <div class="popup" id="vehiclePopup">
+    <button id="closePopup" class="close-btn">&times;</button>
+    <div class="popup-header">
+      <h2>Choose a Vehicle</h2>
+    </div>
+    <div class="modal-body">
+      <form id="vehicleSelectForm">
+        <div class="mb-3">
+          <select id="make" class="form-select" required>
+            <option value="">Select Make</option>
+          </select>
         </div>
+        <div class="mb-3">
+          <select id="year" class="form-select" required disabled>
+            <option value="">Select Year</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <select id="model" class="form-select" required disabled>
+            <option value="">Select Model</option>
+          </select>
+        </div>
+<<<<<<< HEAD
         <div class="modal-body">
             <form id="vehicleSelectForm">
                 <div class="mb-3">
@@ -44,7 +79,79 @@
             <button type="button" class="btn btn-danger" id="clearVehicle">Clear</button>
             <button type="button" class="btn btn-primary" id="addVehicle">Select</button>
         </div>
+=======
+        <div class="mb-3">
+          <select id="engine" class="form-select" required disabled>
+            <option value="">Select Engine</option>
+          </select>
+        </div>
+      </form>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" id="clearVehicle">Clear</button>
+      <button type="button" class="btn btn-primary" id="addVehicle">Select</button>
+>>>>>>> ffcad63671c20ce311266daf8ab623b509fb8702
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      // First, verify all required elements exist
+      const makeSelect = document.getElementById('make');
+      const yearSelect = document.getElementById('year');
+      const modelSelect = document.getElementById('model');
+      const engineSelect = document.getElementById('engine');
+      const chooseVehicleBtn = document.getElementById('chooseVehicle');
+      const vehiclePopup = document.getElementById('vehiclePopup');
+      const closePopupBtn = document.getElementById('closePopup');
+      const clearVehicleBtn = document.getElementById('clearVehicle');
+      const addVehicleBtn = document.getElementById('addVehicle');
+      const overlay = document.getElementById('overlay');
+
+      // Check if all required elements exist
+      if (!makeSelect || !yearSelect || !modelSelect || !engineSelect ||
+        !chooseVehicleBtn || !vehiclePopup || !closePopupBtn ||
+        !clearVehicleBtn || !addVehicleBtn || !overlay) {
+        console.error('Required DOM elements not found');
+        return;
+      }
+
+      try {
+        // Load vehicle data
+        const response = await fetch('/vehicle-data');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          throw new Error('Invalid vehicle data received');
+        }
+
+        vehicleData = Array.isArray(data) ? data : Object.values(data);
+
+        // Populate initial make dropdown
+        const uniqueMakes = [...new Set(vehicleData.map(row => row[0]))].sort();
+        makeSelect.innerHTML = '<option value="">Select Make</option>';
+        uniqueMakes.forEach(make => {
+          if (make && make.trim()) {
+            makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+          }
+        });
+
+        // Add event listeners
+        makeSelect.addEventListener('change', function () {
+          updateDropdowns('year', this.value);
+        });
+
+        yearSelect.addEventListener('change', function () {
+          updateDropdowns('model', makeSelect.value, this.value);
+        });
+
+        modelSelect.addEventListener('change', function () {
+          updateDropdowns('engine', makeSelect.value, yearSelect.value, this.value);
+        });
 
     <script>
     document.addEventListener('DOMContentLoaded', async function() {
@@ -389,6 +496,58 @@
             </div>
         </div>
     </div>
+    {{/each}}
+  </div>
+
+  <div class="pagination-container">
+    {{#if pagination}}
+    <nav aria-label="Search results pagination" class="pagination-controls">
+      <ul class="pagination">
+
+        {{#if pagination.hasPreviousPage}}
+        <li class="page-item">
+          <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.previousPage}}"
+            aria-label="Previous">
+            « Previous
+          </a>
+        </li>
+        {{else}}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">« Previous</span>
+        </li>
+        {{/if}}
+
+        <li class="page-item disabled">
+          <span class="page-link">Page {{pagination.currentPage}} of {{pagination.totalPages}}</span>
+        </li>
+
+        {{#if pagination.hasNextPage}}
+        <li class="page-item">
+          <a class="page-link" href="/search?query={{searchQuery}}&page={{pagination.nextPage}}" aria-label="Next">
+            Next »
+          </a>
+        </li>
+        {{else}}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">Next »</span>
+        </li>
+        {{/if}}
+
+      </ul>
+    </nav>
+    {{else}}
+    <p>No products found matching your search.</p>
+    {{/if}}
+  </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+      addToCartButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const productId = this.dataset.productId;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -468,5 +627,7 @@
                 });
             });
         });
-    </script>
+      });
+    });
+  </script>
 </main>

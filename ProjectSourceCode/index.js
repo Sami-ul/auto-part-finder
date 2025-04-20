@@ -108,41 +108,6 @@ app.get('/discover', async (req, res) => {
   res.render('pages/discover', {noquery: 'true'});
 });
 
-// app.get('/search', async (req, res) => {
-//   const query = req.query.query;
-//   const savedVehicle = localStorage.getItem('selectedVehicle');
-//   let vehicle = None;
-//   if (savedVehicle) {
-//     vehicle = JSON.parse(savedVehicle);
-//   }
-//   if (!query) {
-//     return res.redirect('/discover');
-//   }
-//   console.log(query) // debug line
-//   try {
-//     let searchsql = None;
-//     if (vehicle) {
-//       // consider information from vehicle in query
-//     } else {
-//       // just return robust searchsql
-//       searchsql = `SELECT part, brand, partnumber, description, pack, fits, thumbimg, category 
-//                     FROM parts 
-//                     WHERE name ILIKE ${query} OR description ILIKE $${query}`;
-//     }
-//     console.log(`searchsql: ${searchsql}`) // debug line
-//     // const products = await db.any(searchsql);
-//     const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
-//     // check compatibility
-//     // append as new key to products json
-//     res.render('pages/discover', { products: products, searchQuery: query });
-//   } catch (error) {
-//     console.error('Error fetching products:', error);
-//     res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
-//   }
-// });
-
-// Route to receive and store filter updates
-
 // search
 
 app.get('/search', async (req, res) => {
@@ -174,7 +139,7 @@ app.get('/search', async (req, res) => {
     }
     const products = await db.any(searchsql);
     // check compatibility
-    // append as new key to products json
+    // append results as new key to products json to extract in discover
     res.render('pages/discover', { products: products, searchQuery: query, noResults: products.length == 0 ? 'true' : ''});
   } catch (error) {
     console.error('Error fetching products:', error);
