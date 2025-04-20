@@ -95,25 +95,20 @@ Search for parts
 
 1. Search for parts using complete vehicle information
 2. Navigate to the discover page
-3. Select Make: "Toyota" from dropdown
-4. Select Model: "Camry" from dropdown
-5. Select Year: "2018" from dropdown
-6. Select Engine: "2.5L 4-cylinder" from dropdown
-7. Click "Search" button
-8. Expected Result: Search results display parts compatible with the selected vehicle, including oil filters and brake pads with pricing from multiple vendors
+3. Search for "filter"
+4. Expected Result: Search results display all parts with filter in title or description
 
 Failed parts search
 
-1. Search for parts using incomplete vehicle information
-2. Navigate to the discover page
-3. Select Make: Do not select a make from dropdown
-4. Expected Result: The user should not be able to select a model or press the search button.
+1. Search for parts using incomplete information
+2. Enter an empty query
+3. Expected Result: The user should be redirected to discover.
 
 Add a part to cart from search results
 
 1. Perform a successful parts search.
 2. For the first oil filter result, click "Add to Cart"
-3. Expected Result: Part is added to the user's cart, cart count in the navigation is updated, user receives a confirmation message
+3. Expected Result: Part is added to the user's cart, verify from cart.
 
 ## Feature 3: Shipping Options (Ship to Home / Ship to Nearby Installation Shop)
 - After selecting parts and proceeding to checkout, users should be able to choose a shipping option.

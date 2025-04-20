@@ -242,52 +242,90 @@ describe('negative : /mycars. logged out', () => {
             });
     });
 });
-describe('Feature 2: Search for Car Parts', () => {
-    // search form must render on the discover page
-    it('Renders the discover page with search form', done => {
-        chai
-            .request(server)
-            .get('/discover')
-            .end((err, res) => {
-                expect(res).to.have.status(200);
-                expect(res.text).to.include('Choose Vehicle');
-                expect(res.text).to.include('Make');
-                expect(res.text).to.include('Model');
-                expect(res.text).to.include('Year');
-                expect(res.text).to.include('Engine');
-                expect(res.text).to.include('Search');
-                done();
-            });
+describe('Feature 2 UAT: Search & Add to Cart from Results', () => {
+    let agent;
+  
+    before(done => {
+      agent = chai.request.agent(server);
+      agent
+        .post('/login')
+        .send({ username: 'JohnDoe', password: '12345678B' })
+        .end((err, res) => {
+          expect(res).to.redirectTo(/\/$/);
+          done();
+        });
     });
-
-    // search for parts using a complete vehicle query
-    it('Searches parts with a valid query and returns matching results', done => {
-        const query = 'filter';
-        chai
-            .request(server)
-            .get('/search')
-            .query({ query })
-            .end((err, res) => {
-                expect(res).to.have.status(200);
-                expect(res.text.toLowerCase()).to.include('filter');
-                expect(res.text).to.match(/page/i);
-                done();
-            });
+  
+    after(() => {
+      agent.close();
     });
-
-    // attempt a search with no query, should redirect back to /discover
-    it('Redirects to /discover when no query param provided', done => {
-        chai
-            .request(server)
+  
+    it('Redirects to /discover when no search query is provided', done => {
+      agent
+        .get('/search')
+        .redirects(0)
+        .end((err, res) => {
+          expect(res).to.have.status(302);
+          expect(res).to.redirectTo(/\/discover$/);
+          done();
+        });
+    });
+  
+    it('Searches parts with a valid query and shows compatible parts', done => {
+      agent
+        .get('/search')
+        .query({ query: 'filter' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.text.toLowerCase()).to.include('oil filter');
+          done();
+        });
+    });
+  
+    it('Adds a part to cart from the first search result', done => {
+      agent
+        .get('/search')
+        .query({ query: 'filter' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          // extract data-product-id from first "Add to Cart" button
+          const m = res.text.match(/data-product-id="(\d+)"/);
+          expect(m, 'no data-product-id found').to.not.be.null;
+          const partId = m[1];
+  
+          agent
+            .post('/cart/add')
+            .send({ product_id: partId })
+            .end((err2, addRes) => {
+              expect(addRes).to.have.status(200);
+              expect(addRes.body).to.have.property('success', true);
+  
+              // finally confirm it made it into the cart
+              agent
+                .get('/cart')
+                .end((err3, cartRes) => {
+                  expect(cartRes).to.have.status(200);
+                  // nav count = 1
+                  // and the button or row carries the same data-product-id
+                  expect(cartRes.text.toLowerCase()).to.include('oil filter');
+                  expect(cartRes.text).to.include(`data-product-id="${partId}"`);
+                  done();
+                });
+            });
+        });
+    });
+    it('Attempts an incomplete parts search', done => {
+        agent
             .get('/search')
+            .query({ query: '' })
             .redirects(0)
             .end((err, res) => {
                 expect(res).to.have.status(302);
-                expect(res).to.redirectTo(/\/discover$/);
+                expect(res).to.redirectTo(/\/discover$/);    
                 done();
             });
-    });
-});
-
+    })
+  });
+  
 
 // ********************************************************************************

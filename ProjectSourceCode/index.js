@@ -129,77 +129,39 @@ app.get('/discover', async (req, res) => {
 // });
 
 app.get('/search', async (req, res) => {
-  const query = req.query.query;
-  // Get page number from query, default to 1, ensure it's an integer >= 1
-  let page = parseInt(req.query.page, 10) || 1;
-  if (page < 1) {
-      page = 1;
-  }
+  const q = req.query.query;
+  if (!q) return res.redirect('/discover');
 
-  const limit = 15; // Results per page
+  const limit = 15, page = Math.max(1, parseInt(req.query.page,10)||1);
   const offset = (page - 1) * limit;
 
-  if (!query) {
-      // Redirect if no search query is provided
-      return res.redirect('/discover');
-  }
-
   try {
-      const resultsQuery = `
-          SELECT DISTINCT
-              part, partnumber, brand, description, pack, fits, price, thumbimg,
-              COUNT(*) OVER() as total_count
-          FROM vehicle_data
-          WHERE part ILIKE $1 OR description ILIKE $1
-          ORDER BY part, brand -- Add an ORDER BY for consistent pagination
-          LIMIT $2 OFFSET $3
-      `;
+    const productsData = await db.any(
+      `SELECT id, name, description,
+              COUNT(*) OVER() AS total_count
+         FROM parts
+        WHERE name ILIKE $1 OR description ILIKE $1
+        ORDER BY name
+        LIMIT $2 OFFSET $3`,
+      [`%${q}%`, limit, offset]
+    );
 
-      const productsData = await db.any(resultsQuery, [`%${query}%`, limit, offset]);
-      console.log(productsData[0].thumbimg);
-      let totalCount = 0;
-      // total_count will be the same on all rows returned by the query (if any)
-      if (productsData.length > 0) {
-          totalCount = parseInt(productsData[0].total_count, 10);
-      }
-      // Remove the total_count from the product objects before sending to template
-      const products = productsData.map(({ total_count, ...rest }) => rest);
+    const totalCount = productsData.length 
+      ? +productsData[0].total_count 
+      : 0;
+      const products = productsData.map(({ total_count, ...p }) => p);
+      const totalPages = Math.ceil(totalCount/limit);
 
-
-      // --- Calculate Pagination Details ---
-      const totalPages = Math.ceil(totalCount / limit);
-      const hasNextPage = page < totalPages;
-      const hasPreviousPage = page > 1;
-      const nextPage = page + 1;
-      const previousPage = page - 1;
-
-      // --- Render the page ---
-      res.render('pages/discover', {
-          products: products, // Products for the current page
-          searchQuery: query,
-          pagination: {
-              currentPage: page,
-              totalPages: totalPages,
-              totalCount: totalCount,
-              limit: limit,
-              hasNextPage: hasNextPage,
-              hasPreviousPage: hasPreviousPage,
-              nextPage: nextPage,
-              previousPage: previousPage
-          }
-      });
-
-  } catch (error) {
-      console.error('Error fetching products:', error);
-      res.render('pages/discover', {
-          products: [],
-          error: 'Failed to load products',
-          searchQuery: query,
-          pagination: null // Indicate no pagination available on error
-      });
+    res.render('pages/discover', {
+      products,
+      searchQuery: q,
+      pagination: { currentPage: page, totalPages, totalCount, limit }
+    });
+  } catch (err) {
+    console.error('Error fetching products:', err);
+    res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: q });
   }
 });
-
 app.get('/logout', (req, res) => {
   if (req.session.user) {
     req.session.destroy((err) => {
