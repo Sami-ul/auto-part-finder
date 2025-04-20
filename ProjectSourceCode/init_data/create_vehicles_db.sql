@@ -93,7 +93,7 @@ SELECT
     v.id,
     tp.price
 FROM temp_parts_data tp
-JOIN parts p ON p.name = tp.part
+JOIN parts p ON p.partnumber = tp.partnumber
 CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v
 ON CONFLICT DO NOTHING;
 
@@ -131,5 +131,5 @@ SELECT part_id, vehicle_id
 FROM compatibility_pairs
 ON CONFLICT DO NOTHING;
 
-Drop the temporary table when done
+-- Drop the temporary table when done
 DROP TABLE temp_parts_data;

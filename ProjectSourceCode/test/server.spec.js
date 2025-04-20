@@ -109,12 +109,13 @@ describe('Discover', () => {
             .get('/discover')
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.text).to.include('Choose Vehicle');
+                expect(res.text).to.include('Select Vehicle');
                 expect(res.text).to.include('Search');
                 done();
             });
     });
 });
+
 describe('negative : /cart. logged out', () => {
     // Sample test case given to test / endpoint.
     it('Checks if the cart redirects to /login if logged out', done => {
