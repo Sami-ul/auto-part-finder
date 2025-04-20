@@ -112,6 +112,11 @@ app.get('/discover', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   const query = decodeURIComponent(req.query.query);
+  let page = parseInt(req.query.page, 10) || 1;
+  if (page < 1) {page = 1;}
+  const limit = 15; // Results per page
+  const offset = (page - 1) * limit;
+  
   let vehicle;
   for (let i=0; i < req.rawHeaders.length; i++) {
     if (req.rawHeaders[i] === 'Cookie') {
@@ -122,28 +127,65 @@ app.get('/search', async (req, res) => {
   if (!query) {
     return res.redirect('/discover');
   }
-
   try {
     let searchsql;
     if (vehicle) {
       // consider information from vehicle in query
       console.log(vehicle);
-      searchsql = `SELECT name, brand, partnumber, description, pack, fits, thumbimg, category 
-                    FROM parts 
-                    WHERE name ILIKE '${query}' OR description ILIKE '${query}'`;
+      searchsql = `
+          SELECT DISTINCT
+              name, brand, partnumber, description, pack, fits, thumbimg,
+              COUNT(*) OVER() as total_count
+          FROM parts
+          WHERE name ILIKE '${query}' OR description ILIKE '${query}'
+          ORDER BY name, brand
+          LIMIT ${limit} OFFSET ${offset}
+      `;
     } else {
       // just return robust searchsql
-      searchsql = `SELECT name, brand, partnumber, description, pack, fits, thumbimg, category 
-                    FROM parts 
-                    WHERE name ILIKE '${query}' OR description ILIKE '${query}'`;
+      searchsql = `
+          SELECT DISTINCT
+              name, brand, partnumber, description, pack, fits, thumbimg,
+              COUNT(*) OVER() as total_count
+          FROM parts
+          WHERE name ILIKE '${query}' OR description ILIKE '${query}'
+          ORDER BY name, brand
+          LIMIT ${limit} OFFSET ${offset}
+      `;     
     }
-    const products = await db.any(searchsql);
+    const productsData = await db.any(searchsql);
     // check compatibility
     // append results as new key to products json to extract in discover
-    res.render('pages/discover', { products: products, searchQuery: query, noResults: products.length == 0 ? 'true' : ''});
+    let totalCount = 0;
+      // total_count will be the same on all rows returned by the query (if any)
+      if (productsData.length > 0) {
+          totalCount = parseInt(productsData[0].total_count, 10);
+      }
+      // Remove the total_count from the product objects before sending to template
+      const products = productsData.map(({ total_count, ...rest }) => rest);
+      // --- Calculate Pagination Details ---
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+      const nextPage = page + 1;
+      const previousPage = page - 1;
+      res.render('pages/discover', {
+        products: products, // Products for the current page
+        searchQuery: query,
+        pagination: {
+            currentPage: page,
+            totalPages: totalPages,
+            totalCount: totalCount,
+            limit: limit,
+            hasNextPage: hasNextPage,
+            hasPreviousPage: hasPreviousPage,
+            nextPage: nextPage,
+            previousPage: previousPage
+        }
+      });
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
+    res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query, noResults: 'true' });
   }
 });
 

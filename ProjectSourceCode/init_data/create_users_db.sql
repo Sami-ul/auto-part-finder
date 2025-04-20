@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS parts (
     fullimg TEXT,
     thumbimg TEXT,
     category VARCHAR(100),
-    UNIQUE(name)
+    UNIQUE(partnumber)
 );
 
 CREATE TABLE IF NOT EXISTS cart (

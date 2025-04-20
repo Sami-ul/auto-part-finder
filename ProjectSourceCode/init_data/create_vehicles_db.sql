@@ -1,5 +1,5 @@
 -- 1. Create a temporary table to match the transformed CSV structure
-CREATE TEMPORARY TABLE temp_parts_data (
+CREATE TABLE temp_parts_data (
     part VARCHAR(100) NOT NULL,
     brand VARCHAR(100) NOT NULL,
     partnumber VARCHAR(100) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS parts (
     fullimg TEXT,
     thumbimg TEXT,
     category VARCHAR(100),
-    UNIQUE(name)
+    UNIQUE(partnumber)
 );
 
 -- 5. Create parts_compatibility association table
@@ -132,4 +132,4 @@ FROM compatibility_pairs
 ON CONFLICT DO NOTHING;
 
 -- Drop the temporary table when done
-DROP TABLE temp_parts_data;
+-- DROP TABLE temp_parts_data;
