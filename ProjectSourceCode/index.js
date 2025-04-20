@@ -122,18 +122,12 @@ app.get('/search', async (req, res) => {
 
   let vehicle = null;
   try {
-    for (let i = 0; i < req.rawHeaders.length; i += 2) {
+    for (let i = 0; i < req.rawHeaders.length; i++) {
       if (req.rawHeaders[i] === 'Cookie') {
-        const cookieHeader = req.rawHeaders[i + 1];
-        const vehicleCookieString = cookieHeader.split('; ').find(c => c.startsWith('vehicle='));
-        if (vehicleCookieString) {
-           const encodedJson = vehicleCookieString.substring(8);
-           const decodedJson = decodeURIComponent(encodedJson);
-           vehicle = JSON.parse(decodedJson);
-           if (!vehicle || !vehicle.make || !vehicle.year || !vehicle.model || !vehicle.engine) {
-               vehicle = null;
-           }
-        }
+        const cookieValue = req.rawHeaders[i + 1];
+        const encodedJson = cookieValue.substring(15);
+        const decodedJson = decodeURIComponent(encodedJson);
+        vehicle = JSON.parse(decodedJson);
         break;
       }
     }
@@ -149,6 +143,7 @@ app.get('/search', async (req, res) => {
 
   try {
     if (vehicle) {
+      console.log(vehicle);
       countSql = `
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
