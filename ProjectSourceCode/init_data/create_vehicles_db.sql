@@ -1,5 +1,5 @@
 -- 1. Create a temporary table to match the transformed CSV structure
-CREATE TABLE temp_parts_data (
+CREATE TEMPORARY TABLE temp_parts_data (
     part VARCHAR(100) NOT NULL,
     brand VARCHAR(100) NOT NULL,
     partnumber VARCHAR(100) NOT NULL,
@@ -131,5 +131,5 @@ SELECT part_id, vehicle_id
 FROM compatibility_pairs
 ON CONFLICT DO NOTHING;
 
--- Drop the temporary table when done
--- DROP TABLE temp_parts_data;
+Drop the temporary table when done
+DROP TABLE temp_parts_data;
