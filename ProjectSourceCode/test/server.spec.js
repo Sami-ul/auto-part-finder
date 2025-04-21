@@ -109,7 +109,7 @@ describe('Discover', () => {
             .get('/discover')
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.text).to.include('Select Vehicle');
+                expect(res.text).to.include('Choose Vehicle');
                 expect(res.text).to.include('Search');
                 done();
             });
