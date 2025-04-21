@@ -636,15 +636,30 @@ app.put('/api/vehicles/:id', (req, res) => {
   }
 
   const { year, make, model, engine } = req.body;
+  const vehicleId = parseInt(req.params.id, 10);
 
-  db.none('UPDATE user_vehicles SET make=$1, model=$2, year=$3, engine=$4 WHERE id=$5 AND user_id=$6',
-    [make, model, year, engine, req.params.id, req.session.user.id]
+  // Validate inputs
+  if (!year || !make || !model || !engine || isNaN(vehicleId)) {
+    console.log('Invalid input:', { year, make, model, engine, vehicleId });
+    return res.status(400).json({ error: 'Invalid input data' });
+  }
+
+  // Simple update on user_vehicles table
+  db.one(
+    `UPDATE user_vehicles 
+     SET make = $1, model = $2, year = $3, engine = $4 
+     WHERE id = $5 AND user_id = $6 
+     RETURNING id`,
+    [make, model, year, engine, vehicleId, req.session.user.id]
   )
-    .then(() => {
-      res.json({ success: true });
+    .then(result => {
+      res.json({ 
+        success: true,
+        vehicle: { id: result.id, year, make, model, engine }
+      });
     })
     .catch(error => {
-      console.log(error);
+      console.error('Error updating vehicle:', error);
       res.status(500).json({ error: 'Failed to update vehicle' });
     });
 });
