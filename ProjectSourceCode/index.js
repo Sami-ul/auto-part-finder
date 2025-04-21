@@ -148,7 +148,7 @@ app.get('/search', async (req, res) => {
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
           AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
       `;
       dataSql = `
@@ -157,9 +157,8 @@ app.get('/search', async (req, res) => {
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
           AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
-        ORDER BY p.brand, p.partnumber
         LIMIT $6 OFFSET $7;
       `;
       countParams = [
@@ -175,14 +174,13 @@ app.get('/search', async (req, res) => {
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1);
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%');
       `;
       dataSql = `
         SELECT DISTINCT p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price AS price, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1)
-        ORDER BY p.brand, p.partnumber
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
         LIMIT $2 OFFSET $3;
       `;
       countParams = [queryParam];
