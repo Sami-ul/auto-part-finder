@@ -2,15 +2,12 @@
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
-const Handlebars = require('handlebars');
 const path = require('path');
 const pgp = require('pg-promise')();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const getParts = require('./js/get_parts.js');
-const axios = require('axios');
-const { match } = require('assert');
+const cookieParser = require('cookie-parser');
 
 /* Connect to DB */
 const hbs = handlebars.create({
@@ -43,6 +40,7 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static('./'));
 app.use(
   session({
@@ -68,6 +66,22 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user;
   next();
 })
+
+/* Get vehicle cookie */
+function getVehicleCookie(cookies) {
+  const vehicleCookie = 'currentVehicle';
+  try {
+    const vehicleCookieValue = cookies ? cookies[vehicleCookie] : null;
+    if (vehicleCookieValue) {
+       const decodedJson = decodeURIComponent(vehicleCookieValue);
+       return JSON.parse(decodedJson);
+    }
+    return null;
+  } catch (err) {
+    console.error("Error parsing vehicle data from req.cookies:", err);
+    return null;
+  }
+}
 
 /* Routes */
 
@@ -104,99 +118,127 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
-  try {
-    const products = await db.any('SELECT id, name, description FROM parts'); // Fetch product data
-    res.render('pages/discover', { products: products }); // Pass data to the template
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    res.render('pages/discover', { products: [], error: 'Failed to load products' }); // Handle errors
-  }
+  let vehicle = getVehicleCookie(req.cookies);
+  console.log(vehicle);
+  res.render('pages/discover', {noquery: 'true', vehicleBadge: vehicle == null ? '' : vehicle});
 });
 
-// app.get('/search', async (req, res) => {
-//   const query = req.query.query;
-
-//   if (!query) {
-//     return res.redirect('/discover');
-//   }
-//   try {
-//     const products = await db.any('SELECT id, name, description FROM parts WHERE name ILIKE $1 OR description ILIKE $1', [`%${query}%`]);
-//     res.render('pages/discover', { products: products, searchQuery: query });
-//   } catch (error) {
-//     console.error('Error fetching products:', error);
-//     res.render('pages/discover', { products: [], error: 'Failed to load products', searchQuery: query });
-//   }
-// });
+// search
 
 app.get('/search', async (req, res) => {
-  const query = req.query.query;
-  // Get page number from query, default to 1, ensure it's an integer >= 1
-  let page = parseInt(req.query.page, 10) || 1;
-  if (page < 1) {
-      page = 1;
-  }
-
-  const limit = 15; // Results per page
-  const offset = (page - 1) * limit;
-
+  const { query } = req.query;
   if (!query) {
-      // Redirect if no search query is provided
-      return res.redirect('/discover');
+    return res.redirect('/discover');
   }
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = 12;
+  const offset = (page > 0 ? page - 1 : 0) * limit;
+  let vehicle = getVehicleCookie(req.cookies);
+  let countSql = '';
+  let dataSql = '';
+  let countParams = [];
+  let dataParams = [];
+  const queryParam = `%${query}%`;
 
   try {
-      const resultsQuery = `
-          SELECT DISTINCT
-              part, partnumber, brand, description, pack, fits, price, thumbimg,
-              COUNT(*) OVER() as total_count
-          FROM vehicle_data
-          WHERE part ILIKE $1 OR description ILIKE $1
-          ORDER BY part, brand -- Add an ORDER BY for consistent pagination
-          LIMIT $2 OFFSET $3
+    if (vehicle) {
+      countSql = `
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
       `;
+      dataSql = `
+        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
+        LIMIT $6 OFFSET $7;
+      `;
+      countParams = [
+        queryParam,
+        vehicle.make,
+        parseInt(vehicle.year, 10),
+        vehicle.model,
+        vehicle.engine
+      ];
+      dataParams = [...countParams, limit, offset];
+    } else {
+      countSql = `
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%');
+      `;
+      dataSql = `
+        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+        FROM parts p
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
+        LIMIT $2 OFFSET $3;
+      `;
+      countParams = [queryParam];
+      dataParams = [...countParams, limit, offset];
+    }
 
-      const productsData = await db.any(resultsQuery, [`%${query}%`, limit, offset]);
-      console.log(productsData[0].thumbimg);
-      let totalCount = 0;
-      // total_count will be the same on all rows returned by the query (if any)
-      if (productsData.length > 0) {
-          totalCount = parseInt(productsData[0].total_count, 10);
-      }
-      // Remove the total_count from the product objects before sending to template
-      const products = productsData.map(({ total_count, ...rest }) => rest);
+    const countResult = await db.one(countSql, countParams);
+    const totalCount = parseInt(countResult.total_count, 10) || 0;
 
+    let products = [];
+    let pagination = {};
+    let noResults = 'true';
 
-      // --- Calculate Pagination Details ---
-      const totalPages = Math.ceil(totalCount / limit);
-      const hasNextPage = page < totalPages;
-      const hasPreviousPage = page > 1;
-      const nextPage = page + 1;
-      const previousPage = page - 1;
+    if (totalCount > 0 && offset < totalCount) {
+       products = await db.any(dataSql, dataParams);
+       if (products && products.length > 0) {
+          noResults = '';
+       }
+    } else {
+        products = [];
+        noResults = 'true';
+    }
 
-      // --- Render the page ---
-      res.render('pages/discover', {
-          products: products, // Products for the current page
-          searchQuery: query,
-          pagination: {
-              currentPage: page,
-              totalPages: totalPages,
-              totalCount: totalCount,
-              limit: limit,
-              hasNextPage: hasNextPage,
-              hasPreviousPage: hasPreviousPage,
-              nextPage: nextPage,
-              previousPage: previousPage
-          }
-      });
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasPreviousPage = page > 1;
+    const hasNextPage = page < totalPages;
+    const previousPage = hasPreviousPage ? page - 1 : null;
+    const nextPage = hasNextPage ? page + 1 : null;
+
+    pagination = {
+        currentPage: page,
+        totalPages: totalPages,
+        totalCount: totalCount,
+        limit: limit,
+        hasPreviousPage: hasPreviousPage,
+        hasNextPage: hasNextPage,
+        previousPage: previousPage,
+        nextPage: nextPage,
+    };
+
+    res.render('pages/discover', {
+        searchQuery: query,
+        products: products,
+        pagination: products.length > 0 ? pagination : '',
+        noResults: noResults,
+        vehicleBadge: vehicle == null ? '' : vehicle
+    });
 
   } catch (error) {
-      console.error('Error fetching products:', error);
-      res.render('pages/discover', {
-          products: [],
-          error: 'Failed to load products',
-          searchQuery: query,
-          pagination: null // Indicate no pagination available on error
-      });
+    console.error('Error in /search route:', error);
+    res.render('pages/discover', {
+        searchQuery: query,
+        products: [],
+        pagination: {},
+        error: 'Search failed. Please try again.',
+        noResults: noResults,
+        vehicleBadge: vehicle == null ? '' : vehicle
+    });
   }
 });
 
@@ -244,6 +286,7 @@ app.get('/cart', async (req, res) => {
     });
   }
 });
+
 app.post('/cart/add', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
@@ -524,7 +567,7 @@ app.get('/mycars', (req, res) => {
 // Vehicle data route from csv
 app.get('/vehicle-data', async (req, res) => {
     try {
-        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicle_data ORDER BY make ASC';
+        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicles ORDER BY make ASC';
         const result = await db.any(query);
         
         // For csv mapping

@@ -115,6 +115,7 @@ describe('Discover', () => {
             });
     });
 });
+
 describe('negative : /cart. logged out', () => {
     // Sample test case given to test / endpoint.
     it('Checks if the cart redirects to /login if logged out', done => {
