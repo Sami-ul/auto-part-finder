@@ -7,11 +7,17 @@
         {{/if}}
         <button class="search-button">Search</button>
     </div>
-    {{#if vehicleBadge}}
-        <div class="current-vehicle-badge-container">
-            <label class="current-vehicle-badge">{{this.vehicleBadge.make}} {{this.vehicleBadge.year}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}</label>
+    <div class="under-search-container">
+        {{#if vehicleBadge}}
+            <div class="current-vehicle-badge-container">
+                <label class="current-vehicle-badge">{{this.vehicleBadge.make}} {{this.vehicleBadge.year}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}</label>
+            </div>
+        {{/if}}
+        <div class="product-filters">
+            
         </div>
-    {{/if}}
+    </div>
+   
 
     <div class="overlay" id="overlay"></div>
     {{!-- Needs filtering model based on make, engine based on make and model --}}

@@ -152,7 +152,7 @@ app.get('/search', async (req, res) => {
           AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
       `;
       dataSql = `
-        SELECT DISTINCT p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price AS price, p.thumbimg
+        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
         FROM parts p
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
@@ -177,7 +177,7 @@ app.get('/search', async (req, res) => {
         WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%');
       `;
       dataSql = `
-        SELECT DISTINCT p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price AS price, p.thumbimg
+        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
         WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
