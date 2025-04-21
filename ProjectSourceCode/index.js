@@ -145,23 +145,23 @@ app.get('/search', async (req, res) => {
   try {
     if (vehicle) {
       countSql = `
-          SELECT COUNT(DISTINCT p.id) AS total_count
-          FROM parts p
-          JOIN parts_compatibility pc ON p.id = pc.part_id
-          JOIN vehicles v ON pc.vehicle_id = v.id
-          JOIN pricing pr ON p.id = pr.part_id
-         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
-           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%' OR p.brand ILIKE '%' || $1 || '%')
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
       `;
       dataSql = `
         SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
-          FROM parts p
-          JOIN parts_compatibility pc ON p.id = pc.part_id
-          JOIN vehicles v ON pc.vehicle_id = v.id
-          JOIN pricing pr ON p.id = pr.part_id
-         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
-           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5
-         LIMIT $6 OFFSET $7;
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%' OR p.brand ILIKE '%' || $1 || '%')
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
+        LIMIT $6 OFFSET $7;
       `;
       countParams = [
         queryParam,
