@@ -125,7 +125,12 @@ body {
 }
 
 .choose-vehicle {
-    flex: 0 0 120px;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    flex: 0 0 300px;
     border: none;
     padding: 0 15px;
     font-size: 16px;
@@ -133,16 +138,14 @@ body {
     color: white;
     cursor: pointer;
     border-radius: 30px 0 0 30px;
-    white-space: nowrap;
     border-right: 1px solid #ddd;
     height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block; /* Changed from flex to block to ensure ellipsis works */
+    line-height: 45px; /* Added to vertically center the text */
 }
 
-.choose-vehicle:hover{
-    background-color: #e65c00
+.choose-vehicle:hover {
+    background-color: #e65c00;
 }
 
 .search-input {
@@ -349,7 +352,7 @@ body {
   
 .product-image-container .product-thumbnail {
     max-width: 100%;
-    max-height: 300px; /* Match container or set specific */
+    max-height: 300px;
     height: auto;
     width: auto;
     object-fit: contain; /* Or 'cover' */

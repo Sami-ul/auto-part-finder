@@ -1,6 +1,22 @@
+<style>
+.choose-vehicle {
+    max-width: 200px; /* or whatever width you prefer */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+</style>
+
 <main>
     <div class="search-container">
-        <button id="chooseVehicle" class="choose-vehicle">Choose Vehicle</button>
+        <button id="chooseVehicle" class="choose-vehicle">
+            {{#if vehicleBadge}}
+                {{this.vehicleBadge.year}} {{this.vehicleBadge.make}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}
+            {{else}}
+                Choose Vehicle
+            {{/if}}
+        </button>
         <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
         {{#if searchQuery}}
             <button class="clear-search" title="Clear search">×</button>
@@ -8,11 +24,6 @@
         <button class="search-button">Search</button>
     </div>
     <div class="under-search-container">
-        {{#if vehicleBadge}}
-            <div class="current-vehicle-badge-container">
-                <label class="current-vehicle-badge">{{this.vehicleBadge.make}} {{this.vehicleBadge.year}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}</label>
-            </div>
-        {{/if}}
         <div class="product-filters">
             <label class="min-input-label">Price Min:</label>
             <input type="number" class="min-input" value="">
@@ -211,6 +222,11 @@
                 yearSelect.disabled = true;
                 modelSelect.disabled = true;
                 engineSelect.disabled = true;
+                
+                // Reset the button text
+                const chooseVehicleBtn = document.getElementById('chooseVehicle');
+                chooseVehicleBtn.textContent = 'Choose Vehicle';
+                
                 document.cookie = `${vehicleCookie}=; Max-Age=-99999`;
                 closePopup();
                 window.location.reload();
@@ -232,6 +248,11 @@
                     model: model,
                     engine: engine
                 };
+                
+                // Update the button text
+                const chooseVehicleBtn = document.getElementById('chooseVehicle');
+                chooseVehicleBtn.textContent = `${year} ${make} ${model} ${engine}`;
+                
                 const cookieBody = encodeURIComponent(JSON.stringify(vehicle));
                 const cookieName = "currentVehicle";
                 document.cookie = `${cookieName}=${cookieBody}; Max-Age=3600`;
