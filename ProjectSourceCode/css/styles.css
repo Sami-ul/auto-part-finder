@@ -318,6 +318,7 @@ body {
     justify-content: center; 
     align-items: center;  
     border: none; 
+    height: 70px;
 }
 
 /* Parts card on discover page */
@@ -328,6 +329,23 @@ body {
     text-align: center;
     width: 100%;
     font-size: 2rem;
+    white-space: normal;
+    display: block;
+    font-size-adjust: 0.5;
+    font-size: fit-content;
+    font-size: calc(8px + (32 - 8) * ((100vw - 300px) / (1600- 300)));
+    min-height: 0vw;
+}
+
+@media screen and (max-width: 1400px) {
+    .card-title {
+        font-size: calc(1.2rem + 0.5vw);
+    }
+}
+
+.card-title:not(:empty){
+    font-size: clamp(1rem, 2rem, 2rem);
+    font-size-adjust: 0.5;
 }
 
 .card .card-body:last-child {
@@ -399,7 +417,7 @@ body {
 /* My Car Modals */
 .modal-header {
     background-color: #0c1c43;
-    color: #f3f7ff
+    color: #f3f7ff;
 }
 
 .modal-header .btn-close {
@@ -412,24 +430,38 @@ body {
 
 .modal-footer {
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 5px; 
     padding: 15px 0 0 0;
     border-top: none;
 }
 
 /* Button styling for vehicle popup */
 .modal-footer .btn {
-    flex: 1;
-    max-width: 120px;  /* Limit button width */
-    padding: 8px 16px;  /* Reduce padding to make buttons smaller */
-    font-size: 14px;   /* Reduce font size */
+    flex: 0 0 auto; /* Don't flex/grow the buttons */
+    padding: 8px 16px;
+    font-size: 14px;
+    white-space: nowrap; /* Prevent text from wrapping */
 }
 
-/* Specific styling for clear button */
-.modal-footer .btn-danger {
-    background-color: #b6a8aa;
-    border: none;
+/* If you want to set a specific minimum width for the Save Changes button */
+.modal-footer #saveChanges {
+    min-width: 120px; /* Adjust this value as needed */
+}
+
+.modal-footer #clearVehicle {
+    background-color: #6c757d;
+}
+
+.modal-footer #clearVehicle:hover {
+    background-color: #5c636a;
+}
+
+#deleteModal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 0 0 0;
+    border-top: none;
 }
 
 /* Specific styling for select button */
