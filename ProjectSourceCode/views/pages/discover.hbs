@@ -26,9 +26,9 @@
     <div class="under-search-container">
         <div class="product-filters">
             <label class="min-input-label">Price Min:</label>
-            <input type="number" class="min-input" value="">
+            <input type="number" min="0" class="min-price" {{#if priceMin}}value="{{priceMin}}"{{else}}value="0"{{/if}}>
             <label class="max-input-label">Price Max:</label>
-            <input type="number" class="min-input" value="">
+            <input type="number" min="0" class="max-price" {{#if priceMax}}value="{{priceMax}}"{{else}}value="0"{{/if}}>
         </div>
     </div>
    
@@ -359,13 +359,25 @@
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('.search-button');
         const clearButton = document.querySelector('.clear-search');
+        const priceMin = document.querySelector('.min-price');
+        const priceMax = document.querySelector('.max-price');
 
         // Function to handle search
         function performSearch() {
             const searchValue = searchInput.value.trim();
+            const priceMinValue = priceMin.value.trim();
+            const priceMaxValue = priceMax.value.trim();
+            let query;
             if (searchValue) {
-                window.location.href = `/search?query=${encodeURIComponent(searchValue)}`;
+                query = `/search?query=${encodeURIComponent(searchValue)}`;
             }
+            if (priceMinValue) {
+                query = query + `&pricemin=${encodeURIComponent(priceMinValue)}`;
+            }
+            if (priceMaxValue) {
+                query = query + `&pricemax=${encodeURIComponent(priceMaxValue)}`;
+            }
+            window.location.href = query;
         }
 
         // Handle click on search button

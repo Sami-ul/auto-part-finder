@@ -127,6 +127,10 @@ app.get('/discover', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   const { query } = req.query;
+  const priceMin = req.query.pricemin;
+  const priceMax  = req.query.pricemax;
+  let priceFilter = ``;
+  let orderedBy = ``;
   if (!query) {
     return res.redirect('/discover');
   }
@@ -143,6 +147,18 @@ app.get('/search', async (req, res) => {
   let pagination = {};
   let noResults = 'true';
   try {
+    // if (priceMin > 0 && priceMax > 0) {
+    //   priceFilter = ` AND pr.price >= ${priceMin} AND pr.price <= ${priceMax}`;
+    // }
+    // if (priceMin > 0 && priceMax == 0) {
+    //   priceFilter = ` AND pr.price >= ${priceMin}`;
+    // }
+    // if (priceMax > 0 && priceMin == 0) {
+    //   priceFilter = ` AND pr.price <= ${priceMax}`;
+    // }
+    if (priceMin > 0) { priceFilter = priceFilter + ` AND pr.price >= ${priceMin}`; }
+    if (priceMax > 0) { priceFilter = priceFilter + ` AND pr.price <= ${priceMax}`; }
+    if (priceFilter) { orderedBy = ` ORDER BY pr.price`}
     if (vehicle) {
       countSql = `
         SELECT COUNT(DISTINCT p.id) AS total_count
@@ -150,8 +166,8 @@ app.get('/search', async (req, res) => {
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%' OR p.brand ILIKE '%' || $1 || '%')
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter};
       `;
       dataSql = `
         SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
@@ -159,8 +175,8 @@ app.get('/search', async (req, res) => {
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%' OR p.brand ILIKE '%' || $1 || '%')
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}${orderedBy}
         LIMIT $6 OFFSET $7;
       `;
       countParams = [
@@ -168,7 +184,7 @@ app.get('/search', async (req, res) => {
         vehicle.make,
         parseInt(vehicle.year, 10),
         vehicle.model,
-        vehicle.engine
+        vehicle.engine,
       ];
       dataParams = [...countParams, limit, offset];
     } else {
@@ -176,13 +192,13 @@ app.get('/search', async (req, res) => {
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1;
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter};
       `;
       dataSql = `
         SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter}${orderedBy}
         LIMIT $2 OFFSET $3;
       `;
       countParams = [queryParam];
@@ -222,6 +238,8 @@ app.get('/search', async (req, res) => {
 
     res.render('pages/discover', {
       searchQuery: query,
+      priceMin: priceMin ? priceMin : undefined,
+      priceMax: priceMax ? priceMax : undefined,
       products: products,
       pagination: products.length > 0 ? pagination : '',
       noResults: noResults,
