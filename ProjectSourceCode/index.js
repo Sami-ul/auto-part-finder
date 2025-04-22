@@ -525,15 +525,26 @@ app.get('/checkout', async (req, res) => {
     try {
       // Fetch cart items with product details
       const cartItems = await db.any(
-        'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
+        'SELECT p.id, p.name, p.description, pri.price FROM cart c JOIN parts p ON c.product_id = p.id JOIN pricing pri ON p.id = pri.part_id WHERE c.user_id = $1 and pri.vendor_id = 1',
         [user_id]
       );
+
+      console.log(cartItems);
+      let cartSum = 0;
+      cartItems.forEach(item => {
+        cartSum += parseFloat(item.price);
+      });
+
+
+      const addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1', [user_id]);
   
       // Render the cart page with the cart items
       return res.render('pages/checkout', {
         cartItems: cartItems,
         hasItems: cartItems.length > 0,
-        amtItems: cartItems.length
+        amtItems: cartItems.length,
+        addresses: addresses,
+        cartSum: cartSum
       });
     } catch (error) {
       console.error('Error fetching cart items:', error);
