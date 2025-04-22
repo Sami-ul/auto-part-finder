@@ -73,8 +73,8 @@ function getVehicleCookie(cookies) {
   try {
     const vehicleCookieValue = cookies ? cookies[vehicleCookie] : null;
     if (vehicleCookieValue) {
-       const decodedJson = decodeURIComponent(vehicleCookieValue);
-       return JSON.parse(decodedJson);
+      const decodedJson = decodeURIComponent(vehicleCookieValue);
+      return JSON.parse(decodedJson);
     }
     return null;
   } catch (err) {
@@ -120,7 +120,7 @@ app.post('/login', async (req, res) => {
 app.get('/discover', async (req, res) => {
   let vehicle = getVehicleCookie(req.cookies);
   console.log(vehicle);
-  res.render('pages/discover', {noquery: 'true', vehicleBadge: vehicle == null ? '' : vehicle});
+  res.render('pages/discover', { noquery: 'true', vehicleBadge: vehicle == null ? '' : vehicle });
 });
 
 // search
@@ -139,27 +139,29 @@ app.get('/search', async (req, res) => {
   let countParams = [];
   let dataParams = [];
   const queryParam = `%${query}%`;
-
+  let products = [];
+  let pagination = {};
+  let noResults = 'true';
   try {
     if (vehicle) {
       countSql = `
-        SELECT COUNT(DISTINCT p.id) AS total_count
-        FROM parts p
-        JOIN parts_compatibility pc ON p.id = pc.part_id
-        JOIN vehicles v ON pc.vehicle_id = v.id
-        JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
+          SELECT COUNT(DISTINCT p.id) AS total_count
+          FROM parts p
+          JOIN parts_compatibility pc ON p.id = pc.part_id
+          JOIN vehicles v ON pc.vehicle_id = v.id
+          JOIN pricing pr ON p.id = pr.part_id
+         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
       `;
       dataSql = `
         SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
-        FROM parts p
-        JOIN parts_compatibility pc ON p.id = pc.part_id
-        JOIN vehicles v ON pc.vehicle_id = v.id
-        JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
-        LIMIT $6 OFFSET $7;
+          FROM parts p
+          JOIN parts_compatibility pc ON p.id = pc.part_id
+          JOIN vehicles v ON pc.vehicle_id = v.id
+          JOIN pricing pr ON p.id = pr.part_id
+         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5
+         LIMIT $6 OFFSET $7;
       `;
       countParams = [
         queryParam,
@@ -174,34 +176,31 @@ app.get('/search', async (req, res) => {
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%');
+        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1;
       `;
       dataSql = `
         SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE (p.name ILIKE '%' || $1 || '%' OR p.description ILIKE '%' || $1 || '%' OR p.pack ILIKE '%' || $1 || '%' OR p.fits ILIKE '%' || $1 || '%')
+        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1
         LIMIT $2 OFFSET $3;
       `;
       countParams = [queryParam];
       dataParams = [...countParams, limit, offset];
     }
-
     const countResult = await db.one(countSql, countParams);
     const totalCount = parseInt(countResult.total_count, 10) || 0;
 
-    let products = [];
-    let pagination = {};
-    let noResults = 'true';
+
 
     if (totalCount > 0 && offset < totalCount) {
-       products = await db.any(dataSql, dataParams);
-       if (products && products.length > 0) {
-          noResults = '';
-       }
+      products = await db.any(dataSql, dataParams);
+      if (products && products.length > 0) {
+        noResults = '';
+      }
     } else {
-        products = [];
-        noResults = 'true';
+      products = [];
+      noResults = 'true';
     }
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -211,33 +210,33 @@ app.get('/search', async (req, res) => {
     const nextPage = hasNextPage ? page + 1 : null;
 
     pagination = {
-        currentPage: page,
-        totalPages: totalPages,
-        totalCount: totalCount,
-        limit: limit,
-        hasPreviousPage: hasPreviousPage,
-        hasNextPage: hasNextPage,
-        previousPage: previousPage,
-        nextPage: nextPage,
+      currentPage: page,
+      totalPages: totalPages,
+      totalCount: totalCount,
+      limit: limit,
+      hasPreviousPage: hasPreviousPage,
+      hasNextPage: hasNextPage,
+      previousPage: previousPage,
+      nextPage: nextPage,
     };
 
     res.render('pages/discover', {
-        searchQuery: query,
-        products: products,
-        pagination: products.length > 0 ? pagination : '',
-        noResults: noResults,
-        vehicleBadge: vehicle == null ? '' : vehicle
+      searchQuery: query,
+      products: products,
+      pagination: products.length > 0 ? pagination : '',
+      noResults: noResults,
+      vehicleBadge: vehicle == null ? '' : vehicle
     });
 
   } catch (error) {
     console.error('Error in /search route:', error);
     res.render('pages/discover', {
-        searchQuery: query,
-        products: [],
-        pagination: {},
-        error: 'Search failed. Please try again.',
-        noResults: noResults,
-        vehicleBadge: vehicle == null ? '' : vehicle
+      searchQuery: query,
+      products: [],
+      pagination: {},
+      error: 'Search failed. Please try again.',
+      noResults: noResults,
+      vehicleBadge: vehicle == null ? '' : vehicle
     });
   }
 });
@@ -291,20 +290,20 @@ app.post('/cart/add', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
-  
+
   const { product_id } = req.body;
   if (!product_id) {
     return res.status(400).json({ error: 'Part ID is required' });
   }
-  
+
   const user_id = req.session.user.id;
-  
+
   db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
     .then(existingItem => {
       if (existingItem) {
         return Promise.reject({ status: 400, message: 'Product already in cart' });
       }
-      
+
       return db.none('INSERT INTO cart (user_id, product_id) VALUES ($1, $2)', [user_id, product_id]);
     })
     .then(() => {
@@ -314,7 +313,7 @@ app.post('/cart/add', (req, res) => {
       if (error.status) {
         return res.status(error.status).json({ error: error.message });
       }
-      
+
       console.error('Error in cart operation:', error);
       res.status(500).json({ error: 'Failed to process cart operation' });
     });
@@ -427,17 +426,17 @@ app.post('/account/edit', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
-  
+
   const userId = req.session.user.id;
   const { username, email, addressId } = req.body;
-  
+
   try {
     // Handle username and email updates
     if (username || email) {
       const updateFields = [];
       const updateValues = [];
       let paramCount = 1;
-      
+
       if (username) {
         // Username validation
         const usernameRegex = /^[a-zA-Z0-9-_]+$/;
@@ -447,7 +446,7 @@ app.post('/account/edit', async (req, res) => {
             error: 'Invalid username format'
           });
         }
-        
+
         // Check if username already exists
         const existingUsername = await db.oneOrNone('SELECT * FROM users WHERE username = $1 AND id != $2', [username, userId]);
         if (existingUsername) {
@@ -456,11 +455,11 @@ app.post('/account/edit', async (req, res) => {
             error: 'Username already exists'
           });
         }
-        
+
         updateFields.push(`username = $${paramCount++}`);
         updateValues.push(username);
       }
-      
+
       if (email) {
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -470,7 +469,7 @@ app.post('/account/edit', async (req, res) => {
             error: 'Invalid email address'
           });
         }
-        
+
         // Check if email already exists
         const existingEmail = await db.oneOrNone('SELECT * FROM users WHERE email = $1 AND id != $2', [email, userId]);
         if (existingEmail) {
@@ -479,30 +478,30 @@ app.post('/account/edit', async (req, res) => {
             error: 'Email already exists'
           });
         }
-        
+
         updateFields.push(`email = $${paramCount++}`);
         updateValues.push(email);
       }
-      
+
       if (updateFields.length > 0) {
         updateValues.push(userId);
         await db.none(`UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount}`, updateValues);
-        
+
         // Update the session with new user info
         const updatedUser = await db.one('SELECT id, username, email FROM users WHERE id = $1', [userId]);
         req.session.user = updatedUser;
       }
     }
-    
+
     // Handle address update
     if (addressId) {
       // First, set all addresses to non-default
       await db.none('UPDATE addresses SET is_default = false WHERE user_id = $1', [userId]);
-      
+
       // Then set the selected address as default
       await db.none('UPDATE addresses SET is_default = true WHERE id = $1 AND user_id = $2', [addressId, userId]);
     }
-    
+
     // Return success JSON response
     return res.json({
       success: true,
@@ -528,7 +527,7 @@ app.get('/checkout', async (req, res) => {
         'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
         [user_id]
       );
-  
+
       // Render the cart page with the cart items
       return res.render('pages/checkout', {
         cartItems: cartItems,
@@ -566,23 +565,23 @@ app.get('/mycars', (req, res) => {
 
 // Vehicle data route from csv
 app.get('/vehicle-data', async (req, res) => {
-    try {
-        const query = 'SELECT DISTINCT make, year, model, engine FROM vehicles ORDER BY make ASC';
-        const result = await db.any(query);
-        
-        // For csv mapping
-        const data = result.map(row => [
-            row.make,
-            row.year,
-            row.model,
-            row.engine
-        ]);
-        
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching vehicle data:', error);
-        res.status(500).json({ error: 'Failed to fetch vehicle data' });
-    }
+  try {
+    const query = 'SELECT DISTINCT make, year, model, engine FROM vehicles ORDER BY make ASC';
+    const result = await db.any(query);
+
+    // For csv mapping
+    const data = result.map(row => [
+      row.make,
+      row.year,
+      row.model,
+      row.engine
+    ]);
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching vehicle data:', error);
+    res.status(500).json({ error: 'Failed to fetch vehicle data' });
+  }
 });
 
 // To add vehicle to profile and database
@@ -653,7 +652,7 @@ app.put('/api/vehicles/:id', (req, res) => {
     [make, model, year, engine, vehicleId, req.session.user.id]
   )
     .then(result => {
-      res.json({ 
+      res.json({
         success: true,
         vehicle: { id: result.id, year, make, model, engine }
       });
@@ -675,7 +674,7 @@ app.delete('/api/vehicles/:id', (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid vehicle ID' });
   }
 
-  db.none('DELETE FROM user_vehicles WHERE id = $1 AND user_id = $2', 
+  db.none('DELETE FROM user_vehicles WHERE id = $1 AND user_id = $2',
     [vehicleId, req.session.user.id])
     .then(() => {
       res.json({ success: true });

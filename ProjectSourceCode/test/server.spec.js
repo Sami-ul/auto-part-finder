@@ -243,4 +243,90 @@ describe('negative : /mycars. logged out', () => {
             });
     });
 });
+
+describe('Feature 2 UAT: Search & Add to Cart from Results', () => {
+    let agent;
+  
+    before(done => {
+      agent = chai.request.agent(server);
+      agent
+        .post('/login')
+        .send({ username: 'JohnDoe', password: '12345678B' })
+        .end((err, res) => {
+          expect(res).to.redirectTo(/\/$/);
+          done();
+        });
+    });
+  
+    after(() => {
+      agent.close();
+    });
+  
+    it('Redirects to /discover when no search query is provided', done => {
+      agent
+        .get('/search')
+        .redirects(0)
+        .end((err, res) => {
+          expect(res).to.have.status(302);
+          expect(res).to.redirectTo(/\/discover$/);
+          done();
+        });
+    });
+  
+    it('Searches parts with a valid query and shows compatible parts', done => {
+      agent
+        .get('/search')
+        .query({ query: 'filter' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.text.toLowerCase()).to.include('wa10718'); // part num
+          done();
+        });
+    });
+  
+    it('Adds a part to cart from the first search result', done => {
+      agent
+        .get('/search')
+        .query({ query: 'filter' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          // extract data-product-id from first "Add to Cart" button
+          const m = res.text.match(/data-product-id="(\d+)"/);
+          expect(m, 'no data-product-id found').to.not.be.null;
+          const partId = m[1];
+  
+          agent
+            .post('/cart/add')
+            .send({ product_id: partId })
+            .end((err2, addRes) => {
+              expect(addRes).to.have.status(200);
+              expect(addRes.body).to.have.property('success', true);
+  
+              // finally confirm it made it into the cart
+              agent
+                .get('/cart')
+                .end((err3, cartRes) => {
+                  expect(cartRes).to.have.status(200);
+                  // nav count = 1
+                  // and the button or row carries the same data-product-id
+                  expect(cartRes.text.toLowerCase()).to.include('air filter');
+                  expect(cartRes.text).to.include(`data-product-id="${partId}"`);
+                  done();
+                });
+            });
+        });
+    });
+    it('Attempts an incomplete parts search', done => {
+        agent
+            .get('/search')
+            .query({ query: '' })
+            .redirects(0)
+            .end((err, res) => {
+                expect(res).to.have.status(302);
+                expect(res).to.redirectTo(/\/discover$/);    
+                done();
+            });
+    })
+  });
+  
 // ********************************************************************************
