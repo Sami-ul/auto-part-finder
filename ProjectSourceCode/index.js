@@ -161,7 +161,7 @@ app.get('/search', async (req, res) => {
           AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter};
       `;
       dataSql = `
-        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
         FROM parts p
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
@@ -186,7 +186,7 @@ app.get('/search', async (req, res) => {
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter};
       `;
       dataSql = `
-        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter}${orderedBy}
@@ -198,12 +198,25 @@ app.get('/search', async (req, res) => {
     const countResult = await db.one(countSql, countParams);
     const totalCount = parseInt(countResult.total_count, 10) || 0;
 
-
-
     if (totalCount > 0 && offset < totalCount) {
       products = await db.any(dataSql, dataParams);
       if (products && products.length > 0) {
         noResults = '';
+        products.forEach(product => {
+          if (product && Array.isArray(product.compatible_vehicles)) {
+            const uniqueMakes = Array.from(
+              new Set(
+                product.compatible_vehicles
+                  .map(vehicle => vehicle?.make)
+                  .filter(make => make)
+              )
+            );
+            product.compatible_vehicles = uniqueMakes;
+          } else if (product) {
+            product.compatible_vehicles = [];
+          }
+          console.log(product);
+        });      
       }
     } else {
       products = [];
