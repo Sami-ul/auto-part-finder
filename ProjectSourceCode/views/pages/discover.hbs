@@ -11,11 +11,7 @@
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">
-            {{#if vehicleBadge}}
-                {{this.vehicleBadge.year}} {{this.vehicleBadge.make}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}
-            {{else}}
-                Choose Vehicle
-            {{/if}}
+            Choose Vehicle
         </button>
         <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
         {{#if searchQuery}}
@@ -25,10 +21,10 @@
     </div>
     <div class="under-search-container">
         <div class="product-filters">
-            <label class="min-input-label">Price Min:</label>
-            <input type="number" min="0" class="min-price" {{#if priceMin}}value="{{priceMin}}"{{else}}value="0"{{/if}}>
+            <label for="min-input">Price Min:</label>
+            <input type="number" class="min-price" value="">
             <label class="max-input-label">Price Max:</label>
-            <input type="number" min="0" class="max-price" {{#if priceMax}}value="{{priceMax}}"{{else}}value="0"{{/if}}>
+            <input type="number" class="max-price" value="">
         </div>
     </div>
    
@@ -379,6 +375,7 @@
             }
             window.location.href = query;
         }
+
 
         // Handle click on search button
         searchButton.addEventListener('click', performSearch);

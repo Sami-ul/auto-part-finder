@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS parts (
     fullimg TEXT,
     thumbimg TEXT,
     category VARCHAR(100),
+    compatible_vehicles JSON,
     UNIQUE(partnumber)
 );
 
