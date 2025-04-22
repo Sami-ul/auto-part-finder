@@ -118,9 +118,150 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
+  
+  const query = req.query.query || '';
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = 12;
+  const offset = (page > 0 ? page - 1 : 0) * limit;
   let vehicle = getVehicleCookie(req.cookies);
-  console.log(vehicle);
-  res.render('pages/discover', { noquery: 'true', vehicleBadge: vehicle == null ? '' : vehicle });
+  let countSql = '';
+  let dataSql = '';
+  let countParams = [];
+  let dataParams = [];
+  let products = [];
+  let pagination = {};
+  let noResults = false;
+
+  try {
+    if (vehicle) {
+      if (query) {
+        // Existing query with vehicle filter logic
+        countSql = `
+          SELECT COUNT(DISTINCT p.id) AS total_count
+          FROM parts p
+          JOIN parts_compatibility AS pc ON p.id = pc.part_id
+          JOIN vehicles AS v ON pc.vehicle_id = v.id
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+          AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
+        `;
+        dataSql = `
+          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+          FROM parts p
+          JOIN parts_compatibility AS pc ON p.id = pc.part_id
+          JOIN vehicles AS v ON pc.vehicle_id = v.id
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+          AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5
+          LIMIT $6 OFFSET $7;
+        `;
+        countParams = [
+          query,
+          vehicle.make,
+          parseInt(vehicle.year, 10),
+          vehicle.model,
+          vehicle.engine
+        ];
+        dataParams = [...countParams, limit, offset];
+      } else {
+        // Show all parts for selected vehicle
+        countSql = `
+          SELECT COUNT(DISTINCT p.id) AS total_count
+          FROM parts p
+          JOIN parts_compatibility AS pc ON p.id = pc.part_id
+          JOIN vehicles AS v ON pc.vehicle_id = v.id
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4;
+        `;
+        dataSql = `
+          SELECT DISTINCT p.*, pr.price
+          FROM parts p
+          JOIN parts_compatibility AS pc ON p.id = pc.part_id
+          JOIN vehicles AS v ON pc.vehicle_id = v.id
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4
+          ORDER BY p.name
+          LIMIT $5 OFFSET $6;
+        `;
+        countParams = [vehicle.make, vehicle.year, vehicle.model, vehicle.engine];
+        dataParams = [...countParams, limit, offset];
+      }
+    } else {
+      if (query) {
+        // Existing query without vehicle filter logic
+        countSql = `
+          SELECT COUNT(DISTINCT p.id) AS total_count
+          FROM parts p
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%';
+        `;
+        dataSql = `
+          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+          FROM parts p
+          JOIN pricing AS pr ON p.id = pr.part_id
+          WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%'
+          LIMIT $2 OFFSET $3;
+        `;
+        countParams = [query];
+        dataParams = [...countParams, limit, offset];
+      } else {
+        // Show all parts without vehicle filter
+        countSql = `
+          SELECT COUNT(DISTINCT p.id) AS total_count
+          FROM parts p
+          JOIN pricing AS pr ON p.id = pr.part_id;
+        `;
+        dataSql = `
+          SELECT DISTINCT p.*, pr.price
+          FROM parts p
+          JOIN pricing AS pr ON p.id = pr.part_id
+          ORDER BY p.name
+          LIMIT $1 OFFSET $2;
+        `;
+        countParams = [];
+        dataParams = [limit, offset];
+      }
+    }
+
+    // Execute queries and process results
+    const countResult = await db.one(countSql, countParams);
+    const totalCount = parseInt(countResult.total_count, 10) || 0;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    if (totalCount > 0) {
+      const dataResult = await db.any(dataSql, dataParams);
+      products = dataResult;
+      noResults = false;
+
+      pagination = {
+        currentPage: page,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1
+      };
+    }
+
+    res.render('pages/discover', {
+      searchQuery: query || '',  // Ensure this is always a string
+      products: products,
+      pagination: products.length > 0 ? pagination : null,
+      noResults: noResults,
+      vehicleBadge: vehicle || null
+    });
+
+  } catch (error) {
+    console.error('Error in /discover route:', error);
+    res.render('pages/discover', {
+      searchQuery: query,
+      products: [],
+      pagination: null,
+      error: 'Failed to load parts. Please try again.',
+      noResults: true,
+      vehicleBadge: vehicle || null
+    });
+  }
 });
 
 // search
