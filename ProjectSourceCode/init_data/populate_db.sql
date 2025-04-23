@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS pricing (
     UNIQUE(part_id, vendor_id)
 );
 
--- -- 9. Insert vendor
+-- 9. Insert vendor
 INSERT INTO vendors (name, website, markup)
 VALUES ('Rock Auto', 'https://www.rockauto.com', 1)
 ON CONFLICT DO NOTHING;
@@ -64,20 +64,33 @@ INSERT INTO vendors (name, website, markup)
 VALUES ('Amazon', 'https://www.autozone.com', .9)
 ON CONFLICT DO NOTHING;
 
+-- 10. Add pricing information
 INSERT INTO pricing (part_id, vendor_id, price)
-SELECT
-    p.id AS part_id,
-    v.id AS vendor_id,
-    (tp.price * v.markup)::DECIMAL(10, 2) AS calculated_price
-FROM
-    temp_parts_data tp
-JOIN
-    parts p ON tp.partnumber = p.partnumber
-JOIN
-    vendors v ON v.name IN ('Rock Auto', 'Autozone', 'Amazon')
-WHERE
-    tp.price IS NOT NULL AND tp.price > 0
-ON CONFLICT (part_id, vendor_id) DO NOTHING;
+SELECT 
+    p.id,
+    v.id,
+    tp.price
+FROM temp_parts_data tp
+JOIN parts p ON p.partnumber = tp.partnumber
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v;
+
+INSERT INTO pricing (part_id, vendor_id, price)
+SELECT 
+    p.id,
+    v.id,
+    tp.price
+FROM temp_parts_data tp
+JOIN parts p ON p.partnumber = tp.partnumber
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Autozone' LIMIT 1) v;
+
+INSERT INTO pricing (part_id, vendor_id, price)
+SELECT 
+    p.id,
+    v.id,
+    tp.price
+FROM temp_parts_data tp
+JOIN parts p ON p.partnumber = tp.partnumber
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Amazon' LIMIT 1) v;
 
 -- 11. Populate vehicles from the JSON data
 WITH vehicle_json AS (

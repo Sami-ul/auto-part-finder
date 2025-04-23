@@ -10,34 +10,21 @@
 
 <main>
     <div class="search-container">
-        <button type="button" id="chooseVehicle" class="choose-vehicle">
+        <button id="chooseVehicle" class="choose-vehicle">
             Choose Vehicle
         </button>
-        <input type="text" name="query" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
-        <button type="button" class="search-button">Search</button>
+        <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
+        {{#if searchQuery}}
+            <button class="clear-search" title="Clear search">×</button>
+        {{/if}}
+        <button class="search-button">Search</button>
     </div>
-
     <div class="under-search-container">
         <div class="product-filters">
             <label for="min-input">Price Min $</label>
-            <input type="number" id="min-input" name="pricemin" class="min-price" value="{{priceMin}}" placeholder="0">
+            <input type="number" id="min-input" class="min-price" value="" placeholder="0">
             <label class="max-input-label" for="max-input">Price Max $</label>
-            <input type="number" id="max-input" name="pricemax" class="max-price" value="{{priceMax}}" placeholder="Any">
-        </div>
-
-        <div class="vendor-filters">
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-rockauto" name="vendors" value="Rock Auto" checked>
-                <label for="vendor-rockauto">Rock Auto</label>
-            </div>
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-autozone" name="vendors" value="Autozone" checked>
-                <label for="vendor-autozone">Autozone</label>
-            </div>
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-amazon" name="vendors" value="Amazon" checked>
-                <label for="vendor-amazon">Amazon</label>
-            </div>
+            <input type="number" id="max-input" class="max-price" value="" placeholder="Any">
         </div>
     </div>
 
@@ -415,9 +402,6 @@
         const clearButton = document.querySelector('.clear-search');
         const priceMin = document.querySelector('.min-price');
         const priceMax = document.querySelector('.max-price');
-        const vrockauto = document.querySelector('#vendor-rockauto');
-        const vautozone = document.querySelector('#vendor-autozone');
-        const vamazon = document.querySelector('#vendor-amazon');
 
         // Function to handle search
         function performSearch() {
@@ -426,7 +410,7 @@
             const priceMaxValue = priceMax.value.trim();
             let query;
             if (searchValue) {
-                query = `/search?query=${encodeURIComponent(searchValue)}&vrockauto=${encodeURIComponent(vrockauto.value)}&vautozone=${encodeURIComponent(vautozone.value)}&vamazon=${encodeURIComponent(vamazon.value)}`;
+                query = `/search?query=${encodeURIComponent(searchValue)}`;
             }
             if (priceMinValue) {
                 query = query + `&pricemin=${encodeURIComponent(priceMinValue)}`;
@@ -543,8 +527,8 @@
                                 <tr>
                                     <th scope="row">Description:</th>
                                     <td>{{this.description}}<br>
-                                        {{#if this.pack}}{{this.pack}}{{/if}}<br>
-                                        {{#if this.fits}}{{this.fits}}{{/if}}
+                                        {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
+                                        {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
                                     </td>
                                 </tr>
                                 <tr>
@@ -557,7 +541,7 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">Price:</th>
-                                    <td>${{this.price}} @ {{this.vendor_name}}</td>
+                                    <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
                                 </tr>
                             </tbody>
                         </table>

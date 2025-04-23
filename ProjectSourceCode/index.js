@@ -122,6 +122,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/discover', async (req, res) => {
+  
   const query = req.query.query || '';
   const page = parseInt(req.query.page, 10) || 1;
   const limit = 12;
@@ -133,50 +134,41 @@ app.get('/discover', async (req, res) => {
   let dataParams = [];
   let products = [];
   let pagination = {};
-  let noResults = true;
+  let noResults = false;
+
   let userVehicles = [];
-  const queryParam = `%${query}%`;
-  let orderedBy = ` ORDER BY p.id ASC, vdr.name ASC`;
 
   if (req.session.user) {
     const userId = req.session.user.id;
     userVehicles = await db.any('SELECT v.id, v.make, v.year, v.engine, v.model FROM user_vehicles uv JOIN vehicles v ON uv.vehicle_id = v.id WHERE uv.user_id = $1', [userId]);
   }
 
+
   try {
     if (vehicle) {
       if (query) {
-        orderedBy = ` ORDER BY p.id ASC, pr.price ASC`;
+        // Existing query with vehicle filter logic
         countSql = `
-          SELECT COUNT(pr.id) AS total_count
+          SELECT COUNT(DISTINCT p.id) AS total_count
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
+          WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+          AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
         `;
         dataSql = `
-          SELECT
-              p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-              vdr.id AS vendor_id,
-              vdr.name AS vendor_name,
-              pr.price,
-              p.compatible_vehicles,
-              p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
-          ${orderedBy}
+          WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
+          AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5
           LIMIT $6 OFFSET $7;
         `;
         countParams = [
-          queryParam,
+          query,
           vehicle.make,
           parseInt(vehicle.year, 10),
           vehicle.model,
@@ -184,86 +176,63 @@ app.get('/discover', async (req, res) => {
         ];
         dataParams = [...countParams, limit, offset];
       } else {
+        // Show all parts for selected vehicle
         countSql = `
-          SELECT COUNT(pr.id) AS total_count
+          SELECT COUNT(DISTINCT p.id) AS total_count
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4;
+          WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4;
         `;
         dataSql = `
-          SELECT
-              p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-              vdr.id AS vendor_id,
-              vdr.name AS vendor_name,
-              pr.price,
-              p.compatible_vehicles,
-              p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, p.compatible_vehicles, pr.price
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4
-          ${orderedBy}
+          WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4
+          ORDER BY p.id, p.name
           LIMIT $5 OFFSET $6;
         `;
         countParams = [
-          vehicle.make,
-          parseInt(vehicle.year, 10),
-          vehicle.model,
+          vehicle.make, 
+          parseInt(vehicle.year, 10), // Make sure year is an integer
+          vehicle.model, 
           vehicle.engine
         ];
         dataParams = [...countParams, limit, offset];
       }
     } else {
       if (query) {
-        orderedBy = ` ORDER BY p.id ASC, pr.price ASC`;
+        // Existing query without vehicle filter logic
         countSql = `
-          SELECT COUNT(pr.id) AS total_count
+          SELECT COUNT(DISTINCT p.id) AS total_count
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1);
+          WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%';
         `;
         dataSql = `
-          SELECT
-              p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-              vdr.id AS vendor_id,
-              vdr.name AS vendor_name,
-              pr.price,
-              p.compatible_vehicles,
-              p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-          ${orderedBy}
+          WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%'
           LIMIT $2 OFFSET $3;
         `;
-        countParams = [queryParam];
+        countParams = [query];
         dataParams = [...countParams, limit, offset];
       } else {
+        // Show all parts without vehicle filter
         countSql = `
-          SELECT COUNT(pr.id) AS total_count
+          SELECT COUNT(DISTINCT p.id) AS total_count
           FROM parts p
-          JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id;
+          JOIN pricing AS pr ON p.id = pr.part_id;
         `;
         dataSql = `
-          SELECT
-              p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-              vdr.id AS vendor_id,
-              vdr.name AS vendor_name,
-              pr.price,
-              p.compatible_vehicles,
-              p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, p.compatible_vehicles, pr.price
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
-          JOIN vendors vdr ON pr.vendor_id = vdr.id
-          ${orderedBy}
+          ORDER BY p.id, p.name
           LIMIT $1 OFFSET $2;
         `;
         countParams = [];
@@ -271,55 +240,42 @@ app.get('/discover', async (req, res) => {
       }
     }
 
+    // Execute queries and process results
     const countResult = await db.one(countSql, countParams);
     const totalCount = parseInt(countResult.total_count, 10) || 0;
+    const totalPages = Math.ceil(totalCount / limit);
 
-    if (totalCount > 0 && offset < totalCount) {
-      products = await db.any(dataSql, dataParams);
-      if (products && products.length > 0) {
-        noResults = false;
-        products.forEach(product => {
-          if (product && Array.isArray(product.compatible_vehicles)) {
-            const uniqueMakes = Array.from(
-              new Set(
-                product.compatible_vehicles
-                  .map(vehicle => vehicle?.make)
-                  .filter(make => make)
-              )
-            );
-            product.compatible_vehicles = uniqueMakes;
-          } else if (product) {
-            product.compatible_vehicles = [];
-          }
-        });
-      } else {
-        products = [];
-        noResults = true;
-      }
-    } else {
-      products = [];
-      noResults = true;
+    if (totalCount > 0) {
+      const dataResult = await db.any(dataSql, dataParams);
+      products = dataResult;
+      noResults = false;
+      products.forEach(product => {
+        if (product && Array.isArray(product.compatible_vehicles)) {
+          const uniqueMakes = Array.from(
+            new Set(
+              product.compatible_vehicles
+                .map(vehicle => vehicle?.make)
+                .filter(make => make)
+            )
+          );
+          product.compatible_vehicles = uniqueMakes;
+        } else if (product) {
+          product.compatible_vehicles = [];
+        }
+      });
+
+      pagination = {
+        currentPage: page,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1
+      };
     }
 
-    const totalPages = Math.ceil(totalCount / limit);
-    const hasPreviousPage = page > 1;
-    const hasNextPage = page < totalPages;
-    const previousPage = hasPreviousPage ? page - 1 : null;
-    const nextPage = hasNextPage ? page + 1 : null;
-
-    pagination = {
-      currentPage: page,
-      totalPages: totalPages,
-      totalCount: totalCount,
-      limit: limit,
-      hasPreviousPage: hasPreviousPage,
-      hasNextPage: hasNextPage,
-      previousPage: previousPage,
-      nextPage: nextPage,
-    };
-
     res.render('pages/discover', {
-      searchQuery: query,
+      searchQuery: query || '',  // Ensure this is always a string
       products: products,
       pagination: products.length > 0 ? pagination : null,
       noResults: noResults,
@@ -335,25 +291,19 @@ app.get('/discover', async (req, res) => {
       pagination: null,
       error: 'Failed to load parts. Please try again.',
       noResults: true,
-      vehicleBadge: vehicle || null,
-      userVehicles: userVehicles
+      vehicleBadge: vehicle || null
     });
   }
 });
-
 
 // search
 
 app.get('/search', async (req, res) => {
   const { query } = req.query;
   const priceMin = req.query.pricemin;
-  const priceMax = req.query.pricemax;
-  const vrockauto = req.query.vrockauto;
-  const vautozone = req.query.vautozone;
-  const vamazon = req.query.vamazon;
-
+  const priceMax  = req.query.pricemax;
   let priceFilter = ``;
-  let orderedBy = ` ORDER BY p.id ASC, vdr.name ASC`;
+  let orderedBy = ``;
   if (!query) {
     return res.redirect('/discover');
   }
@@ -372,35 +322,25 @@ app.get('/search', async (req, res) => {
   try {
     if (priceMin > 0) { priceFilter = priceFilter + ` AND pr.price >= ${priceMin}`; }
     if (priceMax > 0) { priceFilter = priceFilter + ` AND pr.price <= ${priceMax}`; }
-    if (priceFilter) { orderedBy = ` ORDER BY p.id ASC, pr.price ASC`; }
-
+    if (priceFilter) { orderedBy = ` ORDER BY p.id, pr.price`}
     if (vehicle) {
       countSql = `
-        SELECT COUNT(pr.id) AS total_count
+        SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        JOIN vendors vdr ON pr.vendor_id = vdr.id
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
           AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter};
       `;
       dataSql = `
-        SELECT
-            p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-            vdr.id AS vendor_id,
-            vdr.name AS vendor_name,
-            pr.price,
-            p.compatible_vehicles,
-            p.thumbimg
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
         FROM parts p
         JOIN parts_compatibility pc ON p.id = pc.part_id
         JOIN vehicles v ON pc.vehicle_id = v.id
         JOIN pricing pr ON p.id = pr.part_id
-        JOIN vendors vdr ON pr.vendor_id = vdr.id
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}
-        ${orderedBy}
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}${orderedBy}
         LIMIT $6 OFFSET $7;
       `;
       countParams = [
@@ -413,31 +353,21 @@ app.get('/search', async (req, res) => {
       dataParams = [...countParams, limit, offset];
     } else {
       countSql = `
-        SELECT COUNT(pr.id) AS total_count
+        SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        JOIN vendors vdr ON pr.vendor_id = vdr.id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter};
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter};
       `;
       dataSql = `
-        SELECT
-            p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
-            vdr.id AS vendor_id,
-            vdr.name AS vendor_name,
-            pr.price,
-            p.compatible_vehicles,
-            p.thumbimg
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        JOIN vendors vdr ON pr.vendor_id = vdr.id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter}
-        ${orderedBy}
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter}${orderedBy}
         LIMIT $2 OFFSET $3;
       `;
       countParams = [queryParam];
       dataParams = [...countParams, limit, offset];
     }
-
     const countResult = await db.one(countSql, countParams);
     const totalCount = parseInt(countResult.total_count, 10) || 0;
 
@@ -458,10 +388,7 @@ app.get('/search', async (req, res) => {
           } else if (product) {
             product.compatible_vehicles = [];
           }
-        });
-      } else {
-         products = [];
-         noResults = 'true';
+        });      
       }
     } else {
       products = [];
@@ -489,12 +416,10 @@ app.get('/search', async (req, res) => {
       searchQuery: query,
       priceMin: priceMin ? priceMin : undefined,
       priceMax: priceMax ? priceMax : undefined,
-      vrockauto: vrockauto,
-      vautozone: vautozone,
-      vamazon: vamazon,
       products: products,
       pagination: products.length > 0 ? pagination : '',
       noResults: noResults,
+      vehicleBadge: vehicle == null ? '' : vehicle
     });
 
   } catch (error) {
@@ -504,12 +429,11 @@ app.get('/search', async (req, res) => {
       products: [],
       pagination: {},
       error: 'Search failed. Please try again.',
-      noResults: 'true',
+      noResults: noResults,
+      vehicleBadge: vehicle == null ? '' : vehicle
     });
   }
 });
-
-
 
 app.get('/logout', (req, res) => {
   if (req.session.user) {
