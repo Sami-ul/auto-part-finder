@@ -115,60 +115,54 @@ Add a part to cart from search results
 2. For the first oil filter result, click "Add to Cart"
 3. Expected Result: Part is added to the user's cart, cart count in the navigation is updated, user receives a confirmation message
 
-## Feature 3: Shipping Options (Ship to Home / Ship to Nearby Installation Shop)
-- After selecting parts and proceeding to checkout, users should be able to choose a shipping option.
-- Users must be able to either:
-    - Ship parts to their home
-    - Ship parts to a nearby verified installation shop
-
-- If the user chooses "Ship to shop", the system should verify the installation shop and display available locations.
-- If "Ship to home" is selected, installation videos should be recommended.
-- The system should allow users to enter or select an address/shop before proceeding.
+## Feature 3: Checkout Flow
+- Users must be able to add parts to their cart
+- Users must be able to review items in their cart
+- Users must be able to select a shipping address during checkout
+- Users must be able to complete payment and place an order
 
 Acceptance Criteria
 
-- User must select one shipping method before making payment.
-- If "Ship to shop" is selected:
-    - System must validate and list nearby installation shops.
-    - The installation shop must be verified before order confirmation.
-- If "Ship to home" is selected:
-    - System should prompt or recommend installation videos after checkout.
-    - User must not be able to proceed without providing a valid shipping address or shop selection.
+- User can add and remove parts from their cart
+- User can proceed to checkout from the cart page
+- User can select from their saved addresses for shipping
+- User must provide a valid shipping address before completing payment
+- User can complete payment via Stripe
+- User receives order confirmation after successful payment
 
 Test Data
 
 Valid Input:
-- Home Address: 123 Main St, Denver, CO 80202
-- Installation Shop: "QuickFit Garage", verified, 2 miles away
+- Shipping Address: User's default address or any saved address
+- Payment: Valid test credit card information (Stripe test card)
 
 Invalid Input:
 - No address provided
-- Unverified installation shop selected
+- No payment info provided
 
 Test Cases
 
-Ship to Nearby Installation Shop
+Basic Checkout Flow
 
-1. Login and add a compatible part to cart.
-2. Proceed to checkout.
-3. Choose "Ship to installation shop".
-4. Select "QuickFit Garage" (verified shop).
-5. Click "Continue".
-6. Expected Result: System verifies the shop and allows user to proceed to payment.
+1. Login with valid user credentials
+2. Search for and add a compatible part to cart
+3. Navigate to the cart page
+4. Verify the correct part appears in the cart
+5. Click "Proceed to Checkout"
+6. Select an existing shipping address or enter a new one
+7. Complete payment with Stripe test card
+8. Expected Result: Order is placed successfully, cart is emptied, and confirmation is shown
 
-Ship to Home with Installation Videos Prompt
 
-1. Login and add a part to cart.
-2. Proceed to checkout.
-3. Choose "Ship to home".
-4. Enter Home Address: 123 Main St, Denver, CO 80202
-5. Complete payment.
-6. Expected Result: Order is placed, confirmation screen appears, and installation videos are suggested.
+Invalid Checkout (No Address)
+1. Login and add item to cart
+2. Proceed to checkout
+3. Attempt to complete checkout without selecting an address
+4. Expected Result: User cannot proceed, error message prompts for address selection
 
-Invalid Shipping (No Address or Shop)
-
-1. Login and add item to cart.
-2. Proceed to checkout.
-3. Select "Ship to home" but leave address field blank.
-4. Try to continue.
-5. Expected Result: User cannot proceed, and error message prompts for address input.
+Invalid Checkout (Payment Failure)
+1. Login and add item to cart
+2. Proceed to checkout
+3. Select a valid shipping address
+4. Enter invalid payment information
+5. Expected Result: Payment is rejected, user is prompted to correct payment information
