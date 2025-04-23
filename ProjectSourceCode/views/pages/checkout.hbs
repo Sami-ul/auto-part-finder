@@ -3,141 +3,50 @@
         <div class="col-5 py-4 mb-5">
             <h1>Checkout</h1>
 
-            <form class="py-4">
+            <form class="py-4" id="checkout-info-form">
                 <h3>Contact</h3>
                 <div class="input-group">
                     <div class="form-floating my-2">
-                        <input id="firstNameLabel" type="text" class="form-control" placeholder="firstName">
+                        <input id="firstNameLabel" type="text" class="form-control" placeholder="firstName" required>
                         <label for="firstNameLabel">First name</label>
                     </div>
                     <div class="form-floating my-2">
-                        <input id="firstNameLabel" type="text" class="form-control" placeholder="lastName">
-                        <label for="firstNameLabel">Last name</label>
+                        <input id="lastNameLabel" type="text" class="form-control" placeholder="lastName" required>
+                        <label for="lastNameLabel">Last name</label>
                     </div>
                 </div>
 
                 <div class="form-floating my-3">
-                    <input type="email" class="form-control" id="checkoutEmail" placeholder="email">
+                    <input type="email" class="form-control" id="checkoutEmail" placeholder="email" required>
                     <label for="checkoutEmail">Email address</label>
                 </div>
 
                 {{!-- Delivery --}}
                 <h3 class="mt-5 mb-3">Delivery</h3>
 
-                <ul class="list-group mb-3">
-                    <li class="list-group-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="radioDefault" id="addrSpec">
-                            <label class="form-check-label" for="addrSpec">
-                                <h5 class="mx-2 mb-0">Specified address</h5>
-                                <small class="text-muted mx-2">Delivers directly to your specified address.</small>
-                            </label>
-                        </div>
-                    </li>
-                    <li class="list-group-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="radioDefault" id="addrLoc">
-                            <label class="form-check-label" for="addrLoc">
-                                <h5 class="mx-2 mb-0">Local Store</h5>
-                                <small class="text-muted mx-2">Delivers to your local store.</small>
-                            </label>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="form-floating my-2">
-                    <input type="text" class="form-control" id="addressLabel" placeholder="address">
-                    <label for="addressLabel">Address</label>
+                <select class="form-select mb-3" id="addressSelect" aria-label="Default select example" required> 
+                    {{#if addresses.length}}
+                        {{#each addresses}}
+                        <option value="{{this.id}}" {{#if this.is_default}}selected{{/if}}>{{this.street_address}}, {{this.city}}, {{this.state}}{{#if this.is_default}} (default){{/if}}</option>
+                        {{/each}}
+                    {{else}}
+                        <option value="" selected disabled>Add your first address for checkout</option>
+                    {{/if}}
+                </select>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary" onclick="location.href='/address'">
+                        Add new address
+                    </button>
                 </div>
-                <div class="form-floating my-2">
-                    <input type="text" class="form-control" id="address2Label" placeholder="address2">
-                    <label for="address2Label">Address 2 (Apt, Unit, Suite)</label>
-                </div>
-
-                <div class="form-floating my-2">
-                    <input id="cityLabel" type="text" class="form-control" placeholder="city">
-                    <label for="cityLabel">City</label>
-                </div>
-
-
-                <div class="input-group">
-                    <div class="form-floating my-2">
-                        <select name="state" class="form-select" id="state" placeholder="State" required>
-                            <option value="" selected disabled>Select state</option>
-                            <option value="AL">Alabama</option>
-                            <option value="AK">Alaska</option>
-                            <option value="AZ">Arizona</option>
-                            <option value="AR">Arkansas</option>
-                            <option value="CA">California</option>
-                            <option value="CO">Colorado</option>
-                            <option value="CT">Connecticut</option>
-                            <option value="DE">Delaware</option>
-                            <option value="FL">Florida</option>
-                            <option value="GA">Georgia</option>
-                            <option value="HI">Hawaii</option>
-                            <option value="ID">Idaho</option>
-                            <option value="IL">Illinois</option>
-                            <option value="IN">Indiana</option>
-                            <option value="IA">Iowa</option>
-                            <option value="KS">Kansas</option>
-                            <option value="KY">Kentucky</option>
-                            <option value="LA">Louisiana</option>
-                            <option value="ME">Maine</option>
-                            <option value="MD">Maryland</option>
-                            <option value="MA">Massachusetts</option>
-                            <option value="MI">Michigan</option>
-                            <option value="MN">Minnesota</option>
-                            <option value="MS">Mississippi</option>
-                            <option value="MO">Missouri</option>
-                            <option value="MT">Montana</option>
-                            <option value="NE">Nebraska</option>
-                            <option value="NV">Nevada</option>
-                            <option value="NH">New Hampshire</option>
-                            <option value="NJ">New Jersey</option>
-                            <option value="NM">New Mexico</option>
-                            <option value="NY">New York</option>
-                            <option value="NC">North Carolina</option>
-                            <option value="ND">North Dakota</option>
-                            <option value="OH">Ohio</option>
-                            <option value="OK">Oklahoma</option>
-                            <option value="OR">Oregon</option>
-                            <option value="PA">Pennsylvania</option>
-                            <option value="RI">Rhode Island</option>
-                            <option value="SC">South Carolina</option>
-                            <option value="SD">South Dakota</option>
-                            <option value="TN">Tennessee</option>
-                            <option value="TX">Texas</option>
-                            <option value="UT">Utah</option>
-                            <option value="VT">Vermont</option>
-                            <option value="VA">Virginia</option>
-                            <option value="WA">Washington</option>
-                            <option value="WV">West Virginia</option>
-                            <option value="WI">Wisconsin</option>
-                            <option value="WY">Wyoming</option>
-                        </select>
-                        <label for="stateLabel">State</label>
-                    </div>
-                    <div class="form-floating my-2">
-                        <input id="zipLabel" type="number" class="form-control" placeholder="zip">
-                        <label for="zipLabel">Zip Code</label>
-                    </div>
-                </div>
-
-                <div class="form-floating">
-                    <select class="form-select" name="country" id="countryLabel" placeholder="Country">
-                        <option disabled>Country/Region</option>
-                        <option value="US" selected>United States</option>
-                    </select>
-                    <label for="countryLabel">Country/Region</label>
-                </div>
+            
 
                 {{!-- Shipping --}}
                 <h3 class="mt-5 mb-3">Shipping</h3>
                 <ul class="list-group mb-3">
                     <li class="list-group-item">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="radioDefault" id="econRadio">
-                            <label class="form-check-label" for="econRadio">
+                            <input class="form-check-input" type="radio" name="shippingType" id="econInput" value="Economy" checked required>
+                            <label class="form-check-label" for="econInput">
                                 <h5 class="mx-2">Economy</h5>
                                 <small class="text-muted mx-2">Ships in 5-7 business days</small>
                             </label>
@@ -145,8 +54,8 @@
                     </li>
                     <li class="list-group-item">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="radioDefault" id="expressRadio">
-                            <label class="form-check-label" for="expressRadio">
+                            <input class="form-check-input" type="radio" name="shippingType" id="expressInput" value="Express">
+                            <label class="form-check-label" for="expressInput">
                                 <h5 class="mx-2">Express</h5>
                                 <small class="text-muted mx-2">Ships in 1-3 business days</small>
                             </label>
@@ -154,6 +63,9 @@
                     </li>
                 </ul>
 
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Continue to payment</button>
+                </div>
             </form>
 
         </div>
@@ -162,27 +74,197 @@
         <div class="col-4 py-4 mb-5">
             <h2 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-muted">Your Cart</span>
-                <span class="badge text-bg-secondary rounded-pill">{{this.amtItems}}</span>
+                <span class="badge text-bg-secondary rounded-pill">{{amtItems}}</span>
             </h2>
             {{#if hasItems}}
             <ul class="list-group mb-3">
                 {{#each cartItems}}
-                <li class="list-group-item d-flex justify-content-between lh-condensed">
-                    <div class="mx-1">
-                        <h5 class="my-0 ">{{this.name}}</h5>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>
+                        <h5 class="my-0">{{this.name}}</h5>
                         <small class="text-muted">{{this.description}}</small>
-                    </div>
+                    </span>
+                    <h6><strong>${{this.price}}</strong></h6>
                 </li>
                 {{/each}}
             {{/if}}
 
-                {{!-- Total calculations --}}
-                {{!-- <li class="list-group-item d-flex justify-content-between p-4">
-                    <span>
-                        <h4>Total (USD)</h4>
-                    </span>
-                    <h5><strong>$20</strong></h5>
-                </li> --}}
+            <li class="list-group-item d-flex justify-content-between">
+                <span>
+                    <h5>Shipping</h5>
+                    <small class="text-muted" id="shippingTypeDisplay">Economy (5-7 business days)</small>
+                </span>
+                <h6><strong id="shippingPrice">$5</strong></h6>
+            </li>
+            <li class="list-group-item d-flex justify-content-between p-4">
+                <span>
+                    <h4>Total (USD)</h4>
+                </span>
+                <h5><strong id="totalPrice">${{cartSum}}</strong></h5>
+            </li>
             </ul>
         </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="row justify-content-center mt-3 mb-5" id="payment-container">
+        <div class="col-6">
+            <form id="payment-form" style="display: none;">
+                <div id="payment-element">
+                    <!--Stripe.js injects the Payment Element-->
+                </div>
+                <button id="submit" class="btn btn-primary w-100 mt-3">
+                    <span id="button-text">Pay now</span>
+                </button>
+                <div id="payment-message" class="text-danger mt-2 hidden"></div>
+            </form>
+        </div>
+    </div>
 </main>
+
+<script src="https://js.stripe.com/basil/stripe.js"></script>
+<script>
+    const economyRadio = document.getElementById('econInput');
+    const expressRadio = document.getElementById('expressInput');
+    const shippingPriceDisplay = document.getElementById('shippingPrice');
+    const totalPriceDisplay = document.getElementById('totalPrice');
+    const shippingTypeDisplay = document.getElementById('shippingTypeDisplay');
+    const paymentForm = document.getElementById('payment-form');
+    
+    if (paymentForm) {
+        paymentForm.style.display = 'none';
+    }
+    
+    const basePrice = {{cartSum}};
+    const economyPrice = 5;
+    const expressPrice = 20;
+    let totalAmount = basePrice + economyPrice; // Default to economy shipping
+    
+    function updatePrices() {
+        let shippingPrice = 0;
+        let shippingType = '';
+        
+        if (economyRadio.checked) {
+            shippingPrice = economyPrice;
+            shippingType = 'Economy (5-7 business days)';
+            totalAmount = basePrice + economyPrice;
+        } else if (expressRadio.checked) {
+            shippingPrice = expressPrice;
+            shippingType = 'Express (1-3 business days)';
+            totalAmount = basePrice + expressPrice;
+        }
+        
+        shippingPriceDisplay.textContent = `$${shippingPrice}`;
+        totalPriceDisplay.textContent = `$${totalAmount.toFixed(2)}`;
+        shippingTypeDisplay.textContent = shippingType;
+    }
+    
+    economyRadio.addEventListener('change', updatePrices);
+    expressRadio.addEventListener('change', updatePrices);
+    
+    updatePrices();
+    
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const firstName = document.getElementById('firstNameLabel').value;
+        const email = document.getElementById('checkoutEmail').value;
+        const addressSelect = document.getElementById('addressSelect').value;
+        const shippingType = document.querySelector('input[name="shippingType"]:checked');
+        
+        if (!firstName || !email || (!addressSelect && addressSelect !== 0) || !shippingType) {
+            alert('Please fill out all required fields.');
+            return;
+        }
+        
+        if (paymentForm) {
+            paymentForm.style.display = 'block';
+            
+            this.querySelector('button[type="submit"]').style.display = 'none';
+            
+            paymentForm.scrollIntoView({ behavior: 'smooth' });
+            
+            initializeStripeCheckout();
+        }
+    });
+    
+    const stripe = Stripe(`{{stripePublishableKey}}`);
+    let checkout;
+    
+    async function initializeStripeCheckout() {
+        document.querySelector("#button-text").textContent = "Loading...";
+        
+        const fetchClientSecret = () => {
+            const shippingType = document.querySelector('input[name="shippingType"]:checked').value;
+            
+            const description = `Auto Parts Order with ${shippingType} Shipping`;
+            
+            return fetch("/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: totalAmount,
+                    description: description
+                })
+            })
+            .then((r) => r.json())
+            .then((r) => {
+                if (r.error) {
+                    throw new Error(r.error);
+                }
+                return r.clientSecret;
+            });
+        };
+        
+        const appearance = {
+            theme: 'stripe',
+        };
+        
+        try {
+            checkout = await stripe.initCheckout({
+                fetchClientSecret,
+                elementsOptions: { appearance },
+            });
+            
+            document.querySelector("#button-text").textContent = `Pay $${totalAmount.toFixed(2)} now`;
+            
+            const paymentElement = checkout.createPaymentElement();
+            paymentElement.mount("#payment-element");
+        } catch (error) {
+            console.error('Error initializing checkout:', error);
+            document.querySelector("#payment-message").textContent = error.message;
+            document.querySelector("#payment-message").classList.remove("hidden");
+        }
+    }
+    
+    document.querySelector("#payment-form").addEventListener("submit", handleSubmit);
+    
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        try {
+            const { error } = await checkout.confirm();
+            
+            if (error) {
+                showMessage(error.message);
+            }
+        } catch (error) {
+            console.error('Error confirming payment:', error);
+            showMessage("An unexpected error occurred. Please try again.");
+        }
+        
+        setLoading(false);
+    }
+    
+    function showMessage(messageText) {
+        const messageContainer = document.querySelector("#payment-message");
+        
+        messageContainer.classList.remove("hidden");
+        messageContainer.textContent = messageText;
+        
+        setTimeout(function () {
+            messageContainer.classList.add("hidden");
+            messageContainer.textContent = "";
+        }, 4000);
+    }
+</script>

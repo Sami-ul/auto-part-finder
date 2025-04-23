@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS parts (
     fullimg TEXT,
     thumbimg TEXT,
     category VARCHAR(100),
+    compatible_vehicles JSON,
     UNIQUE(partnumber)
 );
 
@@ -50,7 +51,7 @@ CREATE TABLE IF NOT EXISTS parts_compatibility (
 );
 
 -- 6. Import parts data
-INSERT INTO parts (name, brand, partnumber, description, pack, fits, fullimg, thumbimg, category)
+INSERT INTO parts (name, brand, partnumber, description, pack, fits, fullimg, thumbimg, category, compatible_vehicles)
 SELECT 
     part AS name,
     brand,
@@ -60,7 +61,8 @@ SELECT
     fits,
     fullimg,
     thumbimg,
-    part AS category
+    part AS category,
+    compatible_vehicles
 FROM temp_parts_data tp
 ON CONFLICT DO NOTHING;
 

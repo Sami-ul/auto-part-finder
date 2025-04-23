@@ -11,11 +11,7 @@
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">
-            {{#if vehicleBadge}}
-                {{this.vehicleBadge.year}} {{this.vehicleBadge.make}} {{this.vehicleBadge.model}} {{this.vehicleBadge.engine}}
-            {{else}}
-                Choose Vehicle
-            {{/if}}
+            Choose Vehicle
         </button>
         <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
         {{#if searchQuery}}
@@ -25,10 +21,10 @@
     </div>
     <div class="under-search-container">
         <div class="product-filters">
-            <label class="min-input-label">Price Min:</label>
-            <input type="number" class="min-input" value="">
+            <label for="min-input">Price Min:</label>
+            <input type="number" class="min-price" value="">
             <label class="max-input-label">Price Max:</label>
-            <input type="number" class="min-input" value="">
+            <input type="number" class="max-price" value="">
         </div>
     </div>
    
@@ -359,14 +355,27 @@
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('.search-button');
         const clearButton = document.querySelector('.clear-search');
+        const priceMin = document.querySelector('.min-price');
+        const priceMax = document.querySelector('.max-price');
 
         // Function to handle search
         function performSearch() {
             const searchValue = searchInput.value.trim();
+            const priceMinValue = priceMin.value.trim();
+            const priceMaxValue = priceMax.value.trim();
+            let query;
             if (searchValue) {
-                window.location.href = `/search?query=${encodeURIComponent(searchValue)}`;
+                query = `/search?query=${encodeURIComponent(searchValue)}`;
             }
+            if (priceMinValue) {
+                query = query + `&pricemin=${encodeURIComponent(priceMinValue)}`;
+            }
+            if (priceMaxValue) {
+                query = query + `&pricemax=${encodeURIComponent(priceMaxValue)}`;
+            }
+            window.location.href = query;
         }
+
 
         // Handle click on search button
         searchButton.addEventListener('click', performSearch);
@@ -399,49 +408,51 @@
         <div class="alert alert-danger">{{error}}</div>
     {{else}}
         <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-            {{#if products.length}}
-                {{#each products}}
-                    <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
-                        <div class="card-header">
-                            <h1 class="card-title">{{this.brand}}</h1>
-                        </div>
-                        <div class="card-body">
-                            <div class="product-image-container mb-3">
-                                <img src="{{#if this.thumbimg}}{{this.thumbimg}}{{else}}/img/notfound.png{{/if}}"
-                                    class="img-fluid product-thumbnail" alt="{{this.name}} - {{this.brand}}">
-                            </div>
-                            <table class="table table-sm product-details-table">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Part #</th>
-                                        <td>{{this.partnumber}}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Description:</th>
-                                        <td>{{this.description}}<br>
-                                            {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
-                                            {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Price:</th>
-                                        <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-body text-end">
-                            <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
-                            Add to cart
-                            </button>
-                        </div>
+            {{#each products}}
+                <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
+                    <div class="card-header">
+                        <h1 class="card-title">{{this.name}}</h1>
                     </div>
-                {{/each}}
-            {{else}}
-                <div class="no-results">
-                    <p>No products found{{#if searchQuery}} for '{{searchQuery}}'{{/if}}</p>
+                    <div class="card-body">
+                        <div class="product-image-container mb-3">
+                            <img src="{{#if this.thumbimg}}{{this.thumbimg}}{{else}}/img/notfound.png{{/if}}"
+                                class="img-fluid product-thumbnail" alt="{{this.name}} - {{this.brand}}">
+                        </div>
+                        <table class="table table-sm product-details-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Part #</th>
+                                    <td>{{this.partnumber}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Description:</th>
+                                    <td>{{this.description}}<br>
+                                        {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
+                                        {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Fits:</th>
+                                    <td>
+                                        {{#each this.compatible_vehicles}}
+                                            {{this}}<br>
+                                        {{/each}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Price:</th>
+                                    <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-body text-end">
+                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
+                        Add to cart
+                        </button>
+                    </div>
                 </div>
-            {{/if}}
+            {{/each}}
         </div>
 
         {{#if pagination}}

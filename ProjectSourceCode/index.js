@@ -8,12 +8,16 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
+const stripe = require('stripe')(`${process.env.STRIPE_SECRET_KEY}`, {
+  apiVersion: "2025-03-31.basil",
+});
 
 /* Connect to DB */
 const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
-  partialsDir: __dirname + '/views/partials'
+  partialsDir: __dirname + '/views/partials',
+
 });
 
 const dbConfig = {
@@ -268,6 +272,10 @@ app.get('/discover', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   const { query } = req.query;
+  const priceMin = req.query.pricemin;
+  const priceMax  = req.query.pricemax;
+  let priceFilter = ``;
+  let orderedBy = ``;
   if (!query) {
     return res.redirect('/discover');
   }
@@ -284,32 +292,35 @@ app.get('/search', async (req, res) => {
   let pagination = {};
   let noResults = 'true';
   try {
+    if (priceMin > 0) { priceFilter = priceFilter + ` AND pr.price >= ${priceMin}`; }
+    if (priceMax > 0) { priceFilter = priceFilter + ` AND pr.price <= ${priceMax}`; }
+    if (priceFilter) { orderedBy = ` ORDER BY pr.price`}
     if (vehicle) {
       countSql = `
-          SELECT COUNT(DISTINCT p.id) AS total_count
-          FROM parts p
-          JOIN parts_compatibility pc ON p.id = pc.part_id
-          JOIN vehicles v ON pc.vehicle_id = v.id
-          JOIN pricing pr ON p.id = pr.part_id
-         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
-           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
+        SELECT COUNT(DISTINCT p.id) AS total_count
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter};
       `;
       dataSql = `
-        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
-          FROM parts p
-          JOIN parts_compatibility pc ON p.id = pc.part_id
-          JOIN vehicles v ON pc.vehicle_id = v.id
-          JOIN pricing pr ON p.id = pr.part_id
-         WHERE (p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%')
-           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5
-         LIMIT $6 OFFSET $7;
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
+        FROM parts p
+        JOIN parts_compatibility pc ON p.id = pc.part_id
+        JOIN vehicles v ON pc.vehicle_id = v.id
+        JOIN pricing pr ON p.id = pr.part_id
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}${orderedBy}
+        LIMIT $6 OFFSET $7;
       `;
       countParams = [
         queryParam,
         vehicle.make,
         parseInt(vehicle.year, 10),
         vehicle.model,
-        vehicle.engine
+        vehicle.engine,
       ];
       dataParams = [...countParams, limit, offset];
     } else {
@@ -317,13 +328,13 @@ app.get('/search', async (req, res) => {
         SELECT COUNT(DISTINCT p.id) AS total_count
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1;
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter};
       `;
       dataSql = `
-        SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+        SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
-        WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1)${priceFilter}${orderedBy}
         LIMIT $2 OFFSET $3;
       `;
       countParams = [queryParam];
@@ -332,12 +343,25 @@ app.get('/search', async (req, res) => {
     const countResult = await db.one(countSql, countParams);
     const totalCount = parseInt(countResult.total_count, 10) || 0;
 
-
-
     if (totalCount > 0 && offset < totalCount) {
       products = await db.any(dataSql, dataParams);
       if (products && products.length > 0) {
         noResults = '';
+        products.forEach(product => {
+          if (product && Array.isArray(product.compatible_vehicles)) {
+            const uniqueMakes = Array.from(
+              new Set(
+                product.compatible_vehicles
+                  .map(vehicle => vehicle?.make)
+                  .filter(make => make)
+              )
+            );
+            product.compatible_vehicles = uniqueMakes;
+          } else if (product) {
+            product.compatible_vehicles = [];
+          }
+          console.log(product);
+        });      
       }
     } else {
       products = [];
@@ -363,6 +387,8 @@ app.get('/search', async (req, res) => {
 
     res.render('pages/discover', {
       searchQuery: query,
+      priceMin: priceMin ? priceMin : undefined,
+      priceMax: priceMax ? priceMax : undefined,
       products: products,
       pagination: products.length > 0 ? pagination : '',
       noResults: noResults,
@@ -657,6 +683,45 @@ app.post('/account/edit', async (req, res) => {
   }
 });
 
+app.post("/create-checkout-session", async (req, res) => {
+  const { amount, description = "Auto Parts Order" } = req.body;
+  
+  const amountInCents = Math.round(parseFloat(amount) * 100);
+  
+  const session = await stripe.checkout.sessions.create({
+    ui_mode: "custom",
+    customer_email: req.session.user.email,
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: description,
+          },
+          unit_amount: amountInCents,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    payment_method_types: ['card'],
+    return_url: 'http://localhost:3000/success'
+  });
+
+  res.json({ clientSecret: session.client_secret });
+
+});
+
+app.get('/success', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  db.none('DELETE FROM cart WHERE user_id = $1', [req.session.user.id])
+    .then(() => {
+      res.render('pages/success');
+    })
+});
+
 app.get('/checkout', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
@@ -665,15 +730,27 @@ app.get('/checkout', async (req, res) => {
     try {
       // Fetch cart items with product details
       const cartItems = await db.any(
-        'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
+        'SELECT p.id, p.name, p.description, pri.price FROM cart c JOIN parts p ON c.product_id = p.id JOIN pricing pri ON p.id = pri.part_id WHERE c.user_id = $1 and pri.vendor_id = 1',
         [user_id]
       );
 
+      console.log(cartItems);
+      let cartSum = 0;
+      cartItems.forEach(item => {
+        cartSum += parseFloat(item.price);
+      });
+
+
+      const addresses = await db.any('SELECT * FROM addresses WHERE user_id = $1', [user_id]);
+  
       // Render the cart page with the cart items
       return res.render('pages/checkout', {
         cartItems: cartItems,
         hasItems: cartItems.length > 0,
-        amtItems: cartItems.length
+        amtItems: cartItems.length,
+        addresses: addresses,
+        cartSum: cartSum,
+        stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
       });
     } catch (error) {
       console.error('Error fetching cart items:', error);
