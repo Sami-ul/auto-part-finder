@@ -48,4 +48,5 @@ jobs:
     - name: Run tests with Docker Compose
       run: |
         cd ProjectSourceCode
-        sudo docker compose run --rm web npm test
+        # Install dependencies first and then run tests
+        sudo docker compose run --rm web sh -c "npm install && npm test"
