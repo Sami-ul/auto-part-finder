@@ -373,7 +373,7 @@
             if (priceMaxValue) {
                 query = query + `&pricemax=${encodeURIComponent(priceMaxValue)}`;
             }
-            window.location.href = query;
+            if (query) window.location.href = query;
         }
 
 
