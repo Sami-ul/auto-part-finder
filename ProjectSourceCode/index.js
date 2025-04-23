@@ -123,7 +123,6 @@ app.post('/login', async (req, res) => {
 
 app.get('/discover', async (req, res) => {
   const query = req.query.query || '';
-  const selectedVendors = req.query.vendors;
   const page = parseInt(req.query.page, 10) || 1;
   const limit = 12;
   const offset = (page > 0 ? page - 1 : 0) * limit;
@@ -146,13 +145,6 @@ app.get('/discover', async (req, res) => {
   }
 
   try {
-    if (selectedVendors) {
-      const vendorList = Array.isArray(selectedVendors) ? selectedVendors : [selectedVendors];
-      if (vendorList.length > 0) {
-         const quotedVendorList = vendorList.map(vendor => `'${vendor.replace(/'/g, "''")}'`).join(',');
-         vendorFilter = ` AND vdr.name IN (${quotedVendorList})`;
-      }
-    }
 
     if (vehicle) {
       if (query) {
@@ -165,7 +157,7 @@ app.get('/discover', async (req, res) => {
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
           WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${vendorFilter};
+            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5);
         `;
         dataSql = `
           SELECT
@@ -181,7 +173,7 @@ app.get('/discover', async (req, res) => {
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
           WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${vendorFilter}
+            AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)
           ${orderedBy}
           LIMIT $6 OFFSET $7;
         `;
@@ -201,7 +193,7 @@ app.get('/discover', async (req, res) => {
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4${vendorFilter};
+          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4;
         `;
         dataSql = `
           SELECT
@@ -216,7 +208,7 @@ app.get('/discover', async (req, res) => {
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4${vendorFilter}
+          WHERE v.make = $1 AND v.year = $2 AND v.model = $3 AND v.engine = $4
           ${orderedBy}
           LIMIT $5 OFFSET $6;
         `;
@@ -236,7 +228,7 @@ app.get('/discover', async (req, res) => {
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${vendorFilter};
+          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1);
         `;
         dataSql = `
           SELECT
@@ -249,7 +241,7 @@ app.get('/discover', async (req, res) => {
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${vendorFilter}
+          WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
           ${orderedBy}
           LIMIT $2 OFFSET $3;
         `;
@@ -261,7 +253,7 @@ app.get('/discover', async (req, res) => {
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE 1=1 ${vendorFilter};
+          WHERE 1=1;
         `;
         dataSql = `
           SELECT
@@ -274,7 +266,7 @@ app.get('/discover', async (req, res) => {
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           JOIN vendors vdr ON pr.vendor_id = vdr.id
-          WHERE 1=1 ${vendorFilter}
+          WHERE 1=1
           ${orderedBy}
           LIMIT $1 OFFSET $2;
         `;
@@ -332,7 +324,6 @@ app.get('/discover', async (req, res) => {
 
     res.render('pages/discover', {
       searchQuery: query,
-      selectedVendors: Array.isArray(selectedVendors) ? selectedVendors : (selectedVendors ? [selectedVendors] : []),
       products: products,
       pagination: products.length > 0 ? pagination : null,
       noResults: noResults,
@@ -383,14 +374,6 @@ app.get('/search', async (req, res) => {
     if (priceMax > 0) { priceFilter = priceFilter + ` AND pr.price <= ${priceMax}`; }
     if (priceFilter) { orderedBy = ` ORDER BY p.id ASC, pr.price ASC`; }
 
-    if (selectedVendors) {
-      const vendorList = Array.isArray(selectedVendors) ? selectedVendors : [selectedVendors];
-      if (vendorList.length > 0) {
-         const quotedVendorList = vendorList.map(vendor => `'${vendor.replace(/'/g, "''")}'`).join(',');
-         vendorFilter = ` AND vdr.name IN (${quotedVendorList})`;
-      }
-    }
-
     if (vehicle) {
       countSql = `
         SELECT COUNT(pr.id) AS total_count
@@ -400,7 +383,7 @@ app.get('/search', async (req, res) => {
         JOIN pricing pr ON p.id = pr.part_id
         JOIN vendors vdr ON pr.vendor_id = vdr.id
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}${vendorFilter};
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter};
       `;
       dataSql = `
         SELECT
@@ -416,7 +399,7 @@ app.get('/search', async (req, res) => {
         JOIN pricing pr ON p.id = pr.part_id
         JOIN vendors vdr ON pr.vendor_id = vdr.id
         WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)
-          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}${vendorFilter}
+          AND (v.make = $2 AND v.year = $3 AND v.model = $4 AND v.engine = $5)${priceFilter}
         ${orderedBy}
         LIMIT $6 OFFSET $7;
       `;
@@ -434,7 +417,7 @@ app.get('/search', async (req, res) => {
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
         JOIN vendors vdr ON pr.vendor_id = vdr.id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter}${vendorFilter};
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter};
       `;
       dataSql = `
         SELECT
@@ -447,7 +430,7 @@ app.get('/search', async (req, res) => {
         FROM parts p
         JOIN pricing pr ON p.id = pr.part_id
         JOIN vendors vdr ON pr.vendor_id = vdr.id
-        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter}${vendorFilter}
+        WHERE (p.name ILIKE $1 OR p.description ILIKE $1 OR p.pack ILIKE $1 OR p.fits ILIKE $1 OR p.brand ILIKE $1)${priceFilter}
         ${orderedBy}
         LIMIT $2 OFFSET $3;
       `;
@@ -506,7 +489,6 @@ app.get('/search', async (req, res) => {
       searchQuery: query,
       priceMin: priceMin ? priceMin : undefined,
       priceMax: priceMax ? priceMax : undefined,
-      selectedVendors: Array.isArray(selectedVendors) ? selectedVendors : (selectedVendors ? [selectedVendors] : []),
       products: products,
       pagination: products.length > 0 ? pagination : '',
       noResults: noResults,
