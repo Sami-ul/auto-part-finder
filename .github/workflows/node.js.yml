@@ -44,9 +44,10 @@ jobs:
         echo "POSTGRES_PASSWORD=postgres" >> .env
         echo "POSTGRES_DB=users_db" >> .env
         echo "SESSION_SECRET=test_secret_for_github_actions" >> .env
+        sudo chmod -R 777 .  # Give full permissions to the directory
         
     - name: Run tests with Docker Compose
       run: |
         cd ProjectSourceCode
-        # Install dependencies first and then run tests
-        sudo docker compose run --rm web sh -c "npm install && npm test"
+        # Run with root user instead of node user to avoid permission issues
+        sudo docker compose run --rm --user root web sh -c "npm install && npm test"
