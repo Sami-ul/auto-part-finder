@@ -137,7 +137,6 @@ app.get('/discover', async (req, res) => {
   let userVehicles = [];
   const queryParam = `%${query}%`;
   let orderedBy = ` ORDER BY p.id ASC, vdr.name ASC`;
-  let vendorFilter = ``;
 
   if (req.session.user) {
     const userId = req.session.user.id;

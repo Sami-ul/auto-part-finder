@@ -11,7 +11,11 @@
 <main>
     <div class="search-container">
         <button id="chooseVehicle" class="choose-vehicle">
-            Choose Vehicle
+             {{#if vehicleBadge}}
+                {{vehicleBadge.year}} {{vehicleBadge.make}} {{vehicleBadge.model}} {{vehicleBadge.engine}}
+            {{else}}
+                Choose Vehicle
+            {{/if}}
         </button>
         <input type="text" class="search-input" value="{{searchQuery}}" placeholder="Search for parts..." />
         {{#if searchQuery}}
