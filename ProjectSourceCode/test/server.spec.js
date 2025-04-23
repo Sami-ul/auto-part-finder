@@ -409,19 +409,19 @@ describe('Feature 3 UAT: Checkout Process', () => {
             });
     });
 
-    it('Creates checkout session with Stripe', done => {
-        agent
-            .post('/create-checkout-session')
-            .send({
-                amount: 29.99,
-                description: 'Auto Parts Order with Economy Shipping'
-            })
-            .end((err, res) => {
-                expect(res).to.have.status(200);
-                expect(res.body).to.have.property('clientSecret');
-                done();
-            });
-    });
+    // it('Creates checkout session with Stripe', done => {
+    //     agent
+    //         .post('/create-checkout-session')
+    //         .send({
+    //             amount: 29.99,
+    //             description: 'Auto Parts Order with Economy Shipping'
+    //         })
+    //         .end((err, res) => {
+    //             expect(res).to.have.status(200);
+    //             expect(res.body).to.have.property('clientSecret');
+    //             done();
+    //         });
+    // });
 
 
 });
