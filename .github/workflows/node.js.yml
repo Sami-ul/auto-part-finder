@@ -30,17 +30,27 @@ jobs:
         echo "POSTGRES_DB=users_db" >> .env
         echo "SESSION_SECRET=test_secret_for_github_actions" >> .env
         
-    - name: Docker compose up
+    - name: Docker compose down and up
       run: |
         cd ProjectSourceCode
+        docker-compose down -v || true # Continue even if this fails (if no containers exist yet)
         docker-compose up -d
+        
+    - name: Check container status
+      run: |
+        cd ProjectSourceCode
+        docker-compose ps
+        docker-compose logs
         
     - name: Wait for containers to be ready
       run: |
         cd ProjectSourceCode
-        sleep 10  # Give containers time to initialize
+        sleep 30  # Give more time for containers to initialize
         
     - name: Run tests in Docker
       run: |
         cd ProjectSourceCode
+        # First try to execute using the testandrun script
+        docker-compose exec -T web npm run testandrun || \
+        # If that fails, try the direct test command
         docker-compose exec -T web npm test
