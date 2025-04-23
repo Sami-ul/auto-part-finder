@@ -136,6 +136,14 @@ app.get('/discover', async (req, res) => {
   let pagination = {};
   let noResults = false;
 
+  let userVehicles = [];
+
+  if (req.session.user) {
+    const userId = req.session.user.id;
+    userVehicles = await db.any('SELECT v.id, v.make, v.year, v.engine, v.model FROM user_vehicles uv JOIN vehicles v ON uv.vehicle_id = v.id WHERE uv.user_id = $1', [userId]);
+  }
+
+
   try {
     if (vehicle) {
       if (query) {
@@ -257,7 +265,8 @@ app.get('/discover', async (req, res) => {
       products: products,
       pagination: products.length > 0 ? pagination : null,
       noResults: noResults,
-      vehicleBadge: vehicle || null
+      vehicleBadge: vehicle || null,
+      userVehicles: userVehicles
     });
 
   } catch (error) {
