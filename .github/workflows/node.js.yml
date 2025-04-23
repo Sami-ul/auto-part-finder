@@ -19,12 +19,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        # Remove the cache-dependency-path line that's causing the error
     
     - name: Navigate to project directory and install dependencies
       run: |
         cd ProjectSourceCode
-        npm ci
+        if [ -f "package-lock.json" ]; then
+          npm ci
+        else
+          npm install
+        fi
     
     - name: Build project
       run: |
