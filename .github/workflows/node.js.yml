@@ -1,0 +1,51 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]  # Reduced to one version since Docker will manage Node version
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Docker and Docker Compose
+      run: |
+        # Add Docker's official GPG key
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl gnupg
+        sudo install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        sudo chmod a+r /etc/apt/keyrings/docker.gpg
+        
+        # Add the repository to Apt sources
+        echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        
+        # Install Docker packages
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        
+        # Verify installation
+        sudo docker --version
+        sudo docker compose version
+    
+    - name: Set up Docker Compose
+      run: |
+        # Make sure .env file exists with required values
+        cd ProjectSourceCode
+        echo "POSTGRES_USER=postgres" >> .env
+        echo "POSTGRES_PASSWORD=postgres" >> .env
+        echo "POSTGRES_DB=users_db" >> .env
+        echo "SESSION_SECRET=test_secret_for_github_actions" >> .env
+        
+    - name: Run tests with Docker Compose
+      run: |
+        cd ProjectSourceCode
+        sudo docker compose run --rm web npm test

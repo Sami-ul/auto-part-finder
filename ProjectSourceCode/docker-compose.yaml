@@ -30,7 +30,9 @@ services:
       - '3000:3000'
     volumes:
       - ./:/home/node/app
-    command: 'npm run testandrun'
+    # Use a CI-specific command for GitHub Actions
+    command: 'npm start'
+    
 volumes:
   auto-parts-finder:
   #make run on container not local
