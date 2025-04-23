@@ -150,7 +150,7 @@ app.get('/discover', async (req, res) => {
           AND v.make=$2 AND v.year=$3 AND v.model=$4 AND v.engine=$5;
         `;
         dataSql = `
-          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
@@ -178,13 +178,13 @@ app.get('/discover', async (req, res) => {
           WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4;
         `;
         dataSql = `
-          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, pr.price
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, p.compatible_vehicles, pr.price
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
           JOIN pricing AS pr ON p.id = pr.part_id
           WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4
-          ORDER BY p.name
+          ORDER BY p.id, p.name
           LIMIT $5 OFFSET $6;
         `;
         countParams = [
@@ -205,7 +205,7 @@ app.get('/discover', async (req, res) => {
           WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%';
         `;
         dataSql = `
-          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.thumbimg
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, pr.price, p.compatible_vehicles, p.thumbimg
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           WHERE p.name ILIKE '%'||$1||'%' OR p.description ILIKE '%'||$1||'%' OR p.pack ILIKE '%'||$1||'%' OR p.fits ILIKE '%'||$1||'%'
@@ -221,10 +221,10 @@ app.get('/discover', async (req, res) => {
           JOIN pricing AS pr ON p.id = pr.part_id;
         `;
         dataSql = `
-          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, pr.price
+          SELECT DISTINCT ON (p.id) p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, p.compatible_vehicles, pr.price
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
-          ORDER BY p.name
+          ORDER BY p.id, p.name
           LIMIT $1 OFFSET $2;
         `;
         countParams = [];
@@ -241,6 +241,21 @@ app.get('/discover', async (req, res) => {
       const dataResult = await db.any(dataSql, dataParams);
       products = dataResult;
       noResults = false;
+      products.forEach(product => {
+        if (product && Array.isArray(product.compatible_vehicles)) {
+          const uniqueMakes = Array.from(
+            new Set(
+              product.compatible_vehicles
+                .map(vehicle => vehicle?.make)
+                .filter(make => make)
+            )
+          );
+          product.compatible_vehicles = uniqueMakes;
+        } else if (product) {
+          product.compatible_vehicles = [];
+        }
+        console.log(product);
+      });
 
       pagination = {
         currentPage: page,

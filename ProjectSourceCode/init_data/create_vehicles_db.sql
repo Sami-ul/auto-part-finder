@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS vendors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     website VARCHAR(255),
+    markup FLOAT,
     UNIQUE(name)
 );
 
@@ -84,8 +85,16 @@ CREATE TABLE IF NOT EXISTS pricing (
 );
 
 -- 9. Insert vendor
-INSERT INTO vendors (name, website)
-VALUES ('Rock Auto', 'https://www.rockauto.com')
+INSERT INTO vendors (name, website, markup)
+VALUES ('Rock Auto', 'https://www.rockauto.com', 1)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO vendors (name, website, markup)
+VALUES ('Autozone', 'https://www.autozone.com', 1.25)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO vendors (name, website, markup)
+VALUES ('Amazon', 'https://www.autozone.com', .9)
 ON CONFLICT DO NOTHING;
 
 -- 10. Add pricing information
@@ -97,6 +106,24 @@ SELECT
 FROM temp_parts_data tp
 JOIN parts p ON p.partnumber = tp.partnumber
 CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v;
+
+INSERT INTO pricing (part_id, vendor_id, price)
+SELECT 
+    p.id,
+    v.id,
+    tp.price
+FROM temp_parts_data tp
+JOIN parts p ON p.partnumber = tp.partnumber
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Autozone' LIMIT 1) v;
+
+INSERT INTO pricing (part_id, vendor_id, price)
+SELECT 
+    p.id,
+    v.id,
+    tp.price
+FROM temp_parts_data tp
+JOIN parts p ON p.partnumber = tp.partnumber
+CROSS JOIN (SELECT id FROM vendors WHERE name = 'Amazon' LIMIT 1) v;
 
 -- 11. Populate vehicles from the JSON data
 WITH vehicle_json AS (
