@@ -37,6 +37,13 @@
                     </table>
                 </div>
                 <div class="card-footer text-end bg-transparent">
+                    <button type="button" class="btn btn-success search-parts-btn" 
+                        data-make="{{this.make}}" 
+                        data-year="{{this.year}}" 
+                        data-model="{{this.model}}" 
+                        data-engine="{{this.engine}}">
+                        Search for Parts
+                    </button>
                     <button type="button" class="btn btn-primary edit-car-btn" data-bs-toggle="modal" data-bs-target="#carModal">
                         Edit
                     </button>
@@ -533,6 +540,27 @@
         .catch(error => {
             console.error('Error:', error);
             alert('Failed to update vehicle');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handler for search parts buttons
+        document.querySelectorAll('.search-parts-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const vehicle = {
+                    make: this.dataset.make,
+                    year: this.dataset.year,
+                    model: this.dataset.model,
+                    engine: this.dataset.engine
+                };
+                
+                // Set the vehicle cookie
+                const cookieBody = encodeURIComponent(JSON.stringify(vehicle));
+                document.cookie = `currentVehicle=${cookieBody}; path=/; max-age=3600`;
+                
+                // Redirect to discover page
+                window.location.href = '/discover';
+            });
         });
     });
 </script>
