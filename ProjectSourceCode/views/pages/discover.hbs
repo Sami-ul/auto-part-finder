@@ -409,7 +409,7 @@
 
         // Function to handle search
         function performSearch() {
-            const searchValue = searchInput.value.trim();
+            const searchValue = searchInput.value.trim() || '';
             const priceMinValue = priceMin.value.trim();
             const priceMaxValue = priceMax.value.trim();
             let query;
