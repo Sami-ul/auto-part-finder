@@ -8,12 +8,16 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
+const stripe = require('stripe')(`${process.env.STRIPE_SECRET_KEY}`, {
+  apiVersion: "2025-03-31.basil",
+});
 
 /* Connect to DB */
 const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
-  partialsDir: __dirname + '/views/partials'
+  partialsDir: __dirname + '/views/partials',
+
 });
 
 const dbConfig = {
@@ -525,6 +529,45 @@ app.post('/account/edit', async (req, res) => {
   }
 });
 
+app.post("/create-checkout-session", async (req, res) => {
+  const { amount, description = "Auto Parts Order" } = req.body;
+  
+  const amountInCents = Math.round(parseFloat(amount) * 100);
+  
+  const session = await stripe.checkout.sessions.create({
+    ui_mode: "custom",
+    customer_email: req.session.user.email,
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: description,
+          },
+          unit_amount: amountInCents,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    payment_method_types: ['card'],
+    return_url: 'http://localhost:3000/success'
+  });
+
+  res.json({ clientSecret: session.client_secret });
+
+});
+
+app.get('/success', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  db.none('DELETE FROM cart WHERE user_id = $1', [req.session.user.id])
+    .then(() => {
+      res.render('pages/success');
+    })
+});
+
 app.get('/checkout', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
@@ -552,7 +595,8 @@ app.get('/checkout', async (req, res) => {
         hasItems: cartItems.length > 0,
         amtItems: cartItems.length,
         addresses: addresses,
-        cartSum: cartSum
+        cartSum: cartSum,
+        stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
       });
     } catch (error) {
       console.error('Error fetching cart items:', error);
