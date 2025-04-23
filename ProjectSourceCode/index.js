@@ -178,7 +178,7 @@ app.get('/discover', async (req, res) => {
           WHERE v.make=$1 AND v.year=$2 AND v.model=$3 AND v.engine=$4;
         `;
         dataSql = `
-          SELECT DISTINCT p.*, pr.price
+          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, pr.price
           FROM parts p
           JOIN parts_compatibility AS pc ON p.id = pc.part_id
           JOIN vehicles AS v ON pc.vehicle_id = v.id
@@ -187,7 +187,12 @@ app.get('/discover', async (req, res) => {
           ORDER BY p.name
           LIMIT $5 OFFSET $6;
         `;
-        countParams = [vehicle.make, vehicle.year, vehicle.model, vehicle.engine];
+        countParams = [
+          vehicle.make, 
+          parseInt(vehicle.year, 10), // Make sure year is an integer
+          vehicle.model, 
+          vehicle.engine
+        ];
         dataParams = [...countParams, limit, offset];
       }
     } else {
@@ -216,7 +221,7 @@ app.get('/discover', async (req, res) => {
           JOIN pricing AS pr ON p.id = pr.part_id;
         `;
         dataSql = `
-          SELECT DISTINCT p.*, pr.price
+          SELECT DISTINCT p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits, p.thumbimg, pr.price
           FROM parts p
           JOIN pricing AS pr ON p.id = pr.part_id
           ORDER BY p.name
