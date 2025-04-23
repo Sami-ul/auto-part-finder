@@ -64,33 +64,33 @@ INSERT INTO vendors (name, website, markup)
 VALUES ('Amazon', 'https://www.autozone.com', .9)
 ON CONFLICT DO NOTHING;
 
--- 10. Add pricing information
+-- 10. Add pricing information with markup applied
 INSERT INTO pricing (part_id, vendor_id, price)
 SELECT 
     p.id,
     v.id,
-    tp.price
+    tp.price * v.markup
 FROM temp_parts_data tp
 JOIN parts p ON p.partnumber = tp.partnumber
-CROSS JOIN (SELECT id FROM vendors WHERE name = 'Rock Auto' LIMIT 1) v;
+JOIN vendors v ON v.name = 'Rock Auto';
 
 INSERT INTO pricing (part_id, vendor_id, price)
 SELECT 
     p.id,
     v.id,
-    tp.price
+    tp.price * v.markup
 FROM temp_parts_data tp
 JOIN parts p ON p.partnumber = tp.partnumber
-CROSS JOIN (SELECT id FROM vendors WHERE name = 'Autozone' LIMIT 1) v;
+JOIN vendors v ON v.name = 'Autozone';
 
 INSERT INTO pricing (part_id, vendor_id, price)
 SELECT 
     p.id,
     v.id,
-    tp.price
+    tp.price * v.markup
 FROM temp_parts_data tp
 JOIN parts p ON p.partnumber = tp.partnumber
-CROSS JOIN (SELECT id FROM vendors WHERE name = 'Amazon' LIMIT 1) v;
+JOIN vendors v ON v.name = 'Amazon';
 
 -- 11. Populate vehicles from the JSON data
 WITH vehicle_json AS (
