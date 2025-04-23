@@ -45,24 +45,7 @@ jobs:
         echo "POSTGRES_DB=users_db" >> .env
         echo "SESSION_SECRET=test_secret_for_github_actions" >> .env
         
-    - name: Docker compose down and up
+    - name: Run tests with Docker Compose
       run: |
         cd ProjectSourceCode
-        sudo docker compose down -v || true
-        sudo docker compose up -d
-        
-    - name: Check container status
-      run: |
-        cd ProjectSourceCode
-        sudo docker compose ps
-        sudo docker compose logs
-        
-    - name: Wait for containers to be ready
-      run: |
-        cd ProjectSourceCode
-        sleep 60  # Give more time for containers to initialize
-        
-    - name: Run tests in Docker
-      run: |
-        cd ProjectSourceCode
-        sudo docker compose exec -T web npm test
+        sudo docker compose run --rm web npm test
