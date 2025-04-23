@@ -792,6 +792,10 @@ app.post("/create-checkout-session", async (req, res) => {
   
   const amountInCents = Math.round(parseFloat(amount) * 100);
   
+  const protocol = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const host = req.get('host');
+  const returnUrl = `${protocol}://${host}/success`;
+  
   const session = await stripe.checkout.sessions.create({
     ui_mode: "custom",
     customer_email: req.session.user.email,
@@ -809,11 +813,10 @@ app.post("/create-checkout-session", async (req, res) => {
     ],
     mode: "payment",
     payment_method_types: ['card'],
-    return_url: 'http://localhost:3000/success'
+    return_url: returnUrl
   });
 
   res.json({ clientSecret: session.client_secret });
-
 });
 
 app.get('/success', (req, res) => {
