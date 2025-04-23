@@ -22,9 +22,24 @@
     <div class="under-search-container">
         <div class="product-filters">
             <label for="min-input">Price Min $</label>
-            <input type="number" id="min-input" class="min-price" value="" placeholder="0">
+            <input type="number" id="min-input" name="pricemin" class="min-price" value="{{priceMin}}" placeholder="0">
             <label class="max-input-label" for="max-input">Price Max $</label>
-            <input type="number" id="max-input" class="max-price" value="" placeholder="Any">
+            <input type="number" id="max-input" name="pricemax" class="max-price" value="{{priceMax}}" placeholder="Any">
+        </div>
+
+        <div class="vendor-filters">
+             <div class="vendor-filter-item">
+                <input type="checkbox" id="vendor-rockauto" name="vendors" value="Rock Auto" checked>
+                <label for="vendor-rockauto">Rock Auto</label>
+            </div>
+             <div class="vendor-filter-item">
+                <input type="checkbox" id="vendor-autozone" name="vendors" value="Autozone" checked>
+                <label for="vendor-autozone">Autozone</label>
+            </div>
+             <div class="vendor-filter-item">
+                <input type="checkbox" id="vendor-amazon" name="vendors" value="Amazon" checked>
+                <label for="vendor-amazon">Amazon</label>
+            </div>
         </div>
     </div>
 
@@ -418,7 +433,7 @@
             if (priceMaxValue) {
                 query = query + `&pricemax=${encodeURIComponent(priceMaxValue)}`;
             }
-            if (query) window.location.href = query;
+            if (searchValue && query) window.location.href = query;
         }
 
 
@@ -527,8 +542,8 @@
                                 <tr>
                                     <th scope="row">Description:</th>
                                     <td>{{this.description}}<br>
-                                        {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
-                                        {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
+                                        {{#if this.pack}}{{this.pack}}{{/if}}<br>
+                                        {{#if this.fits}}{{this.fits}}{{/if}}
                                     </td>
                                 </tr>
                                 <tr>
@@ -541,7 +556,7 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">Price:</th>
-                                    <td>{{#if this.price}}${{this.price}}{{else}}N/A{{/if}}</td>
+                                    <td>${{this.price}} @ {{this.vendor_name}}</td>
                                 </tr>
                             </tbody>
                         </table>
