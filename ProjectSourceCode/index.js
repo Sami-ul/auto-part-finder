@@ -262,7 +262,6 @@ app.get('/discover', async (req, res) => {
         } else if (product) {
           product.compatible_vehicles = [];
         }
-        console.log(product);
       });
 
       pagination = {
@@ -389,7 +388,6 @@ app.get('/search', async (req, res) => {
           } else if (product) {
             product.compatible_vehicles = [];
           }
-          console.log(product);
         });      
       }
     } else {

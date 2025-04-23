@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS vendors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     website VARCHAR(255),
+    markup FLOAT,
     UNIQUE(name)
 );
 
