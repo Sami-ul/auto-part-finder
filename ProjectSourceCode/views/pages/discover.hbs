@@ -413,7 +413,7 @@
             {{#each products}}
                 <div class="card m-3 rounded-3 shadow-sm" style="width: 25rem;">
                     <div class="card-header">
-                        <h1 class="card-title">{{this.brand}}</h1>
+                        <h1 class="card-title">{{this.name}}</h1>
                     </div>
                     <div class="card-body">
                         <div class="product-image-container mb-3">
@@ -431,6 +431,14 @@
                                     <td>{{this.description}}<br>
                                         {{#if this.pack}}{{this.pack}}{{else}}N/A{{/if}}<br>
                                         {{#if this.fits}}{{this.fits}}{{else}}N/A{{/if}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Fits:</th>
+                                    <td>
+                                        {{#each this.compatible_vehicles}}
+                                            {{this}}<br>
+                                        {{/each}}
                                     </td>
                                 </tr>
                                 <tr>
