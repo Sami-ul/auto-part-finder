@@ -11,6 +11,8 @@
                         <tr>
                             <th>Product</th>
                             <th>Description</th>
+                            <th>Price</th>
+                            <th>Vendor</th>
                             <th class="text-end">Actions</th>
                         </tr>
                     </thead>
@@ -19,8 +21,10 @@
                             <tr>
                                 <td>{{this.name}}</td>
                                 <td>{{this.description}}</td>
+                                <td>${{this.price}}</td>
+                                <td>{{this.vendor_name}}</td>
                                 <td class="text-end">
-                                    <button class="btn btn-sm btn-danger remove-from-cart" data-product-id="{{this.id}}">
+                                    <button class="btn btn-sm btn-danger remove-from-cart" data-pricing-id="{{this.id}}">
                                         Remove
                                     </button>
                                 </td>
@@ -55,9 +59,9 @@
         
         removeButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const productId = this.dataset.productId;
+                const pricingId = this.dataset.pricingId;
                 
-                fetch(`/cart/remove?product_id=${productId}`, {
+                fetch(`/cart/remove?pricing_id=${pricingId}`, {
                     method: 'DELETE'
                 })
                 .then(response => response.json())

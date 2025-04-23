@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS pricing (
 CREATE TABLE IF NOT EXISTS cart (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    product_id INTEGER NOT NULL REFERENCES parts(id) ON DELETE CASCADE,
+    pricing_id INTEGER NOT NULL REFERENCES pricing(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS cart (
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint WHERE conname = 'unique_user_product'
+        SELECT 1 FROM pg_constraint WHERE conname = 'unique_user_pricing'
     ) THEN
-        ALTER TABLE cart ADD CONSTRAINT unique_user_product UNIQUE (user_id, product_id);
+        ALTER TABLE cart ADD CONSTRAINT unique_user_product UNIQUE (user_id, pricing_id);
     END IF;
 END$$;
 

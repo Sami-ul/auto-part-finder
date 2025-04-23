@@ -535,7 +535,7 @@ app.get('/cart', async (req, res) => {
   try {
     // Fetch cart items with product details
     const cartItems = await db.any(
-      'SELECT p.id, p.name, p.description FROM cart c JOIN parts p ON c.product_id = p.id WHERE c.user_id = $1',
+      'SELECT pri.id, p.name, p.description, pri.price, vdr.name as vendor_name FROM cart c JOIN pricing pri ON c.pricing_id = pri.id JOIN parts p ON p.id = pri.part_id JOIN vendors vdr ON pri.vendor_id = vdr.id WHERE c.user_id = $1',
       [user_id]
     );
 
@@ -568,14 +568,19 @@ app.post('/cart/add', (req, res) => {
   }
 
   const user_id = req.session.user.id;
-
-  db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
+  db.oneOrNone('SELECT id FROM pricing WHERE vendor_id = $1 AND part_id = $2', [vendor_id, product_id])
+  .then(pricing => {
+    if (!pricing) {
+      return res.status(500).json({ error: 'Unable to locate price' });
+    }
+    const pricing_id = pricing.id;
+    db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND pricing_id = $2', [user_id, pricing_id])
     .then(existingItem => {
       if (existingItem) {
         return Promise.reject({ status: 400, message: 'Product already in cart' });
       }
 
-      return db.none('INSERT INTO cart (user_id, product_id) VALUES ($1, $2)', [user_id, product_id]);
+      return db.none('INSERT INTO cart (user_id, pricing_id) VALUES ($1, $2)', [user_id, pricing_id]);
     })
     .then(() => {
       res.status(200).json({ success: true });
@@ -588,18 +593,21 @@ app.post('/cart/add', (req, res) => {
       console.error('Error in cart operation:', error);
       res.status(500).json({ error: 'Failed to process cart operation' });
     });
+
+  })
+
 });
 
 app.delete('/cart/remove', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
-  const { product_id } = req.query;
-  if (!product_id) {
-    return res.status(400).json({ error: 'Part ID is required' });
+  const { pricing_id } = req.query;
+  if (!pricing_id) {
+    return res.status(400).json({ error: 'Pricing ID is required' });
   }
   const user_id = req.session.user.id;
-  db.none('DELETE FROM cart WHERE user_id = $1 AND product_id = $2', [user_id, product_id])
+  db.none('DELETE FROM cart WHERE user_id = $1 AND pricing_id = $2', [user_id, pricing_id])
     .then(() => {
       res.status(200).json({ success: true });
     })
@@ -835,7 +843,7 @@ app.get('/checkout', async (req, res) => {
     try {
       // Fetch cart items with product details
       const cartItems = await db.any(
-        'SELECT p.id, p.name, p.description, pri.price FROM cart c JOIN parts p ON c.product_id = p.id JOIN pricing pri ON p.id = pri.part_id WHERE c.user_id = $1 and pri.vendor_id = 1',
+        'SELECT pri.id, p.name, p.description, pri.price, vdr.name as vendor_name FROM cart c JOIN pricing pri ON c.pricing_id = pri.id JOIN parts p ON p.id = pri.part_id JOIN vendors vdr ON pri.vendor_id = vdr.id WHERE c.user_id = $1',
         [user_id]
       );
 
