@@ -76,10 +76,38 @@ body {
     border: none;
 }
 
-/* Discover page no query */
-.discover-noquery {
-    text-align: center;
-    margin-top: 10px;
+.under-search-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.product-filters {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (min-width: 640px) {
+    .product-filters {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+
+
+.product-filters label {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.product-filters input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* search bar for discover page */
