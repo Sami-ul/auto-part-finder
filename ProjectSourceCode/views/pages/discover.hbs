@@ -26,21 +26,6 @@
             <label class="max-input-label" for="max-input">Price Max $</label>
             <input type="number" id="max-input" name="pricemax" class="max-price" value="{{priceMax}}" placeholder="Any">
         </div>
-
-        <div class="vendor-filters">
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-rockauto" name="vendors" value="Rock Auto" checked>
-                <label for="vendor-rockauto">Rock Auto</label>
-            </div>
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-autozone" name="vendors" value="Autozone" checked>
-                <label for="vendor-autozone">Autozone</label>
-            </div>
-             <div class="vendor-filter-item">
-                <input type="checkbox" id="vendor-amazon" name="vendors" value="Amazon" checked>
-                <label for="vendor-amazon">Amazon</label>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -562,7 +547,7 @@
                         </table>
                     </div>
                     <div class="card-body text-end">
-                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}">
+                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}" data-vendor-id="{{this.vendor_id}}">
                         Add to cart
                         </button>
                     </div>
@@ -687,6 +672,7 @@
             addToCartButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const productId = this.dataset.productId;
+                    const vendorId = this.dataset.vendorId;
                     const card = this.closest('.card');
                     const productName = card ? card.querySelector('.card-title').textContent : "Item";
                     
@@ -695,7 +681,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ product_id: productId })
+                        body: JSON.stringify({ product_id: productId, vendor_id: vendorId })
                     })
                     .then(response => {
                         if (response.status === 400) {

@@ -559,9 +559,13 @@ app.post('/cart/add', (req, res) => {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
 
-  const { product_id } = req.body;
+  const { product_id, vendor_id } = req.body;
+ 
   if (!product_id) {
     return res.status(400).json({ error: 'Part ID is required' });
+  }
+  if (!vendor_id) {
+    return res.status(400).json({ error: 'Vendor ID is required' });
   }
 
   const user_id = req.session.user.id;
@@ -586,6 +590,7 @@ app.post('/cart/add', (req, res) => {
       res.status(500).json({ error: 'Failed to process cart operation' });
     });
 });
+
 app.delete('/cart/remove', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ success: false, error: 'Not authenticated' });

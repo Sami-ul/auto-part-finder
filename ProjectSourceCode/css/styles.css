@@ -92,8 +92,7 @@ body {
     overflow-x: auto;
 }
 
-.product-filters,
-.vendor-filters {
+.product-filters {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
@@ -101,8 +100,7 @@ body {
     white-space: nowrap;
 }
 
-.product-filters label,
-.vendor-filters label {
+.product-filters label {
     margin-right: 5px;
     font-size: 0.9em;
     color: #333;
@@ -116,22 +114,6 @@ body {
     font-size: 0.9em;
 }
 
-.vendor-filter-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.vendor-filter-item input[type="checkbox"] {
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.vendor-filter-item label {
-    margin-right: 0;
-    cursor: pointer;
-    user-select: none;
-}
 
 /* search bar for discover page */
 .search-container {
