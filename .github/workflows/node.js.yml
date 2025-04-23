@@ -16,10 +16,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Docker Compose
+    - name: Install Docker and Docker Compose
       run: |
+        # Add Docker's official GPG key
         sudo apt-get update
-        sudo apt-get install -y docker-compose
+        sudo apt-get install -y ca-certificates curl gnupg
+        sudo install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        sudo chmod a+r /etc/apt/keyrings/docker.gpg
+        
+        # Add the repository to Apt sources
+        echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        
+        # Install Docker packages
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        
+        # Verify installation
+        sudo docker --version
+        sudo docker compose version
     
     - name: Set up Docker Compose
       run: |
@@ -33,24 +48,21 @@ jobs:
     - name: Docker compose down and up
       run: |
         cd ProjectSourceCode
-        docker-compose down -v || true # Continue even if this fails (if no containers exist yet)
-        docker-compose up -d
+        sudo docker compose down -v || true
+        sudo docker compose up -d
         
     - name: Check container status
       run: |
         cd ProjectSourceCode
-        docker-compose ps
-        docker-compose logs
+        sudo docker compose ps
+        sudo docker compose logs
         
     - name: Wait for containers to be ready
       run: |
         cd ProjectSourceCode
-        sleep 30  # Give more time for containers to initialize
+        sleep 60  # Give more time for containers to initialize
         
     - name: Run tests in Docker
       run: |
         cd ProjectSourceCode
-        # First try to execute using the testandrun script
-        docker-compose exec -T web npm run testandrun || \
-        # If that fails, try the direct test command
-        docker-compose exec -T web npm test
+        sudo docker compose exec -T web npm test
