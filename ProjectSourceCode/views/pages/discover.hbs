@@ -551,7 +551,7 @@
                         </table>
                     </div>
                     <div class="card-body text-end">
-                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}" data-vendor-id="{{this.vendor_id}}">
+                        <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="{{this.id}}" data-vendor-id="{{this.vendor_id}}" data-pricing-id="{{this.pricing_id}}">
                         Add to cart
                         </button>
                     </div>
@@ -675,8 +675,7 @@
             
             addToCartButtons.forEach(button => {
                 button.addEventListener('click', function () {
-                    const productId = this.dataset.productId;
-                    const vendorId = this.dataset.vendorId;
+                    const pricing_id = this.dataset.pricingId
                     const card = this.closest('.card');
                     const productName = card ? card.querySelector('.card-title').textContent : "Item";
                     
@@ -685,7 +684,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ product_id: productId, vendor_id: vendorId })
+                        body: JSON.stringify({ pricing_id: pricing_id })
                     })
                     .then(response => {
                         if (response.status === 400) {

@@ -162,6 +162,7 @@ app.get('/discover', async (req, res) => {
           SELECT
               p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
               vdr.id AS vendor_id,
+              pr.id AS pricing_id,
               vdr.name AS vendor_name,
               pr.price,
               p.compatible_vehicles,
@@ -199,6 +200,7 @@ app.get('/discover', async (req, res) => {
               p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
               vdr.id AS vendor_id,
               vdr.name AS vendor_name,
+              pr.id AS pricing_id,
               pr.price,
               p.compatible_vehicles,
               p.thumbimg
@@ -234,6 +236,7 @@ app.get('/discover', async (req, res) => {
               p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
               vdr.id AS vendor_id,
               vdr.name AS vendor_name,
+              pr.id AS pricing_id,
               pr.price,
               p.compatible_vehicles,
               p.thumbimg
@@ -259,6 +262,7 @@ app.get('/discover', async (req, res) => {
               p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
               vdr.id AS vendor_id,
               vdr.name AS vendor_name,
+              pr.id AS pricing_id,
               pr.price,
               p.compatible_vehicles,
               p.thumbimg
@@ -389,6 +393,7 @@ app.get('/search', async (req, res) => {
             p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
             vdr.id AS vendor_id,
             vdr.name AS vendor_name,
+            pr.id AS pricing_id,
             pr.price,
             p.compatible_vehicles,
             p.thumbimg
@@ -423,6 +428,7 @@ app.get('/search', async (req, res) => {
             p.id, p.name, p.brand, p.partnumber, p.description, p.pack, p.fits,
             vdr.id AS vendor_id,
             vdr.name AS vendor_name,
+            pr.id AS pricing_id,
             pr.price,
             p.compatible_vehicles,
             p.thumbimg
@@ -558,43 +564,28 @@ app.post('/cart/add', (req, res) => {
     return res.status(401).json({ success: false, error: 'Not authenticated' });
   }
 
-  const { product_id, vendor_id } = req.body;
+  const { pricing_id } = req.body;
  
-  if (!product_id) {
-    return res.status(400).json({ error: 'Part ID is required' });
-  }
-  if (!vendor_id) {
-    return res.status(400).json({ error: 'Vendor ID is required' });
-  }
-
   const user_id = req.session.user.id;
-  db.oneOrNone('SELECT id FROM pricing WHERE vendor_id = $1 AND part_id = $2', [vendor_id, product_id])
-  .then(pricing => {
-    if (!pricing) {
-      return res.status(500).json({ error: 'Unable to locate price' });
+  db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND pricing_id = $2', [user_id, pricing_id])
+  .then(existingItem => {
+    if (existingItem) {
+      return Promise.reject({ status: 400, message: 'Product already in cart' });
     }
-    const pricing_id = pricing.id;
-    db.oneOrNone('SELECT * FROM cart WHERE user_id = $1 AND pricing_id = $2', [user_id, pricing_id])
-    .then(existingItem => {
-      if (existingItem) {
-        return Promise.reject({ status: 400, message: 'Product already in cart' });
-      }
 
-      return db.none('INSERT INTO cart (user_id, pricing_id) VALUES ($1, $2)', [user_id, pricing_id]);
-    })
-    .then(() => {
-      res.status(200).json({ success: true });
-    })
-    .catch(error => {
-      if (error.status) {
-        return res.status(error.status).json({ error: error.message });
-      }
-
-      console.error('Error in cart operation:', error);
-      res.status(500).json({ error: 'Failed to process cart operation' });
-    });
-
+    return db.none('INSERT INTO cart (user_id, pricing_id) VALUES ($1, $2)', [user_id, pricing_id]);
   })
+  .then(() => {
+    res.status(200).json({ success: true });
+  })
+  .catch(error => {
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message });
+    }
+
+    console.error('Error in cart operation:', error);
+    res.status(500).json({ error: 'Failed to process cart operation' });
+  });
 
 });
 
@@ -952,7 +943,7 @@ db.oneOrNone(
       vehicleId = vehicle.id;
       return vehicleId;
     } else {
-      return res.status(500).json({ error: 'Failed to add vehicle', details: error.message });
+      return res.status(500).json({ error: 'Failed to add vehicle', success: false,});
     }
   })
   .then(vehicleId => {
@@ -977,7 +968,7 @@ db.oneOrNone(
       message: error.message,
       detail: error.detail
     });
-    res.status(500).json({ error: 'Failed to add vehicle', details: error.message });
+    res.status(500).json({ error: 'Failed to add vehicle', details: error.message, success: false,});
   });
 });
 
