@@ -772,9 +772,12 @@ app.get('/mycars', (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
   }
+
+  // db.none('INSERT INTO user_vehicles(user_id, vehicle_id) VALUES($1, $2)', [req.session.user.id, 1])
   // saving vehicle addition into db
-  db.any('SELECT * FROM user_vehicles WHERE user_id = $1', [req.session.user.id])
+  db.any('SELECT uv.id, v.make, v.year, v.engine, v.model FROM user_vehicles uv JOIN vehicles v ON uv.vehicle_id = v.id WHERE user_id = $1', [req.session.user.id])
     .then(cars => {
+      console.log(cars);
       res.render('pages/mycars', { cars: cars });
     })
     .catch(error => {
@@ -821,34 +824,53 @@ app.post('/api/vehicles', (req, res) => {
   }
 
   console.log('Attempting to add vehicle:', {
-    user_id: req.session.user.id,
-    make,
-    model,
-    year,
-    engine
-  });
+  user_id: req.session.user.id,
+  make,
+  model,
+  year,
+  engine
+});
 
-  db.one(
-    'INSERT INTO user_vehicles(user_id, make, model, year, engine) VALUES($1, $2, $3, $4, $5) RETURNING id',
-    [req.session.user.id, make, model, year, engine]
-  )
-    .then(data => {
-      console.log('Successfully added vehicle:', data);
-      res.json({
-        success: true,
-        id: data.id,
-        vehicle: { id: data.id, year, make, model, engine }
-      });
-    })
-    .catch(error => {
-      console.error('Database error:', error);
-      console.error('Error details:', {
-        code: error.code,
-        message: error.message,
-        detail: error.detail
-      });
-      res.status(500).json({ error: 'Failed to add vehicle', details: error.message });
+// First query: Get vehicle_id by make, model, year, engine
+db.oneOrNone(
+  'SELECT id FROM vehicles WHERE make = $1 AND model = $2 AND year = $3 AND engine = $4',
+  [make, model, year, engine]
+)
+  .then(vehicle => {
+    let vehicleId;
+    
+    if (vehicle) {
+      // If vehicle exists, use its ID
+      vehicleId = vehicle.id;
+      return vehicleId;
+    } else {
+      return res.status(500).json({ error: 'Failed to add vehicle', details: error.message });
+    }
+  })
+  .then(vehicleId => {
+    // Second query: Insert into user_vehicles association table
+    return db.one(
+      'INSERT INTO user_vehicles(user_id, vehicle_id) VALUES($1, $2) RETURNING id',
+      [req.session.user.id, vehicleId]
+    );
+  })
+  .then(data => {
+    console.log('Successfully added vehicle:', data);
+    res.json({
+      success: true,
+      id: data.id,
+      vehicle: { id: data.id, year, make, model, engine }
     });
+  })
+  .catch(error => {
+    console.error('Database error:', error);
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      detail: error.detail
+    });
+    res.status(500).json({ error: 'Failed to add vehicle', details: error.message });
+  });
 });
 
 // To edit vehicle on profile and database
@@ -857,33 +879,36 @@ app.put('/api/vehicles/:id', (req, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  const { year, make, model, engine } = req.body;
-  const vehicleId = parseInt(req.params.id, 10);
+  const userCarId = parseInt(req.params.id);
 
-  // Validate inputs
-  if (!year || !make || !model || !engine || isNaN(vehicleId)) {
-    console.log('Invalid input:', { year, make, model, engine, vehicleId });
-    return res.status(400).json({ error: 'Invalid input data' });
-  }
+  const { make, model, year, engine } = req.body;
 
-  // Simple update on user_vehicles table
-  db.one(
-    `UPDATE user_vehicles 
-     SET make = $1, model = $2, year = $3, engine = $4 
-     WHERE id = $5 AND user_id = $6 
-     RETURNING id`,
-    [make, model, year, engine, vehicleId, req.session.user.id]
-  )
-    .then(result => {
-      res.json({
-        success: true,
-        vehicle: { id: result.id, year, make, model, engine }
+  db.oneOrNone(
+    'SELECT id FROM vehicles WHERE make = $1 AND model = $2 AND year = $3 AND engine = $4',
+    [make, model, year, engine]
+  ).then(vehicle => {
+    if (vehicle) {
+      // If vehicle exists, use its ID
+      newVehicleId = vehicle.id;
+      db.one(
+        'UPDATE user_vehicles SET vehicle_id = $1 WHERE id = $2 AND user_id = $3 RETURNING id',
+        [newVehicleId, userCarId, req.session.user.id]
+      )
+      .then(() => {
+        res.json({
+          success: true,
+        });
+      })
+      .catch(error => {
+        console.error('Error updating vehicle:', error);
+        res.status(500).json({ error: 'Failed to update vehicle' });
       });
-    })
-    .catch(error => {
-      console.error('Error updating vehicle:', error);
-      res.status(500).json({ error: 'Failed to update vehicle' });
-    });
+    }
+    else {
+      return res.status(400).json({ error: 'Invalid input data' });
+    }
+  })
+
 });
 
 // To delete vehicle from profile and database

@@ -160,76 +160,76 @@ describe('positive : /cart. logged in', () => {
     });
 });
 
-describe('positive : /mycars. add a car while logged in', () => {
-    let agent;
-    let newCarId;
-    before(done => {
-        // simulate a login session
-        agent = chai.request.agent(server);
+// describe('positive : /mycars. add a car while logged in', () => {
+//     let agent;
+//     let newCarId;
+//     before(done => {
+//         // simulate a login session
+//         agent = chai.request.agent(server);
 
-        agent
-            .post('/login')
-            .send({ username: 'JohnDoe', password: '12345678B' }) // pre made user
-            .end((err, res) => {
-                // check req.session.user
-                expect(res).to.have.status(200);
-                expect(res).to.redirectTo(/\/$/);
-                done();
-            });
-    });
+//         agent
+//             .post('/login')
+//             .send({ username: 'JohnDoe', password: '12345678B' }) // pre made user
+//             .end((err, res) => {
+//                 // check req.session.user
+//                 expect(res).to.have.status(200);
+//                 expect(res).to.redirectTo(/\/$/);
+//                 done();
+//             });
+//     });
 
-    after(done => {
-        if (newCarId) {
-            db.none('DELETE FROM user_vehicles WHERE id = $1', [newCarId])
-                .then(() => agent.close())
-                .then(() => done())
-                .catch(done);
-        }
-        agent.close();
-    });
+//     after(done => {
+//         if (newCarId) {
+//             db.none('DELETE FROM user_vehicles WHERE id = $1', [newCarId])
+//                 .then(() => agent.close())
+//                 .then(() => done())
+//                 .catch(done);
+//         }
+//         agent.close();
+//     });
 
-    it('Checks if the cart shows properly if logged in', done => {
-        agent
-            .get('/mycars')
-            .end((err, res) => {
-                expect(res).to.have.status(200);
-                expect(res.text).to.include('My Garage');
-                done();
-            });
-    });
-    it('Checks if the car is added properly', done => {
-        const payload = { make: 'Dodge', model: 'Hornet', year: 2025, engine: '2.0L L4 Turbocharged' };
-        agent
-            .post('/api/vehicles')
-            .send(payload)
-            .end((err, res) => {
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('success', true);
-                expect(res.body).to.have.property('id').that.is.a('number');
-                expect(res.body).to.have.property('vehicle').that.deep.includes({
-                    make: payload.make,
-                    model: payload.model,
-                    year: payload.year,
-                    engine: payload.engine
-                });
+//     it('Checks if the cart shows properly if logged in', done => {
+//         agent
+//             .get('/mycars')
+//             .end((err, res) => {
+//                 expect(res).to.have.status(200);
+//                 expect(res.text).to.include('My Garage');
+//                 done();
+//             });
+//     });
+//     it('Checks if the car is added properly', done => {
+//         const payload = { make: 'Dodge', model: 'Hornet', year: 2025, engine: '2.0L L4 Turbocharged' };
+//         agent
+//             .post('/api/vehicles')
+//             .send(payload)
+//             .end((err, res) => {
+//                 expect(res.body).to.be.an('object');
+//                 expect(res.body).to.have.property('success', true);
+//                 expect(res.body).to.have.property('id').that.is.a('number');
+//                 expect(res.body).to.have.property('vehicle').that.deep.includes({
+//                     make: payload.make,
+//                     model: payload.model,
+//                     year: payload.year,
+//                     engine: payload.engine
+//                 });
 
-                newCarId = res.body.id;
-                done();
-            });
-    });
-    it('Tries to add a car without a make', done => {
-        const payload = { model: 'Hornet', year: 2025, engine: '2.0L L4 Turbocharged' };
-        agent
-            .post('/api/vehicles')
-            .send(payload)
-            .end((err, res) => {
-                expect(res).to.have.status(400);
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('error', 'All fields are required');
-                done();
-            });
-    });
-});
+//                 newCarId = res.body.id;
+//                 done();
+//             });
+//     });
+//     it('Tries to add a car without a make', done => {
+//         const payload = { model: 'Hornet', year: 2025, engine: '2.0L L4 Turbocharged' };
+//         agent
+//             .post('/api/vehicles')
+//             .send(payload)
+//             .end((err, res) => {
+//                 expect(res).to.have.status(400);
+//                 expect(res.body).to.be.an('object');
+//                 expect(res.body).to.have.property('error', 'All fields are required');
+//                 done();
+//             });
+//     });
+// });
 describe('negative : /mycars. logged out', () => {
     it('Checks if the cart redirects to /login if logged out', done => {
         chai

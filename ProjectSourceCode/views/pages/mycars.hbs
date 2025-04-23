@@ -33,6 +33,10 @@
                                 <th scope="col">Engine:</th>
                                 <td class="text-end">{{this.engine}}</td>
                             </tr>
+                            <tr class="text-start" hidden>
+                                <th scope="col">Id: </th>
+                                <td class="text-end">{{this.id}}</td>
+                            </tr>
                         </thead>
                     </table>
                 </div>
@@ -335,8 +339,8 @@
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('delete-car-btn')) {
             cardToDelete = e.target.closest('.col-md-4');
-            const carId = cardToDelete.id.split('-')[1];
-            console.log('Preparing to delete car with ID:', carId);
+            const userCarId = cardToDelete.querySelector('tr:nth-child(5) td').textContent.trim();
+            console.log('Preparing to delete car with ID:', userCarId);
         }
     });
 
@@ -347,9 +351,9 @@
             return;
         }
 
-        const carId = cardToDelete.id.split('-')[1];
+        const userCarId = cardToDelete.querySelector('tr:nth-child(5) td').textContent.trim();
         
-        fetch(`/api/vehicles/${carId}`, {
+        fetch(`/api/vehicles/${userCarId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -424,6 +428,7 @@
             const model = currentEditCard.querySelector('tr:nth-child(2) td').textContent;
             const year = currentEditCard.querySelector('tr:nth-child(3) td').textContent;
             const engine = currentEditCard.querySelector('tr:nth-child(4) td').textContent;
+            const userCarId = currentEditCard.querySelector('tr:nth-child(5) td').textContent;
             
             // Set the make first and trigger its change event
             const editMakeSelect = document.getElementById('editMake');
@@ -454,7 +459,7 @@
             }, 100);
 
             // Store the car ID
-            document.getElementById('editCarId').value = currentEditCard.id.split('-')[1];
+            document.getElementById('editCarId').value = userCarId;
         }
     });
 
@@ -492,22 +497,23 @@
         const make = document.getElementById('editMake').value;
         const model = document.getElementById('editModel').value;
         const engine = document.getElementById('editEngine').value;
+        const userCarId = document.getElementById('editCarId').value;
         // Extract ID from the card's parent div id (format: "car-123")
         const carId = currentEditCard.closest('.col-md-4').id.split('-')[1];
 
-        console.log('Updating vehicle with ID:', carId); // Debug log
+        console.log('Updating vehicle with ID:', userCarId); // Debug log
 
-        if (!year || !make || !model || !engine || !carId) {
+        if (!year || !make || !model || !engine || !userCarId) {
             alert('Please fill in all fields');
             return;
         }
 
-        fetch(`/api/vehicles/${carId}`, {
+        fetch(`/api/vehicles/${userCarId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ year, make, model, engine })
+            body: JSON.stringify({ year, make, model, engine})
         })
         .then(response => response.json())
         .then(data => {
