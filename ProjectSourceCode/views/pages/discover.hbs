@@ -37,6 +37,18 @@
             <h2>Choose a Vehicle</h2>
         </div>
         <div class="modal-body">
+            {{#if userVehicles}}
+                <div class="mb-3">
+                    <label for="savedVehicles" class="form-label">My Vehicles</label>
+                    <select id="savedVehicles" class="form-select mb-3">
+                        <option value="">Select from your garage</option>
+                        {{#each userVehicles}}
+                            <option value="{{this.year}}|{{this.make}}|{{this.model}}|{{this.engine}}">{{this.year}} {{this.model}}, {{this.engine}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            {{/if}}
+            
             <form id="vehicleSelectForm">
                 <div class="mb-3">
                     <select id="make" class="form-select" required>
@@ -402,6 +414,61 @@
             event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
         });
     });
+    const makeSelect = document.getElementById('make');
+    const yearSelect = document.getElementById('year');
+    const modelSelect = document.getElementById('model');
+    const engineSelect = document.getElementById('engine');
+
+    const savedVehiclesSelect = document.getElementById('savedVehicles');
+    if (savedVehiclesSelect) {
+        savedVehiclesSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            
+            if (selectedValue) {
+                try {
+                    const [year, make, model, engine] = selectedValue.split('|');
+        
+                    if (make) {
+                        makeSelect.value = make;
+                        updateDropdowns('year', make);
+                        
+                        setTimeout(() => {
+                            yearSelect.value = year;
+                            yearSelect.disabled = false;
+                            updateDropdowns('model', make, year);
+                            
+                            setTimeout(() => {
+                                modelSelect.value = model;
+                                modelSelect.disabled = false;
+                                updateDropdowns('engine', make, year, model);
+                                
+                                setTimeout(() => {
+                                    engineSelect.value = engine;
+                                    engineSelect.disabled = false;
+                                }, 100);
+                            }, 100);
+                        }, 100);
+                    }
+                } catch (error) {
+                    console.error('Error processing saved vehicle selection:', error);
+                    resetVehicleForm();
+                }
+            } else {
+                resetVehicleForm();
+            }
+        });
+    }
+
+    function resetVehicleForm() {
+
+        makeSelect.value = '';
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        engineSelect.innerHTML = '<option value="">Select Engine</option>';
+        yearSelect.disabled = true;
+        modelSelect.disabled = true;
+        engineSelect.disabled = true;
+    }
     </script>
 
     {{#if error}}

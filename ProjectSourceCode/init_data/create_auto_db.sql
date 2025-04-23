@@ -19,15 +19,24 @@ CREATE TABLE addresses (
     is_default BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE user_vehicles (
+
+-- 3. Create a vehicles table if not exists
+CREATE TABLE IF NOT EXISTS vehicles (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     make VARCHAR(100) NOT NULL,
     model VARCHAR(100) NOT NULL,
     year INTEGER NOT NULL,
-    engine VARCHAR(100) NOT NULL
+    engine VARCHAR(100) NOT NULL,
+    UNIQUE(make, model, year, engine)
 );
 
+CREATE TABLE user_vehicles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE
+);
+
+-- 4. Create parts table if not exists
 CREATE TABLE IF NOT EXISTS parts (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -41,6 +50,30 @@ CREATE TABLE IF NOT EXISTS parts (
     category VARCHAR(100),
     compatible_vehicles JSON,
     UNIQUE(partnumber)
+);
+
+-- 5. Create parts_compatibility association table
+CREATE TABLE IF NOT EXISTS parts_compatibility (
+    part_id INTEGER REFERENCES parts(id),
+    vehicle_id INTEGER REFERENCES vehicles(id),
+    PRIMARY KEY (part_id, vehicle_id)
+);
+
+-- 7. Create vendors table if not exists
+CREATE TABLE IF NOT EXISTS vendors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    website VARCHAR(255),
+    UNIQUE(name)
+);
+
+-- 8. Create pricing table if not exists
+CREATE TABLE IF NOT EXISTS pricing (
+    id SERIAL PRIMARY KEY,
+    part_id INTEGER REFERENCES parts(id),
+    vendor_id INTEGER REFERENCES vendors(id),
+    price DECIMAL(10, 2) NOT NULL,
+    UNIQUE(part_id, vendor_id)
 );
 
 CREATE TABLE IF NOT EXISTS cart (
