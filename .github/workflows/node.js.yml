@@ -26,6 +26,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: projectsourcecode/package-lock.json  # Add this line to point to the correct package-lock.json
     - run: npm ci
+      working-directory: ./projectsourcecode
     - run: npm run build --if-present
+      working-directory: ./projectsourcecode
     - run: npm test
+      working-directory: ./projectsourcecode
