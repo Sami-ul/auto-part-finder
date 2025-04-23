@@ -299,7 +299,7 @@ app.get('/search', async (req, res) => {
   try {
     if (priceMin > 0) { priceFilter = priceFilter + ` AND pr.price >= ${priceMin}`; }
     if (priceMax > 0) { priceFilter = priceFilter + ` AND pr.price <= ${priceMax}`; }
-    if (priceFilter) { orderedBy = ` ORDER BY pr.price`}
+    if (priceFilter) { orderedBy = ` ORDER BY p.id, pr.price`}
     if (vehicle) {
       countSql = `
         SELECT COUNT(DISTINCT p.id) AS total_count
