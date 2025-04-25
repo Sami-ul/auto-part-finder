@@ -31,7 +31,7 @@ services:
     volumes:
       - ./:/home/node/app
     # Use a CI-specific command for GitHub Actions
-    command: 'npm start'
+    command: 'npm run testandrun'
     
 volumes:
   auto-parts-finder:

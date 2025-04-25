@@ -685,8 +685,6 @@ app.get('/account', async (req, res) => {
     });
   }
 
-  console.log(addresses)
-
   return res.render('pages/account', {
     def_address: def_address,
     list_addresses: list_addresses
@@ -841,7 +839,6 @@ app.get('/checkout', async (req, res) => {
         [user_id]
       );
 
-      console.log(cartItems);
       let cartSum = 0;
       cartItems.forEach(item => {
         cartSum += parseFloat(item.price);
@@ -879,7 +876,6 @@ app.get('/mycars', (req, res) => {
   // saving vehicle addition into db
   db.any('SELECT uv.id, v.make, v.year, v.engine, v.model FROM user_vehicles uv JOIN vehicles v ON uv.vehicle_id = v.id WHERE user_id = $1', [req.session.user.id])
     .then(cars => {
-      console.log(cars);
       res.render('pages/mycars', { cars: cars });
     })
     .catch(error => {
@@ -1051,7 +1047,6 @@ app.get('/address', async (req, res) => {
     });
   }
 
-  console.log(addresses)
 
   let needsDefault = false;
 
@@ -1063,8 +1058,6 @@ app.get('/address', async (req, res) => {
 });
 
 app.post('/address', async (req, res) => {
-  console.log("POSTED ADRESS BODY", req.body)
-
   const { street_address, apartment, city, state, postal_code, country, default_address, default_address_visible } = req.body;
   const user_id = req.session.user.id;
   let default_addr;

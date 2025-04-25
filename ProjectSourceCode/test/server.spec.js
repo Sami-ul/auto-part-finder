@@ -344,10 +344,13 @@ describe('Feature 3 UAT: Checkout Process', () => {
                     .query({ query: 'filter' })
                     .end((err, res) => {
                         const m = res.text.match(/data-product-id="(\d+)"/);
+                        const n = res.text.match(/data-pricing-id="(\d+)"/);
                         partId = m[1];
+                        pricingId = n[1];
                         agent
                             .post('/cart/add')
                             .send({ product_id: partId })
+                            .send({ pricing_id: pricingId })
                             .end(() => done());
                     });
             });
