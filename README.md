@@ -5,6 +5,82 @@ Pocket Mechanics' Auto Part Finder is a feature rich, easy-to-use website for al
 ## Contributors
 Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 
+## Project Structure
+```
+├── MilestoneSubmissions
+│   ├── ProjectReport_1.pdf
+│   ├── UAT_Test_Plan.md
+│   └── Week_1_Deliverables.pdf
+├── ProjectSourceCode
+│   ├── css
+│   │   └── styles.css
+│   ├── docker-compose.yaml
+│   ├── img
+│   │   └── maintenance.png
+│   ├── index.js
+│   ├── init_data
+│   │   ├── create_auto_db.sql
+│   │   ├── data
+│   │   │   ├── cleanlinks.py
+│   │   │   ├── parts_with_compatibility.csv
+│   │   │   ├── parts_with_compatibility_full_set.csv
+│   │   │   ├── test.py
+│   │   │   └── vehicle_data.csv
+│   │   └── populate_db.sql
+│   ├── js
+│   │   ├── address_suggestions.js
+│   │   └── get_parts.js
+│   ├── list.sh
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── schemas
+│   │   └── database_schema.md
+│   ├── scrape_project
+│   │   ├── AILogs
+│   │   │   ├── claude_getcatalog.txt
+│   │   │   ├── gemini_operationfoktop.txt
+│   │   │   ├── gpt_getproductdata.txt
+│   │   │   └── gpt_getvehicledata.txt
+│   │   ├── README.txt
+│   │   ├── README.txt:Zone.Identifier
+│   │   ├── get_catalog.js
+│   │   ├── get_parts.js
+│   │   ├── get_vehicle_data_final.js
+│   │   ├── operationfoktopt.js
+│   │   ├── parts_scraper.js
+│   │   ├── scraper_progress.json
+│   │   ├── testdrive.js
+│   │   └── vehicle_data.csv
+│   ├── test
+│   │   └── server.spec.js
+│   └── views
+│       ├── layouts
+│       │   └── main.hbs
+│       ├── pages
+│       │   ├── account.hbs
+│       │   ├── address.hbs
+│       │   ├── cart.hbs
+│       │   ├── checkout.hbs
+│       │   ├── discover.hbs
+│       │   ├── login.hbs
+│       │   ├── logout.hbs
+│       │   ├── mycars.hbs
+│       │   ├── register.hbs
+│       │   └── success.hbs
+│       └── partials
+│           ├── footer.hbs
+│           ├── head.hbs
+│           ├── message.hbs
+│           ├── nav.hbs
+│           └── title.hbs
+├── README.md
+└── TeamMeetingLogs
+    ├── 3-19-2025.md
+    ├── 4-02-2025.md
+    ├── 4-09-2025.md
+    └── 4-16-2025.md
+```
+
 ## Technology Stack
 ### Hosting
 - Render
