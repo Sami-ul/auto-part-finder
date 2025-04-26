@@ -341,7 +341,6 @@ body:has(.login-container) {
 }
 
 
-
 .container .card {
     box-shadow: 0 2px 10px rgba(92, 92, 92, 0.5);
 }
@@ -622,7 +621,25 @@ body:has(.login-container) .footer p {
     background-color: #e65c00;
 }
 /* Address */
+.white-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Ensure map visibility */
+#map {
+    height: 180px;
+    margin-bottom: 2em;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Keep existing address result styling */
 .addressResultElement {
+    background-color: white;
     padding: 0.75rem;
     margin-bottom: 0.25rem;
     border: 1px solid #ced4da;
@@ -644,11 +661,6 @@ body:has(.login-container) .footer p {
     background-color: var(--main-bg);
     border-color: var(--brand-orange);
     border-left: 3px solid var(--brand-orange);
-}
-
-#map {
-    height: 180px;
-    margin-bottom: 2em;
 }
 
 .choose-store-btn {
@@ -691,30 +703,35 @@ body:has(.login-container) .footer p {
     box-shadow: 0 2px 10px var(--box-shadow);
   }
   
+  #itemAddedModal .modal-footer {
+    display: flex;
+    justify-content: flex-end; 
+    gap: 5px; 
+    padding: 15px 0 0 0;
+    border-top: none;
+  }
+  
+  #itemAddedModal .modal-footer button {
+    flex: 0 0 auto;
+    min-width: 100px;
+  }
+  
   #itemAddedModal .btn-secondary {
-    background-color: #b6a8aa;
+    background-color: #6c757d;
     border: none;
-    display: block;
+  }
+  
+  #itemAddedModal .btn-secondary:hover {
+    background-color: #5c636a;
   }
   
   #itemAddedModal .btn-success {
     background-color: var(--brand-orange);
     border: none;
-    display: block;
   }
   
   #itemAddedModal .btn-success:hover {
     background-color: #e65c00;
-  }
-  
-  #itemAddedModal .modal-footer {
-    display: flex;
-    justify-content: space-around;
-    /* gap: 0.3em; */
-  }
-  
-  #itemAddedModal .modal-footer button {
-    flex: 1;
   }
 
 .card-footer {
@@ -781,4 +798,143 @@ body:has(.login-container) .footer p {
     font-weight: 600;
     color: var(--dark-blue);
     margin-bottom: 0;
+}
+
+/* Account and Cart page shared styling */
+.container.mt-5 {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.container.mt-5 .card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+}
+
+.container.mt-5 .card-body {
+    padding: 2rem;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Empty cart message styling */
+.empty-cart-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+}
+
+.container.mt-5 h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+/* Specific cart page styling */
+.container.mt-5 .card-body {
+    padding: 2rem;
+    min-height: 500px;
+    position: relative;
+}
+
+/* Cart title alignment */
+.container.mt-5 .card-body h2:first-child {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+/* Empty cart message specific styling */
+.empty-cart-message {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+}
+
+/* Keep the existing cart items table styling */
+.container.mt-5 .table {
+    margin-top: 1rem;
+}
+
+/* Checkout page styling */
+.checkout-form-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Ensure text is visible */
+.checkout-form-container h3,
+.checkout-form-container label,
+.checkout-form-container .text-muted {
+    color: #333;
+}
+
+/* Left column container for checkout page */
+.checkout-left-column {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Cart summary container on checkout page */
+.col-4.py-4.mb-5 {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+    padding: 2rem;
+    height: fit-content; /* Make container fit content */
+    align-self: flex-start; /* Prevent stretching to match left column */
+}
+
+/* Keep existing cart items styling */
+.list-group-item {
+    border: none;
+    padding: 1rem 0;
+}
+
+.list-group-item:not(:last-child) {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Keep existing section title styling */
+.checkout-section-title {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+}
+
+/* Apply to all section headings in checkout */
+.checkout-page h3,
+.checkout-page h5 {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+}
+
+/* Keep existing form styling */
+.form-group label {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
 }

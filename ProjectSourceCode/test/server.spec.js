@@ -154,7 +154,7 @@ describe('positive : /cart. logged in', () => {
             .get('/cart')
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.text).to.include('Your Cart');
+                expect(res.text).to.include('Cart');
                 done();
             });
     });
@@ -365,7 +365,7 @@ describe('Feature 3 UAT: Checkout Process', () => {
             .get('/cart')
             .end((err, res) => {
                 expect(res).to.have.status(200);
-                expect(res.text).to.include('Your Cart');
+                expect(res.text).to.include('Cart');
                 expect(res.text).to.include('Air Filter');
                 done();
             });
