@@ -1,18 +1,20 @@
-<main class="py-4 mx-5">
-    <div class="form-signin w-50 m-auto mt-5">
-        {{> message}}
-        <form action="/login" method="POST">
-            <h3>Please sign in</h3>
-            <div class="form-floating mb-2">
-                <input name="username" type="text" class="form-control" id="floatUser" placeholder="username">
-                <label for="floatUser">Username</label>
-            </div>
-            <div class="form-floating">
-                <input name="password" type="password" class="form-control" id="floatPass" placeholder="password">
-                <label for="floatPass">Password</label>
-            </div>
-            <button class="btn btn-primary py-2 my-4" type="submit" name="login">Login</button>
-            <p>Don't have an account? Please <a href="/register">register</a> an account.</p>
-        </form>
+<main>
+    <div class="login-container">
+        <div class="form-signin">
+            {{> message}}
+            <form action="/login" method="POST">
+                <h3>Please sign in</h3>
+                <div class="form-floating mb-2">
+                    <input name="username" type="text" class="form-control" id="floatUser" placeholder="username">
+                    <label for="floatUser">Username</label>
+                </div>
+                <div class="form-floating">
+                    <input name="password" type="password" class="form-control" id="floatPass" placeholder="password">
+                    <label for="floatPass">Password</label>
+                </div>
+                <button class="btn btn-primary py-2 my-4" type="submit" name="login">Login</button>
+                <p>Don't have an account? Please <a href="/register">register</a> an account.</p>
+            </form>
+        </div>
     </div>
 </main>

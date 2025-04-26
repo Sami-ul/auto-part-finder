@@ -463,16 +463,84 @@ body {
     color: white;
 }
 
-/* Login */
-
-.form-signin
-{
-    color: #0c1c43;
+/* Login/Register page container */
+.login-container {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    background-image: url('../images/tires.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.form-signin .form-floating
-{
-    color: #919090;
+/* Form styling */
+.form-signin {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px;
+    color: var(--dark-blue);
+}
+
+.form-signin h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--dark-blue);
+    font-weight: 600;
+}
+
+.form-signin .form-floating {
+    margin-bottom: 1rem;
+    color: var(--input-text-color);
+}
+
+.form-signin .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.form-signin p {
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+.form-signin a {
+    color: var(--brand-orange);
+    text-decoration: none;
+}
+
+.form-signin a:hover {
+    color: var(--dark-blue);
+    text-decoration: underline;
+}
+
+/* Footer styling for login/register pages */
+.login-container .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    z-index: 1000;
+}
+
+.login-container .footer p {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    margin: 0;
 }
 
 /* My Car Modals */
