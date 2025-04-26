@@ -61,5 +61,10 @@ Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 - run: docker compose up
     - Automatically runs tests on compose.
 
+## Running Tests
+- `docker compose run --rm web npm test` 
+    - This command will simply run the tests from within the docker container.
+- 
+
 ## Deployed Application:
 `https://auto-part-finder.onrender.com/register`

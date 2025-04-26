@@ -27,7 +27,7 @@
         "prestart": "npm install",
         "start": "nodemon index.js",
         "test": "mocha --exit",
-        "testandrun": "npm run prestart && npm test",
+        "testandrun": "npm run prestart && npm test && npm start",
         "test:ci": "npm install && npm test"
     }
 }
