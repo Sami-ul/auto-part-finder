@@ -2,7 +2,7 @@
 ## Description
 Pocket Mechanics' Auto Part Finder is a feature rich, easy-to-use website for all your auto part needs. By creating an account on our website, you have the ability to save your vehicles in your garage and search for parts that are guaranteed to be compatible with your vehicle. Our website allows you to save addresses of local stores as well as your home address, making it seamless to get parts shipped and delivered to you.
 
-## Contributers
+## Contributors
 Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 
 ## Technology Stack
@@ -64,6 +64,7 @@ Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 ## Running Tests
 - `docker compose run --rm web npm test` 
     - This command will simply run the tests from within the docker container.
+- Additionally, using Github Actions, tests are automatically run on every push to the remote. This makes the development life cycle easier as we can catch software regressions early.
 
 ## Deployed Application:
 `https://auto-part-finder.onrender.com/register`
