@@ -28,7 +28,10 @@ Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
     - Overpass for finding local shops
 - Web scraped Rock Auto to populate database
 
-## Project Requirements
+## Project Requirements (Prerequisites to run the application)
+### User
+- To use the app as a user, use any web browser and navigate to [https://auto-part-finder.onrender.com/register](https://auto-part-finder.onrender.com/register) and make an account.
+### Development Requirements
 - axios: ^1.8.4
 - bcryptjs: ^2.4.0
 - body-parser: ^1.20.3
@@ -59,6 +62,7 @@ Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
     - STRIPE_SECRET_KEY
     - STRIPE_PUBLISHABLE_KEY
 - run: docker compose up
+    - Sets up database, installs dependencies from `package.json`, runs tests to ensure everything is okay, runs the application.
     - Automatically runs tests on compose.
 
 ## Running Tests
@@ -67,4 +71,4 @@ Sami-ul Ahmed, Nanda Min-Fink, Sabir Saklayen, Eva Pavlik, Rey Stone
 - Additionally, using Github Actions, tests are automatically run on every push to the remote. This makes the development life cycle easier as we can catch software regressions early.
 
 ## Deployed Application:
-`https://auto-part-finder.onrender.com/register`
+[https://auto-part-finder.onrender.com/register](https://auto-part-finder.onrender.com/register)
