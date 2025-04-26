@@ -51,19 +51,36 @@
     transition: 0.3s ease;
 }
 
-/* body contains search bar with choose vehicle and search button */
+/* Base body styling */
 body {
     font-family: var(--main-font);
     margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100%;
-    background-color: #f5f5f5;
     padding-top: 70px;
+    min-height: 100vh;
+    background: url('../images/tireclose.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* This prevents the background from scrolling */
     -webkit-font-smoothing: antialiased;  
-    -moz-osx-font-smoothing: grayscale;  
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override background for login/register pages */
+body:has(.login-container) {
+    background: none;
+}
+
+/* Ensure cards have proper background and are visible over image */
+.card {
+    background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+    backdrop-filter: blur(5px); /* Slight blur effect behind the card */
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    border: none; /* Removed the border */
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2) !important; /* Enhanced shadow for better contrast */
 }
 
 .btn-primary{
@@ -323,15 +340,6 @@ body {
     display: block;
 }
 
-/* Car modals */
-.card {
-    height:600px;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-    border: 1px solid #0c1c43;
-    box-shadow: 0 2px 10px rgba(92, 92, 92, 0.5) !important; /* Using direct color value and !important */
-}
 
 
 .container .card {
@@ -528,7 +536,16 @@ body {
     text-decoration: underline;
 }
 
-/* Footer styling ONLY for login/register pages */
+/* Footer styling */
+.footer {
+    color: rgba(255, 255, 255, 0.8) !important; /* Lighter, semi-transparent white */
+}
+
+.footer p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Keep the existing special case for login/register pages */
 body:has(.login-container) .footer {
     position: fixed !important;
     bottom: 0 !important;
@@ -719,4 +736,49 @@ body:has(.login-container) .footer p {
 
 .card-footer .btn {
     white-space: nowrap;
+}
+
+/* Add styling for My Cars page text containers */
+.mb-3.d-flex {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 2rem !important;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    min-height: 80px; /* Ensures consistent height with other headers */
+}
+
+/* Style the empty garage message container */
+.text-center.py-5 {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px !important;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 600px;
+    box-shadow: 0 4px 15px rgba(12, 28, 67, 0.2);
+}
+
+/* Ensure text is visible on dark backgrounds */
+.mb-3.d-flex h1,
+.text-center.py-5 h2,
+.text-center.py-5 p,
+.text-center.py-5 i {
+    color: var(--dark-blue);
+}
+
+/* Adjust the icon in empty state */
+.text-center.py-5 .bi-car-front {
+    color: var(--brand-orange);
+}
+
+/* Standardize main page headings */
+.card-body h2,
+.mb-3.d-flex h2 {  /* This catches the My Garage heading */
+    font-family: var(--main-font);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--dark-blue);
+    margin-bottom: 0;
 }
